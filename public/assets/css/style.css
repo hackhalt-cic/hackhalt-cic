@@ -1133,6 +1133,7 @@ main::before {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  text-align: center;
   gap: 0.5rem;
   user-select: none;
   outline: 2px solid transparent;
@@ -1265,6 +1266,7 @@ main::before {
   border-radius: var(--radius-xl);
   padding: 1.8rem 1.7rem;
   border: 1px solid var(--color-border-subtle);
+  border-top: none;
   box-shadow: var(--shadow-soft);
   transition: all var(--transition-default);
 }
@@ -1582,6 +1584,11 @@ main::before {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+}
+
+.event-card .btn {
+  align-self: center;
+  margin-top: auto;
 }
 
 .event-media img {
@@ -3747,6 +3754,7 @@ a:focus-visible {
   min-height: 280px;
   height: 100%; /* ensure cards stretch to fill grid cell */
   padding: 1.6rem; /* consistent internal padding to keep card heights even */
+  justify-content: space-between;
 }
 
 /* Ensure icon circle sits consistently at top */
@@ -3764,6 +3772,10 @@ a:focus-visible {
 
 .expertise-card .expertise-body {
   text-align: left;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 0.75rem;
 }
 
 .expertise-card .expertise-body h3 {
@@ -3776,6 +3788,14 @@ a:focus-visible {
   color: var(--color-text-muted);
   font-size: 0.95rem;
   line-height: 1.5;
+}
+
+.expertise-body .btn {
+  align-self: stretch;
+  margin-top: auto;
+  width: 100%;
+  text-align: center;
+  padding: 0.75rem 1rem;
 }
 
 .expertise-media {
@@ -4255,6 +4275,7 @@ a:focus-visible {
   grid-template-columns: repeat(3, 1fr);
   gap: 2rem;
   margin-top: 2.5rem;
+  align-items: stretch;
 }
 
 .tier-card {
@@ -4268,6 +4289,10 @@ a:focus-visible {
   border: 1px solid var(--color-border-subtle);
   transition: all var(--transition-default);
   position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  height: 100%;
 }
 
 .tier-card:hover {
@@ -4328,6 +4353,7 @@ a:focus-visible {
   border-top: 1px solid var(--color-border-subtle);
   border-bottom: 1px solid var(--color-border-subtle);
   padding: 1.5rem 0;
+  flex: 1;
 }
 
 .tier-features li {
@@ -4353,7 +4379,10 @@ a:focus-visible {
 }
 
 .tier-card .btn {
-  margin-top: 1.5rem;
+  margin-top: auto;
+  width: 100%;
+  padding: 1rem;
+  text-align: center;
 }
 
 /* ===== INITIATIVES GRID ===== */
@@ -4518,6 +4547,9 @@ a:focus-visible {
   transition: all var(--transition-default);
   position: relative;
   padding-top: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .involvement-card:hover {
@@ -4547,7 +4579,7 @@ a:focus-visible {
   color: var(--color-primary);
   text-decoration: none;
   font-weight: 600;
-  margin-top: 1rem;
+  margin-top: auto;
   transition: all var(--transition-default);
 }
 

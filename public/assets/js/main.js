@@ -62,21 +62,38 @@ if (backToTopBtn) {
   });
 }
 
-// Scroll reveal using IntersectionObserver
+// Scroll reveal using IntersectionObserver with improved performance
 const revealEls = document.querySelectorAll(".reveal");
 const observer = new IntersectionObserver(
   (entries) => {
     entries.forEach((entry) => {
       if (entry.isIntersecting) {
-        entry.target.classList.add("visible");
+        // Use requestAnimationFrame for smoother animation start
+        requestAnimationFrame(() => {
+          entry.target.classList.add("visible");
+        });
         observer.unobserve(entry.target);
       }
     });
   },
-  { threshold: 0.15 }
+  { threshold: 0.1, rootMargin: "50px" }
 );
 
 revealEls.forEach((el) => observer.observe(el));
+
+// Smooth scroll performance optimization
+let ticking = false;
+function updateScroll() {
+  // Add any scroll-dependent animations here if needed
+  ticking = false;
+}
+
+document.addEventListener("scroll", () => {
+  if (!ticking) {
+    window.requestAnimationFrame(updateScroll);
+    ticking = true;
+  }
+}, { passive: true });
 
 // Mobile nav toggle
 if (navToggle && navLinks) {

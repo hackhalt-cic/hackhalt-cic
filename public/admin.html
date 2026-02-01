@@ -538,7 +538,18 @@
         console.error('Error deleting submission:', error);
       }
     }
-
+    async function deleteAmbassadorSubmission(id) {
+      if (!confirm('Are you sure you want to delete this application?')) return;
+      
+      try {
+        const response = await fetch(`/api/ambassadors/${id}`, { method: 'DELETE' });
+        if (response.ok) {
+          loadSubmissions();
+        }
+      } catch (error) {
+        console.error('Error deleting application:', error);
+      }
+    }
     // Tab switching
     document.querySelectorAll('.tab-btn').forEach(btn => {
       btn.addEventListener('click', () => {

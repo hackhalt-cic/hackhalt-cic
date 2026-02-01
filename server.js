@@ -7,6 +7,7 @@ const ContactSubmission = require("./models/ContactSubmission");
 const JoinSubmission = require("./models/JoinSubmission");
 const BlogSubmission = require("./models/BlogSubmission");
 const BookingSession = require("./models/BookingSession");
+const AmbassadorSubmission = require("./models/AmbassadorSubmission");
 const Admin = require("./models/Admin");
 const authMiddleware = require("./middleware/authMiddleware");
 
@@ -678,11 +679,12 @@ app.delete("/api/submissions/bookings/:id", async (req, res) => {
 // GET /api/submissions - Get all submissions (for admin/testing)
 app.get("/api/submissions", async (req, res) => {
   try {
-    const [contactSubmissions, joinSubmissions, blogSubmissions, bookingSubmissions] = await Promise.all([
+    const [contactSubmissions, joinSubmissions, blogSubmissions, bookingSubmissions, ambassadorSubmissions] = await Promise.all([
       ContactSubmission.find().sort({ createdAt: -1 }),
       JoinSubmission.find().sort({ createdAt: -1 }),
       BlogSubmission.find().sort({ createdAt: -1 }),
-      BookingSession.find().sort({ createdAt: -1 })
+      BookingSession.find().sort({ createdAt: -1 }),
+      AmbassadorSubmission.find().sort({ createdAt: -1 })
     ]);
 
     res.json({
@@ -691,12 +693,14 @@ app.get("/api/submissions", async (req, res) => {
         contact: contactSubmissions.length,
         join: joinSubmissions.length,
         blogs: blogSubmissions.length,
-        bookings: bookingSubmissions.length
+        bookings: bookingSubmissions.length,
+        ambassadors: ambassadorSubmissions.length
       },
       submissions: {
         contact: contactSubmissions,
         join: joinSubmissions,
-        bookings: bookingSubmissions
+        bookings: bookingSubmissions,
+        ambassadors: ambassadorSubmissions
       }
     });
   } catch (error) {
@@ -839,6 +843,92 @@ app.delete("/api/submissions/join/:id", async (req, res) => {
     res.status(500).json({
       success: false,
       error: "Failed to delete submission"
+    });
+  }
+});
+
+// POST /api/ambassadors - Submit ambassador application
+app.post("/api/ambassadors", async (req, res) => {
+  try {
+    const { firstName, lastName, email, phone, region, expertise, bio, timestamp } = req.body;
+
+    // Validation
+    if (!firstName || !lastName || !email || !phone || !region || !expertise) {
+      return res.status(400).json({
+        success: false,
+        error: "Missing required fields"
+      });
+    }
+
+    // Check if email already exists
+    const existingApplication = await AmbassadorSubmission.findOne({ email });
+    if (existingApplication) {
+      return res.status(400).json({
+        success: false,
+        error: "An application with this email already exists"
+      });
+    }
+
+    // Create new ambassador submission
+    const ambassadorSubmission = new AmbassadorSubmission({
+      firstName,
+      lastName,
+      email,
+      phone,
+      region,
+      expertise,
+      bio: bio || "",
+      timestamp: timestamp || new Date()
+    });
+
+    await ambassadorSubmission.save();
+
+    console.log("✅ Ambassador application submitted:", email);
+    res.json({
+      success: true,
+      message: "Application submitted successfully",
+      submission: ambassadorSubmission
+    });
+  } catch (error) {
+    console.error("Ambassador submission error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Failed to submit application"
+    });
+  }
+});
+
+// GET /api/ambassadors - Get all ambassador applications
+app.get("/api/ambassadors", async (req, res) => {
+  try {
+    const limit = req.query.limit ? parseInt(req.query.limit) : 100;
+    const submissions = await AmbassadorSubmission.find()
+      .sort({ createdAt: -1 })
+      .limit(limit);
+    res.json({
+      success: true,
+      submissions: submissions
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: "Failed to fetch ambassador applications"
+    });
+  }
+});
+
+// DELETE /api/ambassadors/:id - Delete ambassador application
+app.delete("/api/ambassadors/:id", async (req, res) => {
+  try {
+    await AmbassadorSubmission.findByIdAndDelete(req.params.id);
+    res.json({
+      success: true,
+      message: "Application deleted"
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: "Failed to delete application"
     });
   }
 });

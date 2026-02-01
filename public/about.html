@@ -604,6 +604,59 @@
           <a href="/contact.html" class="btn btn-primary" style="margin-top: 1.5rem;">Express Interest</a>
         </div>
       </div>
+
+      <!-- Member Addition Form -->
+      <div style="margin-top: 4rem;">
+        <h3 style="text-align: center; margin-bottom: 2rem; color: var(--color-primary); font-size: 1.5rem;">Join Our Ambassador Network</h3>
+        <form id="memberForm" class="member-form reveal" style="max-width: 600px; margin: 0 auto; padding: 2rem; background: var(--color-bg-elevated); border: 2px solid var(--color-border-subtle); border-radius: var(--radius-lg); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.08);">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+            <div>
+              <label for="firstName" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-text-main);">First Name *</label>
+              <input type="text" id="firstName" name="firstName" required placeholder="Enter first name" style="width: 100%; padding: 0.75rem; border: 1px solid var(--color-border-subtle); border-radius: 0.5rem; background: var(--color-bg-card); color: var(--color-text-main); font-size: 0.95rem;" />
+            </div>
+            <div>
+              <label for="lastName" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-text-main);">Last Name *</label>
+              <input type="text" id="lastName" name="lastName" required placeholder="Enter last name" style="width: 100%; padding: 0.75rem; border: 1px solid var(--color-border-subtle); border-radius: 0.5rem; background: var(--color-bg-card); color: var(--color-text-main); font-size: 0.95rem;" />
+            </div>
+          </div>
+
+          <div style="margin-bottom: 1.5rem;">
+            <label for="email" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-text-main);">Email *</label>
+            <input type="email" id="email" name="email" required placeholder="Enter email address" style="width: 100%; padding: 0.75rem; border: 1px solid var(--color-border-subtle); border-radius: 0.5rem; background: var(--color-bg-card); color: var(--color-text-main); font-size: 0.95rem;" />
+          </div>
+
+          <div style="margin-bottom: 1.5rem;">
+            <label for="phone" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-text-main);">Phone Number *</label>
+            <input type="tel" id="phone" name="phone" required placeholder="Enter phone number" style="width: 100%; padding: 0.75rem; border: 1px solid var(--color-border-subtle); border-radius: 0.5rem; background: var(--color-bg-card); color: var(--color-text-main); font-size: 0.95rem;" />
+          </div>
+
+          <div style="margin-bottom: 1.5rem;">
+            <label for="region" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-text-main);">Region/State *</label>
+            <select id="region" name="region" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--color-border-subtle); border-radius: 0.5rem; background: var(--color-bg-card); color: var(--color-text-main); font-size: 0.95rem;">
+              <option value="">Select a region</option>
+              <option value="North">North India</option>
+              <option value="South">South India</option>
+              <option value="East">East India</option>
+              <option value="West">West India</option>
+              <option value="Central">Central India</option>
+              <option value="Northeast">Northeast India</option>
+            </select>
+          </div>
+
+          <div style="margin-bottom: 1.5rem;">
+            <label for="expertise" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-text-main);">Area of Expertise *</label>
+            <textarea id="expertise" name="expertise" required placeholder="Describe your expertise and experience" style="width: 100%; padding: 0.75rem; border: 1px solid var(--color-border-subtle); border-radius: 0.5rem; background: var(--color-bg-card); color: var(--color-text-main); font-size: 0.95rem; min-height: 100px; resize: vertical;"></textarea>
+          </div>
+
+          <div style="margin-bottom: 1.5rem;">
+            <label for="bio" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--color-text-main);">Short Bio (Optional)</label>
+            <textarea id="bio" name="bio" placeholder="Tell us about yourself" style="width: 100%; padding: 0.75rem; border: 1px solid var(--color-border-subtle); border-radius: 0.5rem; background: var(--color-bg-card); color: var(--color-text-main); font-size: 0.95rem; min-height: 80px; resize: vertical;"></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-primary" style="width: 100%; padding: 1rem; font-size: 1rem; font-weight: 600;">Submit Application</button>
+          <p style="text-align: center; color: var(--color-text-muted); font-size: 0.85rem; margin-top: 1rem;">We'll review your application and get back to you soon!</p>
+        </form>
+      </div>
     </div>
   </section>
 

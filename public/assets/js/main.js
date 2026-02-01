@@ -317,3 +317,65 @@ if (document.fonts) {
     document.body.classList.add('fonts-loaded');
   });
 }
+// --- Regional Ambassador Form Handling --------------------------------
+const memberForm = document.getElementById("memberForm");
+
+if (memberForm) {
+  memberForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    
+    // Collect form data
+    const formData = {
+      firstName: document.getElementById("firstName").value,
+      lastName: document.getElementById("lastName").value,
+      email: document.getElementById("email").value,
+      phone: document.getElementById("phone").value,
+      region: document.getElementById("region").value,
+      expertise: document.getElementById("expertise").value,
+      bio: document.getElementById("bio").value || "",
+      timestamp: new Date().toISOString()
+    };
+
+    try {
+      // Submit to backend API
+      const response = await fetch("/api/ambassadors", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(formData)
+      });
+
+      if (response.ok) {
+        // Show success message
+        const successMsg = document.createElement("div");
+        successMsg.className = "notification success";
+        successMsg.textContent = "✓ Application submitted successfully! We'll review your application and contact you soon.";
+        document.body.appendChild(successMsg);
+
+        // Reset form
+        memberForm.reset();
+
+        // Auto remove notification
+        setTimeout(() => {
+          successMsg.remove();
+        }, 5000);
+      } else {
+        throw new Error("Failed to submit application");
+      }
+    } catch (error) {
+      console.error("Form submission error:", error);
+      
+      // Show error message
+      const errorMsg = document.createElement("div");
+      errorMsg.className = "notification error";
+      errorMsg.textContent = "✗ Error submitting application. Please try again or contact us directly.";
+      document.body.appendChild(errorMsg);
+
+      // Auto remove notification
+      setTimeout(() => {
+        errorMsg.remove();
+      }, 5000);
+    }
+  });
+}

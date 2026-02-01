@@ -86,14 +86,14 @@
             </ul>
           </li>
           <li class="nav-item-with-submenu">
-            <a href="/blogs">News</a>
+            <a href="/blogs">Resources</a>
             <ul class="nav-submenu">
-              <li><a href="/blogs">Blog Posts</a></li>
+              <li><a href="/blogs">Blog</a></li>
+              <li><a href="/blogs">News</a></li>
               <li><a href="/events">Events</a></li>
               <li><a href="/partners">Partners</a></li>
             </ul>
           </li>
-          <li><a href="/partners">Partners</a></li>
           <li><a href="/contact">Contact</a></li>
           <li>
             <a href="/admin-login" target="_blank" rel="noopener noreferrer" class="btn btn-nav-secondary">Admin Login</a>
@@ -218,38 +218,50 @@
       <!-- Credentials Grid -->
       <div style="margin-top: 3rem;">
         <h3 style="text-align: center; margin-bottom: 2rem; color: var(--color-primary); font-size: 1.5rem;">Official Registration Details</h3>
-        <div class="credentials-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem;">
+        <div class="registrations-grid">
           <!-- Niti Aayog Darpan Card -->
-          <div class="reveal" style="padding: 2rem; border: 2px solid rgba(37, 99, 235, 0.3); border-radius: 1.5rem; background: rgba(37, 99, 235, 0.05); text-align: center;">
-            <div style="width: 80px; height: 80px; background: rgba(37, 99, 235, 0.15); border-radius: 1rem; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
-              <i class="fa-solid fa-star" style="font-size: 2.5rem; color: var(--color-primary);"></i>
+          <div class="reveal registration-card">
+            <div class="registration-icon niti-color">
+              <i class="fa-solid fa-star"></i>
             </div>
-            <h3 style="margin-bottom: 1rem; color: var(--color-text-main);">Niti Aayog Darpan</h3>
-            <p style="font-family: 'Courier New', monospace; font-weight: 600; color: var(--color-primary); margin-bottom: 1rem; font-size: 1rem;">DL/2025/0920083</p>
-            <p style="color: var(--color-text-muted); font-size: 0.95rem; margin-bottom: 1.5rem;">Registered with National Non-Profit Government Portal for Transparency</p>
-            <a href="https://ngodarpan.gov.in/#/" target="_blank" class="btn btn-verify" style="display: inline-block; padding: 0.6rem 1.5rem; border-radius: 2rem; text-decoration: none; font-size: 0.9rem; transition: all 0.3s ease; border: 2px solid var(--color-primary); color: var(--color-primary); font-weight: 600;">Verify on Darpan</a>
+            <h3>Niti Aayog Darpan</h3>
+            <p class="label">Registration Number</p>
+            <p class="credential-value">DL/2025/0920083</p>
+            <p class="description">Registered with National Non-Profit Government Portal for Transparency</p>
+            <a href="https://ngodarpan.gov.in/#/" target="_blank" class="verify-link">
+              <span>Verify on Darpan</span>
+              <i class="fa-solid fa-arrow-right"></i>
+            </a>
           </div>
 
           <!-- Corporate Identity Number Card -->
-          <div class="reveal" style="padding: 2rem; border: 2px solid rgba(37, 99, 235, 0.3); border-radius: 1.5rem; background: rgba(37, 99, 235, 0.05); text-align: center;">
-            <div style="width: 80px; height: 80px; background: rgba(37, 99, 235, 0.15); border-radius: 1rem; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
-              <i class="fa-solid fa-globe" style="font-size: 2.5rem; color: var(--color-primary);"></i>
+          <div class="reveal registration-card">
+            <div class="registration-icon">
+              <i class="fa-solid fa-globe"></i>
             </div>
-            <h3 style="margin-bottom: 1rem; color: var(--color-text-main);">Corporate Identity Number</h3>
-            <p style="font-family: 'Courier New', monospace; font-weight: 600; color: var(--color-primary); margin-bottom: 1rem; font-size: 1rem;">U94990DL2025NPL459178</p>
-            <p style="color: var(--color-text-muted); font-size: 0.95rem; margin-bottom: 1.5rem;">CIN registered with Ministry of Corporate Affairs</p>
-            <a href="https://www.mca.gov.in/" target="_blank" class="btn btn-verify" style="display: inline-block; padding: 0.6rem 1.5rem; border-radius: 2rem; text-decoration: none; font-size: 0.9rem; transition: all 0.3s ease; border: 2px solid var(--color-primary); color: var(--color-primary); font-weight: 600;">Verify on MCA Portal</a>
+            <h3>Corporate Identity Number</h3>
+            <p class="label">CIN</p>
+            <p class="credential-value">U94990DL2025NPL459178</p>
+            <p class="description">CIN registered with Ministry of Corporate Affairs</p>
+            <a href="https://www.mca.gov.in/" target="_blank" class="verify-link">
+              <span>Verify on MCA Portal</span>
+              <i class="fa-solid fa-arrow-right"></i>
+            </a>
           </div>
 
           <!-- MSME Udyam Registration Card -->
-          <div class="reveal" style="padding: 2rem; border: 2px solid rgba(37, 99, 235, 0.3); border-radius: 1.5rem; background: rgba(37, 99, 235, 0.05); text-align: center;">
-            <div style="width: 80px; height: 80px; background: rgba(37, 99, 235, 0.15); border-radius: 1rem; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
-              <i class="fa-solid fa-industry" style="font-size: 2.5rem; color: var(--color-primary);"></i>
+          <div class="reveal registration-card">
+            <div class="registration-icon msme-color">
+              <i class="fa-solid fa-industry"></i>
             </div>
-            <h3 style="margin-bottom: 1rem; color: var(--color-text-main);">MSME Udyam Registration</h3>
-            <p style="font-family: 'Courier New', monospace; font-weight: 600; color: var(--color-primary); margin-bottom: 1rem; font-size: 1rem;">UDYAM-DL-02-0107864</p>
-            <p style="color: var(--color-text-muted); font-size: 0.95rem; margin-bottom: 1.5rem;">Registered with Ministry of Micro, Small & Medium Enterprises</p>
-            <a href="https://udyamregistration.gov.in/" target="_blank" class="btn btn-verify" style="display: inline-block; padding: 0.6rem 1.5rem; border-radius: 2rem; text-decoration: none; font-size: 0.9rem; transition: all 0.3s ease; border: 2px solid var(--color-primary); color: var(--color-primary); font-weight: 600;">Verify on Udyam Portal</a>
+            <h3>MSME Udyam Registration</h3>
+            <p class="label">Registration Number</p>
+            <p class="credential-value">UDYAM-DL-02-0107864</p>
+            <p class="description">Registered with Ministry of Micro, Small & Medium Enterprises</p>
+            <a href="https://udyamregistration.gov.in/" target="_blank" class="verify-link">
+              <span>Verify on Udyam Portal</span>
+              <i class="fa-solid fa-arrow-right"></i>
+            </a>
           </div>
         </div>
       </div>

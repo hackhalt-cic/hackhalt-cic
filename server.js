@@ -931,7 +931,26 @@ app.post("/api/ambassadors", async (req, res) => {
   }
 });
 
-// GET /api/ambassadors - Get all ambassador applications
+// GET /api/submissions/ambassadors - Get all ambassador applications
+app.get("/api/submissions/ambassadors", async (req, res) => {
+  try {
+    const limit = req.query.limit ? parseInt(req.query.limit) : 100;
+    const submissions = await AmbassadorSubmission.find()
+      .sort({ createdAt: -1 })
+      .limit(limit);
+    res.json({
+      success: true,
+      submissions: submissions
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: "Failed to fetch ambassador applications"
+    });
+  }
+});
+
+// GET /api/ambassadors - Get all ambassador applications (legacy endpoint)
 app.get("/api/ambassadors", async (req, res) => {
   try {
     const limit = req.query.limit ? parseInt(req.query.limit) : 100;
@@ -950,7 +969,23 @@ app.get("/api/ambassadors", async (req, res) => {
   }
 });
 
-// DELETE /api/ambassadors/:id - Delete ambassador application
+// DELETE /api/submissions/ambassadors/:id - Delete ambassador application
+app.delete("/api/submissions/ambassadors/:id", async (req, res) => {
+  try {
+    await AmbassadorSubmission.findByIdAndDelete(req.params.id);
+    res.json({
+      success: true,
+      message: "Application deleted"
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: "Failed to delete application"
+    });
+  }
+});
+
+// DELETE /api/ambassadors/:id - Delete ambassador application (legacy endpoint)
 app.delete("/api/ambassadors/:id", async (req, res) => {
   try {
     await AmbassadorSubmission.findByIdAndDelete(req.params.id);

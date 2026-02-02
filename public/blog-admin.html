@@ -51,6 +51,7 @@
       height: 100vh;
       overflow-y: auto;
       z-index: 100;
+      box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
     }
 
     .admin-main {
@@ -66,7 +67,7 @@
     }
 
     .sidebar-logo {
-      font-size: 1.5rem;
+      font-size: 1.8rem;
       font-weight: 700;
       color: var(--primary-color);
       display: flex;
@@ -91,7 +92,7 @@
       display: flex;
       align-items: center;
       gap: 0.75rem;
-      font-size: 0.95rem;
+      font-size: 1.14rem;
       cursor: pointer;
     }
 
@@ -147,9 +148,9 @@
     .logout-btn {
       width: 100%;
       padding: 0.75rem;
-      background: #fee2e2;
+      background: linear-gradient(135deg, #fecaca 0%, #f87171 100%);
       color: #991b1b;
-      border: 1px solid #fecaca;
+      border: 1px solid #dc2626;
       border-radius: 6px;
       cursor: pointer;
       font-weight: 500;
@@ -158,10 +159,14 @@
       align-items: center;
       justify-content: center;
       gap: 0.5rem;
+      box-shadow: 0 2px 8px rgba(220, 38, 38, 0.2);
     }
 
     .logout-btn:hover {
-      background: #fecaca;
+      background: linear-gradient(135deg, #f87171 0%, #dc2626 100%);
+      color: white;
+      box-shadow: 0 4px 16px rgba(220, 38, 38, 0.4);
+      transform: translateY(-2px);
     }
 
     .admin-header {
@@ -174,7 +179,7 @@
     }
 
     .admin-header h1 {
-      font-size: 2rem;
+      font-size: 2.4rem;
       color: var(--text-primary);
       display: flex;
       align-items: center;
@@ -187,7 +192,7 @@
 
     .admin-header .admin-info p {
       color: var(--text-secondary);
-      font-size: 0.9rem;
+      font-size: 1.08rem;
       margin: 0;
     }
 
@@ -209,6 +214,12 @@
       border: 1px solid var(--border-color);
       border-radius: 12px;
       padding: 2rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      transition: all 0.3s ease;
+    }
+
+    .content-area:hover {
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
     }
 
     .add-blog-form {
@@ -226,7 +237,7 @@
       margin-bottom: 0.5rem;
       color: var(--text-primary);
       font-weight: 500;
-      font-size: 0.95rem;
+      font-size: 1.14rem;
     }
 
     .form-group input,
@@ -235,7 +246,7 @@
       padding: 0.75rem;
       border: 1px solid var(--border-color);
       border-radius: 6px;
-      font-size: 1rem;
+      font-size: 1.1rem;
       background: var(--input-bg);
       color: var(--text-primary);
       transition: all 0.3s ease;
@@ -268,7 +279,7 @@
     }
 
     .btn {
-      padding: 0.75rem 1.5rem;
+      padding: 0.9rem 1.8rem;
       border: none;
       border-radius: 6px;
       font-weight: 600;
@@ -277,16 +288,19 @@
       display: flex;
       align-items: center;
       gap: 0.5rem;
+      font-size: 1.1rem;
     }
 
     .btn-primary {
-      background: var(--primary-color);
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
       color: white;
+      box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
     }
 
     .btn-primary:hover {
-      background: var(--primary-dark);
+      background: linear-gradient(135deg, var(--primary-dark) 0%, #1d4ed8 100%);
       transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(59, 130, 246, 0.5);
     }
 
     .btn-secondary {
@@ -314,11 +328,12 @@
       background: var(--card-bg);
       border-radius: 8px;
       overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+      border: 1px solid var(--border-color);
     }
 
     .blogs-table thead {
-      background: var(--primary-light);
+      background: linear-gradient(135deg, var(--primary-light) 0%, rgba(59, 130, 246, 0.08) 100%);
       border-bottom: 2px solid var(--border-color);
     }
 
@@ -327,12 +342,14 @@
       text-align: left;
       color: var(--primary-color);
       font-weight: 600;
+      font-size: 1.1rem;
     }
 
     .blogs-table td {
       padding: 1rem;
       border-bottom: 1px solid var(--border-color);
       color: var(--text-primary);
+      font-size: 1.05rem;
     }
 
     .blogs-table tbody tr:hover {
@@ -364,7 +381,7 @@
       border: none;
       border-radius: 4px;
       cursor: pointer;
-      font-size: 0.85rem;
+      font-size: 1rem;
       transition: all 0.3s ease;
       display: flex;
       align-items: center;
@@ -373,28 +390,31 @@
     }
 
     .btn-edit {
-      background: #3b82f6;
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
       color: white;
-      border: 1px solid #2563eb;
+      border: none;
       font-weight: 600;
+      box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
     }
 
     .btn-edit:hover {
-      background: #2563eb;
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
       color: white;
       transform: translateY(-2px);
-      box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
     }
 
     .btn-delete {
-      background: #fee2e2;
+      background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
       color: #dc2626;
+      box-shadow: 0 2px 6px rgba(220, 38, 38, 0.2);
     }
 
     .btn-delete:hover {
-      background: #dc2626;
+      background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
       color: white;
       transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
     }
 
     .btn-publish {
@@ -756,12 +776,15 @@
           <div id="submissionsMessage" class="message"></div>
 
           <!-- Submission Tabs -->
-          <div style="display: flex; gap: 1rem; margin-bottom: 2rem; border-bottom: 2px solid var(--border-color); padding-bottom: 1rem;">
-            <button class="submission-tab active" data-type="contact" style="padding: 0.5rem 1.5rem; background: none; border: none; border-bottom: 3px solid var(--primary-color); color: var(--primary-color); cursor: pointer; font-weight: 600;">
+          <div style="display: flex; gap: 1rem; margin-bottom: 2rem; border-bottom: 2px solid var(--border-color); padding-bottom: 1rem; flex-wrap: wrap;">
+            <button class="submission-tab active" data-type="contact" style="padding: 0.5rem 1.5rem; background: none; border: none; border-bottom: 3px solid var(--primary-color); color: var(--primary-color); cursor: pointer; font-weight: 600; font-size: 1.1rem;">
               <i class="fa-solid fa-envelope"></i> Contact Submissions
             </button>
-            <button class="submission-tab" data-type="join" style="padding: 0.5rem 1.5rem; background: none; border: none; color: var(--text-secondary); cursor: pointer; font-weight: 600;">
+            <button class="submission-tab" data-type="join" style="padding: 0.5rem 1.5rem; background: none; border: none; color: var(--text-secondary); cursor: pointer; font-weight: 600; font-size: 1.1rem;">
               <i class="fa-solid fa-user-plus"></i> Join Us Submissions
+            </button>
+            <button class="submission-tab" data-type="ambassador" style="padding: 0.5rem 1.5rem; background: none; border: none; color: var(--text-secondary); cursor: pointer; font-weight: 600; font-size: 1.1rem;">
+              <i class="fa-solid fa-star"></i> Ambassador Submissions
             </button>
           </div>
 
@@ -1148,7 +1171,15 @@
       const message = document.getElementById('submissionsMessage');
       const submissionsList = document.getElementById('submissionsList');
       const baseUrl = 'https://hackhalt-cic-szfr.vercel.app';
-      const endpoint = currentSubmissionType === 'contact' ? `${baseUrl}/api/submissions/contact` : `${baseUrl}/api/submissions/join`;
+      
+      let endpoint;
+      if (currentSubmissionType === 'contact') {
+        endpoint = `${baseUrl}/api/submissions/contact`;
+      } else if (currentSubmissionType === 'join') {
+        endpoint = `${baseUrl}/api/submissions/join`;
+      } else if (currentSubmissionType === 'ambassador') {
+        endpoint = `${baseUrl}/api/submissions/ambassadors`;
+      }
 
       try {
         console.log('Loading submissions from:', endpoint);
@@ -1163,7 +1194,11 @@
 
         const submissions = data.submissions || [];
         console.log('Submissions found:', submissions.length);
-        const typeLabel = currentSubmissionType === 'contact' ? 'Contact' : 'Join Us';
+        
+        let typeLabel = 'Submissions';
+        if (currentSubmissionType === 'contact') typeLabel = 'Contact';
+        else if (currentSubmissionType === 'join') typeLabel = 'Join Us';
+        else if (currentSubmissionType === 'ambassador') typeLabel = 'Ambassador';
 
         if (submissions.length === 0) {
           submissionsList.innerHTML = `
@@ -1183,7 +1218,7 @@
                 <tr>
                   <th>Name</th>
                   <th>Email</th>
-                  ${currentSubmissionType === 'contact' ? '<th>Subject</th>' : '<th>Organization</th>'}
+                  <th>${currentSubmissionType === 'contact' ? 'Subject' : currentSubmissionType === 'ambassador' ? 'Position' : 'Organization'}</th>
                   <th>Date</th>
                   <th>Actions</th>
                 </tr>
@@ -1193,13 +1228,21 @@
 
         submissions.forEach(submission => {
           const date = new Date(submission.createdAt).toLocaleDateString();
-          const displayField = currentSubmissionType === 'contact' ? submission.subject : submission.organization;
+          
+          let displayField = 'N/A';
+          if (currentSubmissionType === 'contact') {
+            displayField = submission.subject;
+          } else if (currentSubmissionType === 'join') {
+            displayField = submission.organization;
+          } else if (currentSubmissionType === 'ambassador') {
+            displayField = submission.desiredPosition || submission.position || 'N/A';
+          }
 
           html += `
             <tr>
               <td>${submission.name}</td>
               <td><a href="mailto:${submission.email}" style="color: var(--primary-color);">${submission.email}</a></td>
-              <td>${displayField || 'N/A'}</td>
+              <td>${displayField}</td>
               <td>${date}</td>
               <td>
                 <div class="blog-actions">
@@ -1231,7 +1274,15 @@
     // View submission details
     function viewSubmission(submissionId, type) {
       const baseUrl = 'https://hackhalt-cic-szfr.vercel.app';
-      const endpoint = type === 'contact' ? `${baseUrl}/api/submissions/contact` : `${baseUrl}/api/submissions/join`;
+      
+      let endpoint;
+      if (type === 'contact') {
+        endpoint = `${baseUrl}/api/submissions/contact`;
+      } else if (type === 'join') {
+        endpoint = `${baseUrl}/api/submissions/join`;
+      } else if (type === 'ambassador') {
+        endpoint = `${baseUrl}/api/submissions/ambassadors`;
+      }
       
       fetch(endpoint)
         .then(res => res.json())
@@ -1273,7 +1324,7 @@
                   <div class="submission-detail-label"><i class="fa-solid fa-message" style="margin-right: 0.5rem;"></i>Message</div>
                   <div class="submission-detail-value">${submission.message.replace(/\n/g, '<br>')}</div>
                 </div>`;
-              } else {
+              } else if (type === 'join') {
                 // Organization
                 if (submission.organization) {
                   content += `<div class="submission-detail">
@@ -1287,6 +1338,46 @@
                   content += `<div class="submission-detail">
                     <div class="submission-detail-label"><i class="fa-solid fa-star" style="margin-right: 0.5rem;"></i>Interests</div>
                     <div class="submission-detail-value">${submission.interests}</div>
+                  </div>`;
+                }
+              } else if (type === 'ambassador') {
+                // Phone
+                if (submission.phone) {
+                  content += `<div class="submission-detail">
+                    <div class="submission-detail-label"><i class="fa-solid fa-phone" style="margin-right: 0.5rem;"></i>Phone</div>
+                    <div class="submission-detail-value">${submission.phone}</div>
+                  </div>`;
+                }
+
+                // Desired Position
+                if (submission.desiredPosition || submission.position) {
+                  content += `<div class="submission-detail">
+                    <div class="submission-detail-label"><i class="fa-solid fa-briefcase" style="margin-right: 0.5rem;"></i>Desired Position</div>
+                    <div class="submission-detail-value">${submission.desiredPosition || submission.position}</div>
+                  </div>`;
+                }
+
+                // Experience
+                if (submission.experience) {
+                  content += `<div class="submission-detail">
+                    <div class="submission-detail-label"><i class="fa-solid fa-award" style="margin-right: 0.5rem;"></i>Experience</div>
+                    <div class="submission-detail-value">${submission.experience}</div>
+                  </div>`;
+                }
+
+                // Why Interested
+                if (submission.whyInterested) {
+                  content += `<div class="submission-detail">
+                    <div class="submission-detail-label"><i class="fa-solid fa-heart" style="margin-right: 0.5rem;"></i>Why Interested</div>
+                    <div class="submission-detail-value">${submission.whyInterested.replace(/\n/g, '<br>')}</div>
+                  </div>`;
+                }
+
+                // Skills
+                if (submission.skills) {
+                  content += `<div class="submission-detail">
+                    <div class="submission-detail-label"><i class="fa-solid fa-star" style="margin-right: 0.5rem;"></i>Skills</div>
+                    <div class="submission-detail-value">${submission.skills}</div>
                   </div>`;
                 }
               }
@@ -1321,7 +1412,15 @@
       }
 
       const baseUrl = 'https://hackhalt-cic-szfr.vercel.app';
-      const endpoint = type === 'contact' ? `${baseUrl}/api/submissions/contact/${submissionId}` : `${baseUrl}/api/submissions/join/${submissionId}`;
+      
+      let endpoint;
+      if (type === 'contact') {
+        endpoint = `${baseUrl}/api/submissions/contact/${submissionId}`;
+      } else if (type === 'join') {
+        endpoint = `${baseUrl}/api/submissions/join/${submissionId}`;
+      } else if (type === 'ambassador') {
+        endpoint = `${baseUrl}/api/submissions/ambassadors/${submissionId}`;
+      }
 
       fetch(endpoint, {
         method: 'DELETE'
@@ -1375,7 +1474,7 @@
       width: 100%;
       max-height: 80vh;
       overflow-y: auto;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
       position: relative;
       border: 1px solid var(--border-color);
     }
@@ -1404,7 +1503,7 @@
     }
 
     .submission-modal-title {
-      font-size: 1.5rem;
+      font-size: 1.8rem;
       font-weight: 700;
       margin-bottom: 1.5rem;
       color: var(--text-primary);
@@ -1417,7 +1516,7 @@
     .submission-detail-label {
       font-weight: 600;
       color: var(--primary-color);
-      font-size: 0.9rem;
+      font-size: 1.08rem;
       margin-bottom: 0.5rem;
       text-transform: uppercase;
       letter-spacing: 0.05em;
@@ -1431,6 +1530,7 @@
       background: var(--bg-secondary);
       border-radius: 6px;
       border-left: 3px solid var(--primary-color);
+      font-size: 1.05rem;
     }
 
     .submission-modal-actions {

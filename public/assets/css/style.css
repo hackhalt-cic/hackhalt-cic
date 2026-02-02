@@ -590,7 +590,7 @@ main {
     rgba(15, 23, 42, 0.95) 100%
   );
   border-radius: var(--radius-xl);
-  padding: 3.75rem;
+  padding: 2rem;
   border: 1px solid var(--color-border-subtle);
   box-shadow: 0 20px 60px rgba(37, 99, 235, 0.15);
   overflow: hidden;
@@ -599,9 +599,9 @@ main {
   align-items: center;
   justify-content: center;
   width: 100%;
-  max-width: 750px;
+  max-width: 900px;
   margin: 0 auto;
-  min-height: 562.5px;
+  min-height: auto;
 }
 
 .hero-card::before {
@@ -1022,21 +1022,21 @@ main::before {
 .hero-image {
   position: relative;
   width: 100%;
-  max-width: 650px;
+  max-width: 100%;
   height: auto;
   display: block;
-  margin: 0.8rem auto 0;
+  margin: 0 auto;
   z-index: 1;
   overflow: hidden;
-  border-radius: var(--radius-lg);
+  border-radius: 8px;
   aspect-ratio: auto;
-  box-shadow: 0 10px 40px rgba(37, 99, 235, 0.2);
+  box-shadow: 0 15px 50px rgba(37, 99, 235, 0.25);
   transition: transform 0.4s ease, box-shadow 0.4s ease;
 }
 
 .hero-image:hover {
-  transform: scale(1.02);
-  box-shadow: 0 15px 50px rgba(37, 99, 235, 0.3);
+  transform: scale(1.03);
+  box-shadow: 0 20px 60px rgba(37, 99, 235, 0.35);
 }
 
 .hero-stats {

@@ -57,10 +57,16 @@ app.use((req, res, next) => {
 // serve static files from /public
 app.use(express.static(path.join(__dirname, "public")));
 
-// Add cache control middleware for HTML pages
+// Add cache control middleware for static assets and HTML pages
 app.use((req, res, next) => {
   // Don't cache HTML pages - always check for updates
   if (req.path.endsWith('.html') || !req.path.includes('.')) {
+    res.set('Cache-Control', 'public, max-age=0, must-revalidate');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+  }
+  // Don't cache CSS and JS either - reload every time during development
+  if (req.path.endsWith('.css') || req.path.endsWith('.js')) {
     res.set('Cache-Control', 'public, max-age=0, must-revalidate');
     res.set('Pragma', 'no-cache');
     res.set('Expires', '0');
@@ -699,6 +705,7 @@ app.get("/api/submissions", async (req, res) => {
       submissions: {
         contact: contactSubmissions,
         join: joinSubmissions,
+        blogs: blogSubmissions,
         bookings: bookingSubmissions,
         ambassadors: ambassadorSubmissions
       }
@@ -847,16 +854,42 @@ app.delete("/api/submissions/join/:id", async (req, res) => {
   }
 });
 
+// DELETE /api/submissions/blogs/:id - Delete blog submission
+app.delete("/api/submissions/blogs/:id", async (req, res) => {
+  try {
+    await BlogSubmission.findByIdAndDelete(req.params.id);
+    res.json({
+      success: true,
+      message: "Blog submission deleted"
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: "Failed to delete blog submission"
+    });
+  }
+});
+
 // POST /api/ambassadors - Submit ambassador application
 app.post("/api/ambassadors", async (req, res) => {
   try {
+    console.log("📝 Ambassador form submission received:", JSON.stringify(req.body, null, 2));
+    
     const { firstName, lastName, email, phone, region, expertise, bio, timestamp } = req.body;
 
     // Validation
     if (!firstName || !lastName || !email || !phone || !region || !expertise) {
+      console.log("❌ Validation failed. Received:", {firstName, lastName, email, phone, region, expertise});
       return res.status(400).json({
         success: false,
-        error: "Missing required fields"
+        error: "Missing required fields: " + (
+          !firstName ? "firstName " : "" +
+          !lastName ? "lastName " : "" +
+          !email ? "email " : "" +
+          !phone ? "phone " : "" +
+          !region ? "region " : "" +
+          !expertise ? "expertise " : ""
+        ).trim()
       });
     }
 
@@ -893,7 +926,7 @@ app.post("/api/ambassadors", async (req, res) => {
     console.error("Ambassador submission error:", error);
     res.status(500).json({
       success: false,
-      error: "Failed to submit application"
+      error: "Failed to submit application: " + error.message
     });
   }
 });

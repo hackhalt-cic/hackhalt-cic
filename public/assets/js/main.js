@@ -335,23 +335,81 @@ if (document.fonts) {
   });
 }
 // --- Regional Ambassador Form Handling --------------------------------
+console.log("🔍 Initializing regional ambassador form handler");
 const memberForm = document.getElementById("memberForm");
+console.log("memberForm element:", memberForm);
 
 if (memberForm) {
+  console.log("✓ memberForm found, attaching submit handler");
   memberForm.addEventListener("submit", async (e) => {
+    console.log("📝 Form submit event triggered");
     e.preventDefault();
     
-    // Collect form data
+    // Collect form data with validation and logging
+    const formElements = {
+      firstName: document.getElementById("firstName"),
+      lastName: document.getElementById("lastName"),
+      email: document.getElementById("email"),
+      phone: document.getElementById("phone"),
+      region: document.getElementById("region"),
+      expertise: document.getElementById("expertise"),
+      bio: document.getElementById("bio")
+    };
+    
+    console.log("Form elements found:", Object.keys(formElements).reduce((acc, key) => {
+      acc[key] = formElements[key] ? "✓" : "✗";
+      return acc;
+    }, {}));
+    
+    const firstName = formElements.firstName?.value?.trim();
+    const lastName = formElements.lastName?.value?.trim();
+    const email = formElements.email?.value?.trim();
+    const phone = formElements.phone?.value?.trim();
+    const region = formElements.region?.value?.trim();
+    const expertise = formElements.expertise?.value?.trim();
+    const bio = formElements.bio?.value?.trim() || "";
+    
+    console.log("Collected values:", {firstName, lastName, email, phone, region, expertise, bio});
+    
+    // Validate all required fields
+    if (!firstName || !lastName || !email || !phone || !region || !expertise) {
+      console.error("❌ Validation failed. Missing:", {
+        firstName: !firstName ? "YES" : "NO",
+        lastName: !lastName ? "YES" : "NO",
+        email: !email ? "YES" : "NO",
+        phone: !phone ? "YES" : "NO",
+        region: !region ? "YES" : "NO",
+        expertise: !expertise ? "YES" : "NO"
+      });
+      
+      const missingFields = [];
+      if (!firstName) missingFields.push("First Name");
+      if (!lastName) missingFields.push("Last Name");
+      if (!email) missingFields.push("Email");
+      if (!phone) missingFields.push("Phone");
+      if (!region) missingFields.push("Region");
+      if (!expertise) missingFields.push("Expertise");
+      
+      const errorMsg = document.createElement("div");
+      errorMsg.className = "notification notification-error visible";
+      errorMsg.textContent = "✗ Please fill in all required fields: " + missingFields.join(", ");
+      document.body.appendChild(errorMsg);
+      setTimeout(() => errorMsg.remove(), 5000);
+      return;
+    }
+
     const formData = {
-      firstName: document.getElementById("firstName").value,
-      lastName: document.getElementById("lastName").value,
-      email: document.getElementById("email").value,
-      phone: document.getElementById("phone").value,
-      region: document.getElementById("region").value,
-      expertise: document.getElementById("expertise").value,
-      bio: document.getElementById("bio").value || "",
+      firstName,
+      lastName,
+      email,
+      phone,
+      region,
+      expertise,
+      bio,
       timestamp: new Date().toISOString()
     };
+
+    console.log("📤 Sending form data:", formData);
 
     try {
       // Submit to backend API
@@ -363,31 +421,40 @@ if (memberForm) {
         body: JSON.stringify(formData)
       });
 
-      if (response.ok) {
+      const data = await response.json();
+      console.log("📥 Response received:", {status: response.status, data});
+
+      if (response.ok && data.success) {
         // Show success message
         const successMsg = document.createElement("div");
-        successMsg.className = "notification success";
+        successMsg.className = "notification notification-success visible";
         successMsg.textContent = "✓ Application submitted successfully! We'll review your application and contact you soon.";
         document.body.appendChild(successMsg);
 
         // Reset form
         memberForm.reset();
+        
+        // Scroll to notification
+        successMsg.scrollIntoView({ behavior: "smooth", block: "center" });
 
         // Auto remove notification
         setTimeout(() => {
           successMsg.remove();
         }, 5000);
       } else {
-        throw new Error("Failed to submit application");
+        throw new Error(data.error || "Failed to submit application");
       }
     } catch (error) {
-      console.error("Form submission error:", error);
+      console.error("❌ Form submission error:", error);
       
       // Show error message
       const errorMsg = document.createElement("div");
-      errorMsg.className = "notification error";
-      errorMsg.textContent = "✗ Error submitting application. Please try again or contact us directly.";
+      errorMsg.className = "notification notification-error visible";
+      errorMsg.textContent = "✗ Error: " + (error.message || "Failed to submit application. Please try again.");
       document.body.appendChild(errorMsg);
+
+      // Scroll to notification
+      errorMsg.scrollIntoView({ behavior: "smooth", block: "center" });
 
       // Auto remove notification
       setTimeout(() => {
@@ -395,4 +462,6 @@ if (memberForm) {
       }, 5000);
     }
   });
+} else {
+  console.warn("⚠️ memberForm not found on page");
 }

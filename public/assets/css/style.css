@@ -32,6 +32,7 @@ html {
   -moz-osx-font-smoothing: grayscale;
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
+  font-size: 14px; /* Reduced from 16px by ~12.5%, closer to 20% reduction */
 }
 
 /* Light theme overrides */
@@ -95,20 +96,6 @@ img {
   border-radius: inherit;
 }
 
-/* Mobile-optimized picture elements */
-picture {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-
-picture img {
-  width: 100%;
-  height: auto;
-  display: block;
-}
-
-html,
 body {
   margin: 0;
   padding: 0;
@@ -1035,13 +1022,21 @@ main::before {
 .hero-image {
   position: relative;
   width: 100%;
-  max-width: 547px;
+  max-width: 650px;
+  height: auto;
   display: block;
   margin: 0.8rem auto 0;
   z-index: 1;
   overflow: hidden;
   border-radius: var(--radius-lg);
-  aspect-ratio: 1;
+  aspect-ratio: auto;
+  box-shadow: 0 10px 40px rgba(37, 99, 235, 0.2);
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+
+.hero-image:hover {
+  transform: scale(1.02);
+  box-shadow: 0 15px 50px rgba(37, 99, 235, 0.3);
 }
 
 .hero-stats {

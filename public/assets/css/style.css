@@ -1,21 +1,37 @@
-/* === THEME VARIABLES ===================================================== */
+/* === THEME VARIABLES - PREMIUM DARK CYBERSECURITY THEME ===================================================== */
 :root {
-  /* Dark (default) */
-  --color-bg-main: #020617;
-  --color-bg-alt: #020617;
-  --color-bg-card: #020617;
-  --color-bg-elevated: rgba(15, 23, 42, 0.98);
+  /* Premium Dark Cybersecurity Palette */
+  --color-bg-primary: #0a0e27;
+  --color-bg-secondary: #111829;
+  --color-bg-main: #0a0e27;
+  --color-bg-alt: #111829;
+  --color-bg-card: #151d2d;
+  --color-bg-elevated: rgba(21, 29, 45, 0.95);
 
-  --color-primary: #2563eb;   /* blue-600 */
-  --color-primary-soft: #1d4ed8;
-  --color-accent: #22c55e;    /* green-500 */
-  --color-border-subtle: rgba(148, 163, 184, 0.35);
+  /* Premium Accent Colors - No Purple */
+  --color-primary: #00d9ff;
+  --color-primary-dark: #00a8cc;
+  --color-primary-soft: #00d9ff;
+  --color-accent: #3b82f6;    /* Deep blue instead of green */
+  --color-accent-light: #60a5fa;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
 
-  --color-text-main: #e5e7eb;
-  --color-text-muted: #9ca3af;
-  --color-text-soft: #64748b;
+  /* Text Colors */
+  --color-text-main: #f1f5f9;
+  --color-text-muted: #cbd5e1;
+  --color-text-soft: #94a3b8;
 
-  --shadow-soft: 0 20px 40px rgba(15, 23, 42, 0.85);
+  /* Borders & Dividers */
+  --color-border-subtle: rgba(51, 65, 85, 0.4);
+  --color-border-main: #1e293b;
+
+  /* Shadows - Cybersecurity Glow */
+  --shadow-soft: 0 4px 16px rgba(0, 217, 255, 0.08);
+  --shadow-medium: 0 8px 24px rgba(0, 217, 255, 0.1);
+  --shadow-strong: 0 12px 48px rgba(0, 217, 255, 0.12);
+  --shadow-glow: 0 0 20px rgba(0, 217, 255, 0.15);
 
   --radius-lg: 1.2rem;
   --radius-xl: 1.6rem;
@@ -47,7 +63,7 @@ html {
   scroll-padding-top: 80px;
 }
 
-/* Light theme overrides */
+/* Light theme overrides - Keep dark mode only */
 :root[data-theme="light"] {
   --color-bg-main: #f9fafb;
   --color-bg-alt: #f3f4f6;
@@ -56,17 +72,17 @@ html {
 
   --color-primary: #1d4ed8;
   --color-primary-soft: #1d4ed8;
-  --color-accent: #15803d;
+  --color-accent: #2563eb;
 
   --color-text-main: #0f172a;
   --color-text-muted: #475569;
   --color-text-soft: #64748b;
 
-  --color-border-subtle: rgba(71, 85, 105, 0.4);
+  --color-border-subtle: rgba(71, 85, 105, 0.3);
   --color-border-light: rgba(203, 213, 225, 0.8);
   --color-border-strong: rgba(148, 163, 184, 0.6);
 
-  --shadow-soft: 0 2px 8px rgba(15, 23, 42, 0.08), 0 4px 16px rgba(15, 23, 42, 0.06);
+  --shadow-soft: 0 2px 8px rgba(15, 23, 42, 0.08);
   --shadow-medium: 0 4px 16px rgba(15, 23, 42, 0.12);
   --shadow-strong: 0 10px 35px rgba(15, 23, 42, 0.15);
 }
@@ -74,15 +90,12 @@ html {
 /* Light theme blob colors */
 :root[data-theme="light"] body::before {
   background-image: 
-    radial-gradient(circle at 20% 50%, rgba(29, 78, 216, 0.06) 0%, transparent 50%),
-    radial-gradient(circle at 80% 80%, rgba(21, 128, 61, 0.05) 0%, transparent 50%),
-    radial-gradient(circle at 40% 20%, rgba(59, 130, 246, 0.04) 0%, transparent 50%);
+    linear-gradient(0deg, transparent 24%, rgba(29, 78, 216, 0.01) 25%, rgba(29, 78, 216, 0.01) 26%, transparent 27%, transparent 74%, rgba(29, 78, 216, 0.01) 75%, rgba(29, 78, 216, 0.01) 76%, transparent 77%, transparent),
+    linear-gradient(90deg, transparent 24%, rgba(29, 78, 216, 0.01) 25%, rgba(29, 78, 216, 0.01) 26%, transparent 27%, transparent 74%, rgba(29, 78, 216, 0.01) 75%, rgba(29, 78, 216, 0.01) 76%, transparent 77%, transparent);
 }
 
 :root[data-theme="light"] body::after {
-  background: radial-gradient(ellipse 800px 400px at 100% 50%, rgba(0, 255, 200, 0.08) 0%, transparent 50%);
-  animation: cyberBlobRight 70s ease-in-out infinite;
-  filter: blur(110px);
+  background: radial-gradient(circle at 20% 50%, rgba(29, 78, 216, 0.02) 0%, transparent 50%);
 }
 
 :root[data-theme="light"] .site-header::before {
@@ -114,24 +127,21 @@ body {
   margin: 0;
   padding: 0;
   font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-  background: linear-gradient(
-    135deg,
-    #0a0e27 0%,
-    #0d1a2d 15%,
-    #0f1535 30%,
-    #1a0a3e 50%,
-    #0d1a2d 70%,
-    #0a0e27 85%,
-    #05080f 100%
-  );
+  background: linear-gradient(135deg, #0a0e27 0%, #111829 25%, #1a1f3a 50%, #0f1628 75%, #0a0e27 100%);
   background-attachment: fixed;
-  background-size: 400% 400%;
-  animation: cybersecurityFlow 30s ease-in-out infinite;
   color: var(--color-text-main);
   scroll-behavior: smooth;
   font-display: swap;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+:root[data-theme="light"] body {
+  background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 25%, #f0f1f3 50%, #f5f6f7 75%, #f9fafb 100%);
+  background-attachment: fixed;
 }
 
 body {
@@ -148,21 +158,20 @@ body::before {
   position: fixed;
   inset: 0;
   background-image: 
-    /* Subtle grid lines */
-    linear-gradient(0deg, transparent 24%, rgba(37, 99, 235, 0.02) 25%, rgba(37, 99, 235, 0.02) 26%, transparent 27%, transparent 74%, rgba(37, 99, 235, 0.02) 75%, rgba(37, 99, 235, 0.02) 76%, transparent 77%, transparent),
-    linear-gradient(90deg, transparent 24%, rgba(37, 99, 235, 0.02) 25%, rgba(37, 99, 235, 0.02) 26%, transparent 27%, transparent 74%, rgba(37, 99, 235, 0.02) 75%, rgba(37, 99, 235, 0.02) 76%, transparent 77%, transparent),
-    /* Animated gradient orbs */
-    radial-gradient(circle at 20% 50%, rgba(37, 99, 235, 0.15) 0%, transparent 50%),
-    radial-gradient(circle at 80% 80%, rgba(34, 197, 94, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 40% 20%, rgba(59, 130, 246, 0.08) 0%, transparent 50%);
-  background-size: 120px 120px, 120px 120px, 100% 100%, 100% 100%, 100% 100%;
-  animation: subtleGradientFlow 60s ease-in-out infinite, gridShift 40s linear infinite;
+    linear-gradient(0deg, transparent 24%, rgba(0, 217, 255, 0.02) 25%, rgba(0, 217, 255, 0.02) 26%, transparent 27%, transparent 74%, rgba(0, 217, 255, 0.02) 75%, rgba(0, 217, 255, 0.02) 76%, transparent 77%, transparent),
+    linear-gradient(90deg, transparent 24%, rgba(0, 217, 255, 0.02) 25%, rgba(0, 217, 255, 0.02) 26%, transparent 27%, transparent 74%, rgba(0, 217, 255, 0.02) 75%, rgba(0, 217, 255, 0.02) 76%, transparent 77%, transparent);
+  background-size: 50px 50px;
   pointer-events: none;
-  z-index: -3;
-  will-change: opacity;
-  transform: translateZ(0);
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
+  z-index: -1;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at 20% 50%, rgba(0, 217, 255, 0.03) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: -1;
 }
 
 /* Utility container & sections */
@@ -231,24 +240,16 @@ main {
   position: sticky;
   top: 0;
   z-index: 50;
-  backdrop-filter: blur(16px);
-  background: linear-gradient(
-    to bottom,
-    rgba(15, 23, 42, 0.95),
-    rgba(15, 23, 42, 0.86),
-    transparent
-  );
-  border-bottom: 1px solid rgba(148, 163, 184, 0.24);
+  backdrop-filter: blur(10px);
+  background: rgba(10, 14, 39, 0.85);
+  border-bottom: 1px solid rgba(0, 217, 255, 0.15);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
 
 :root[data-theme="light"] .site-header {
-  background: linear-gradient(
-    to bottom,
-    rgba(249, 250, 251, 0.98),
-    rgba(249, 250, 251, 0.9),
-    transparent
-  );
-  border-bottom: 2px solid rgba(71, 85, 105, 0.25);
+  background: rgba(249, 250, 251, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(71, 85, 105, 0.25);
   box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
 }
 
@@ -295,6 +296,7 @@ main {
 
 :root[data-theme="light"] .logo {
   background: #ffffff;
+  border-color: rgba(71, 85, 105, 0.3);
 }
 
 .logo-text {
@@ -347,11 +349,28 @@ main {
   outline: 2px solid transparent;
   outline-offset: 2px;
   white-space: nowrap;
+  position: relative;
+}
+
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--color-primary);
+  transition: width var(--transition-default);
+  box-shadow: 0 0 10px rgba(0, 217, 255, 0.5);
+}
+
+.nav-links a:hover::after {
+  width: 100%;
 }
 
 .nav-links a:hover {
   color: var(--color-primary);
-  background: rgba(148, 163, 184, 0.12);
+  background: rgba(0, 217, 255, 0.1);
   transform: translateY(-1px);
 }
 
@@ -411,44 +430,52 @@ main {
 
 /* Nav CTA button */
 .btn-nav-cta {
-  border: 1px solid rgba(37, 99, 235, 0.18);
-  background: linear-gradient(120deg, var(--color-primary), var(--color-accent));
-  color: #f9fafb !important;
+  border: 1px solid rgba(0, 217, 255, 0.3);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  color: var(--color-bg-primary) !important;
   font-weight: 600;
   padding: 0.5rem 0.75rem !important;
   font-size: 0.9rem !important;
-  box-shadow: 0 10px 25px rgba(37, 99, 235, 0.4);
+  box-shadow: 0 0 20px rgba(0, 217, 255, 0.3);
   white-space: nowrap;
+  transition: all var(--transition-default);
+}
+
+.btn-nav-cta:hover {
+  box-shadow: 0 0 30px rgba(0, 217, 255, 0.5);
+  transform: translateY(-2px);
 }
 
 .btn-nav-secondary {
-  border: 1px solid rgba(148, 163, 184, 0.4);
+  border: 1px solid var(--color-border-subtle);
   background: transparent;
   color: var(--color-text-soft) !important;
   font-weight: 500;
   padding: 0.5rem 0.75rem !important;
   font-size: 0.9rem !important;
   white-space: nowrap;
+  transition: all var(--transition-default);
 }
 
 .btn-nav-secondary:hover {
-  background: rgba(148, 163, 184, 0.08);
+  background: rgba(0, 217, 255, 0.08);
+  border-color: var(--color-primary);
+  color: var(--color-primary) !important;
 }
 
 /* Theme toggle */
 .theme-toggle {
   border-radius: 999px;
-  border: 1px solid rgba(148, 163, 184, 0.6);
+  border: 2px solid var(--color-border-subtle);
   width: 38px;
   height: 38px;
   display: flex !important;
   align-items: center;
   justify-content: center;
-  background: rgba(15, 23, 42, 0.95);
-  color: #e5e7eb;
+  background: transparent;
+  color: var(--color-text-soft);
   cursor: pointer;
-  transition: background var(--transition-fast), transform var(--transition-fast),
-    box-shadow var(--transition-fast), border-color var(--transition-fast);
+  transition: all var(--transition-default);
   flex-shrink: 0;
   z-index: 100;
   padding: 0 !important;
@@ -461,15 +488,11 @@ main {
   font-size: 0.95rem;
 }
 
-:root[data-theme="light"] .theme-toggle {
-  background: #ffffff;
-  color: #111827;
-  border-color: rgba(148, 163, 184, 0.7);
-}
-
 .theme-toggle:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  box-shadow: 0 0 15px rgba(0, 217, 255, 0.3);
   transform: translateY(-1px);
-  box-shadow: 0 10px 20px rgba(15, 23, 42, 0.5);
 }
 
 /* Nav Toggle (mobile) */
@@ -488,6 +511,7 @@ main {
 
 :root[data-theme="light"] .nav-toggle {
   background: #ffffff;
+  border-color: rgba(71, 85, 105, 0.3);
 }
 
 .nav-toggle span {

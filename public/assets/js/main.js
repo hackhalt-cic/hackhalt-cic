@@ -22,8 +22,8 @@ function applyTheme(theme) {
   }
 }
 
-// Load saved theme or default to light
-const savedTheme = localStorage.getItem("hh-theme") || "light";
+// Load saved theme or default to dark
+const savedTheme = localStorage.getItem("hh-theme") || "dark";
 applyTheme(savedTheme);
 
 if (themeToggleBtn) {

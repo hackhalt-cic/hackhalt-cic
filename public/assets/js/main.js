@@ -97,80 +97,53 @@ document.addEventListener("scroll", () => {
 
 // Mobile nav toggle
 if (navToggle && navLinks) {
-  navToggle.addEventListener("click", (e) => {
+  // Simple, reliable toggle without complex event handling
+  navToggle.addEventListener("click", function(e) {
+    e.preventDefault();
     e.stopPropagation();
-    navLinks.classList.toggle("open");
-    // Prevent body scroll when menu is open on mobile
-    if (navLinks.classList.contains("open")) {
-      document.body.style.overflow = 'hidden';
-      document.body.style.height = '100vh';
+    
+    const isOpen = navLinks.classList.contains("open");
+    
+    if (!isOpen) {
+      // Open menu
+      navLinks.classList.add("open");
+      navToggle.classList.add("active");
     } else {
-      document.body.style.overflow = '';
-      document.body.style.height = '';
+      // Close menu
+      navLinks.classList.remove("open");
+      navToggle.classList.remove("active");
     }
   });
 
+  // Close menu when clicking nav links (but keep open for submenu exploration)
   navLinks.querySelectorAll("a").forEach((link) => {
-    link.addEventListener("click", (e) => {
-      // Only close if not a submenu toggle
-      if (!link.parentElement.classList.contains("nav-item-with-submenu") || 
-          !link.nextElementSibling || 
-          !link.nextElementSibling.classList.contains("nav-submenu")) {
+    link.addEventListener("click", function() {
+      // Only close menu if link is NOT a submenu parent (keep open so user can explore submenu items)
+      const isSubmenuParent = link.closest(".nav-item-with-submenu") && link.parentElement.classList.contains("nav-item-with-submenu");
+      
+      if (!isSubmenuParent) {
         navLinks.classList.remove("open");
-        document.body.style.overflow = '';
-        document.body.style.height = '';
+        navToggle.classList.remove("active");
       }
     });
   });
 
-  // Close menu when clicking outside
-  document.addEventListener("click", (e) => {
-    if (!e.target.closest(".nav") && navLinks.classList.contains("open")) {
+  // Close menu when clicking outside nav
+  document.addEventListener("click", function(e) {
+    const isClickedInNav = e.target.closest(".nav");
+    const isClickedOnToggle = e.target.closest(".nav-toggle");
+    
+    if (!isClickedInNav && !isClickedOnToggle && navLinks.classList.contains("open")) {
       navLinks.classList.remove("open");
-      document.body.style.overflow = '';
-      document.body.style.height = '';
+      navToggle.classList.remove("active");
     }
   });
 }
 
 // Mobile submenu touch support
 const navItems = document.querySelectorAll(".nav-item-with-submenu");
-navItems.forEach((item) => {
-  const submenu = item.querySelector(".nav-submenu");
-  if (!submenu) return;
-
-  // Desktop: hover will handle it, mobile: click/touch will toggle
-  item.addEventListener("click", (e) => {
-    // On mobile, toggle submenu open state
-    if (window.innerWidth <= 768) {
-      const link = item.querySelector("> a");
-      // Only prevent default if clicking the parent link, not submenu items
-      if (e.target === link) {
-        e.preventDefault();
-        e.stopPropagation();
-        
-        // Close other open submenus
-        navItems.forEach((otherItem) => {
-          if (otherItem !== item) {
-            otherItem.classList.remove("open");
-          }
-        });
-        
-        // Toggle current submenu
-        item.classList.toggle("open");
-      }
-    }
-  });
-});
-
-// Close submenus when clicking outside
-document.addEventListener("click", (e) => {
-  if (window.innerWidth <= 768) {
-    if (!e.target.closest(".nav-item-with-submenu")) {
-      navItems.forEach((item) => item.classList.remove("open"));
-    }
-  }
-});
+// Submenus now display as simple lists on mobile via CSS
+// No JavaScript toggle needed - CSS hover handles the expansion
 
 // Smooth scroll with offset
 function smoothScroll(target, offset = 70) {

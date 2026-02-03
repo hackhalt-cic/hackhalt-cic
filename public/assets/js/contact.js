@@ -64,9 +64,8 @@ function initializeFormHandlers() {
     try {
       console.log('⚡ INSIDE TRY BLOCK - Form submission in progress');
       
-      // Send to backend API
-      const baseUrl = 'https://hackhalt-cic-szfr.vercel.app';
-      const endpoint = isJoinForm ? `${baseUrl}/api/join` : `${baseUrl}/api/contact`;
+      // Send to backend API - use relative path to work with any domain
+      const endpoint = isJoinForm ? '/api/join' : '/api/contact';
       console.log('🚀 Submitting form to:', endpoint);
       console.log('📦 Form data:', data);
       

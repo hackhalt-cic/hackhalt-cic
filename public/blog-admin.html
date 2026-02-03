@@ -44,32 +44,41 @@
 
     .admin-sidebar {
       width: 250px;
-      background: var(--card-bg);
-      border-right: 1px solid var(--border-color);
+      background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+      border-right: 2px solid rgba(59, 130, 246, 0.3);
       padding: 2rem 0;
       position: fixed;
       height: 100vh;
       overflow-y: auto;
       z-index: 100;
-      box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+      box-shadow: 4px 0 20px rgba(59, 130, 246, 0.15);
     }
 
     .admin-main {
       margin-left: 250px;
       flex: 1;
       padding: 2rem;
+      background: linear-gradient(135deg, #f8fafc 0%, rgba(59, 130, 246, 0.02) 100%);
+      min-height: 100vh;
     }
 
     .sidebar-header {
       padding: 0 1.5rem 2rem;
-      border-bottom: 1px solid var(--border-color);
+      border-bottom: 2px solid rgba(59, 130, 246, 0.2);
       margin-bottom: 1.5rem;
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(99, 102, 241, 0.05) 100%);
+      margin: -2rem 0 1.5rem 0;
+      padding: 1.5rem;
+      border-radius: 0 8px 8px 0;
     }
 
     .sidebar-logo {
       font-size: 1.8rem;
-      font-weight: 700;
-      color: var(--primary-color);
+      font-weight: 800;
+      background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
       display: flex;
       align-items: center;
       gap: 0.5rem;
@@ -85,21 +94,46 @@
 
     .sidebar-nav a {
       padding: 0.75rem 1rem;
-      color: var(--text-secondary);
+      color: #cbd5e1;
       text-decoration: none;
-      border-radius: 6px;
+      border-radius: 8px;
       transition: all 0.3s ease;
       display: flex;
       align-items: center;
       gap: 0.75rem;
-      font-size: 1.14rem;
+      font-size: 1rem;
       cursor: pointer;
+      margin: 0.25rem 0.5rem;
+      position: relative;
+      overflow: hidden;
     }
 
-    .sidebar-nav a:hover,
+    .sidebar-nav a::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, rgba(59, 130, 246, 0.2) 0%, rgba(99, 102, 241, 0.1) 100%);
+      transition: width 0.3s ease;
+      z-index: -1;
+    }
+
+    .sidebar-nav a:hover {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(99, 102, 241, 0.1) 100%);
+      color: #3b82f6;
+      transform: translateX(4px);
+      border-left: 3px solid #3b82f6;
+      padding-left: calc(1rem - 3px);
+    }
+
     .sidebar-nav a.active {
-      background: var(--primary-light);
-      color: var(--primary-color);
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.25) 0%, rgba(99, 102, 241, 0.15) 100%);
+      color: #60a5fa;
+      border-left: 3px solid #3b82f6;
+      padding-left: calc(1rem - 3px);
+      box-shadow: inset 0 0 12px rgba(59, 130, 246, 0.1);
     }
 
     .nav-link {
@@ -173,17 +207,23 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 2rem;
-      padding-bottom: 1.5rem;
-      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 2.5rem;
+      padding: 2rem 2rem;
+      border-bottom: 2px solid rgba(59, 130, 246, 0.2);
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(99, 102, 241, 0.04) 100%);
+      border-radius: 12px;
     }
 
     .admin-header h1 {
       font-size: 2.4rem;
-      color: var(--text-primary);
+      background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
       display: flex;
       align-items: center;
       gap: 1rem;
+      margin: 0;
     }
 
     .admin-header .admin-info {
@@ -210,16 +250,43 @@
     }
 
     .content-area {
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-      padding: 2rem;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      background: linear-gradient(135deg, var(--card-bg) 0%, rgba(59, 130, 246, 0.02) 100%);
+      border: 2px solid rgba(59, 130, 246, 0.15);
+      border-radius: 16px;
+      padding: 2.5rem;
+      box-shadow: 0 8px 32px rgba(59, 130, 246, 0.08);
       transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .content-area::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.3), transparent);
     }
 
     .content-area:hover {
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+      box-shadow: 0 12px 48px rgba(59, 130, 246, 0.12);
+      border-color: rgba(59, 130, 246, 0.25);
+      transform: translateY(-2px);
+    }
+
+    .content-area h2 {
+      color: var(--text-primary);
+      font-size: 1.8rem;
+      margin: 0 0 1.5rem 0;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
     .add-blog-form {
@@ -243,11 +310,11 @@
     .form-group input,
     .form-group textarea,
     .form-group select {
-      padding: 0.75rem;
-      border: 1px solid var(--border-color);
-      border-radius: 6px;
-      font-size: 1.1rem;
-      background: var(--input-bg);
+      padding: 0.9rem 1rem;
+      border: 2px solid rgba(59, 130, 246, 0.15);
+      border-radius: 10px;
+      font-size: 1rem;
+      background: linear-gradient(135deg, var(--input-bg) 0%, rgba(59, 130, 246, 0.02) 100%);
       color: var(--text-primary);
       transition: all 0.3s ease;
       font-family: inherit;
@@ -257,8 +324,9 @@
     .form-group textarea:focus,
     .form-group select:focus {
       outline: none;
-      border-color: var(--primary-color);
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+      background: linear-gradient(135deg, var(--input-bg) 0%, rgba(59, 130, 246, 0.05) 100%);
     }
 
     .form-group textarea {
@@ -279,37 +347,64 @@
     }
 
     .btn {
-      padding: 0.9rem 1.8rem;
+      padding: 0.95rem 2rem;
       border: none;
-      border-radius: 6px;
-      font-weight: 600;
+      border-radius: 10px;
+      font-weight: 700;
       cursor: pointer;
       transition: all 0.3s ease;
-      display: flex;
+      display: inline-flex;
       align-items: center;
-      gap: 0.5rem;
-      font-size: 1.1rem;
+      justify-content: center;
+      gap: 0.6rem;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .btn:hover::before {
+      left: 100%;
     }
 
     .btn-primary {
-      background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
       color: white;
-      box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+      box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4);
     }
 
     .btn-primary:hover {
-      background: linear-gradient(135deg, var(--primary-dark) 0%, #1d4ed8 100%);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 16px rgba(59, 130, 246, 0.5);
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 32px rgba(59, 130, 246, 0.6);
+    }
+
+    .btn-primary:active {
+      transform: translateY(-1px);
     }
 
     .btn-secondary {
-      background: var(--border-color);
-      color: var(--text-primary);
+      background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+      color: white;
+      box-shadow: 0 4px 15px rgba(100, 116, 139, 0.3);
     }
 
     .btn-secondary:hover {
-      background: #cbd5e1;
+      background: linear-gradient(135deg, #475569 0%, #334155 100%);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(100, 116, 139, 0.4);
     }
 
     .btn-danger {
@@ -325,36 +420,47 @@
       width: 100%;
       border-collapse: collapse;
       margin-top: 2rem;
-      background: var(--card-bg);
-      border-radius: 8px;
+      background: linear-gradient(135deg, var(--card-bg) 0%, rgba(59, 130, 246, 0.01) 100%);
+      border-radius: 12px;
       overflow: hidden;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-      border: 1px solid var(--border-color);
+      box-shadow: 0 8px 32px rgba(59, 130, 246, 0.1);
+      border: 2px solid rgba(59, 130, 246, 0.15);
     }
 
     .blogs-table thead {
-      background: linear-gradient(135deg, var(--primary-light) 0%, rgba(59, 130, 246, 0.08) 100%);
-      border-bottom: 2px solid var(--border-color);
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(99, 102, 241, 0.08) 100%);
+      border-bottom: 2px solid rgba(59, 130, 246, 0.25);
     }
 
     .blogs-table th {
-      padding: 1rem;
+      padding: 1.2rem 1.5rem;
       text-align: left;
-      color: var(--primary-color);
-      font-weight: 600;
-      font-size: 1.1rem;
+      background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 700;
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
     }
 
     .blogs-table td {
-      padding: 1rem;
-      border-bottom: 1px solid var(--border-color);
+      padding: 1.2rem 1.5rem;
+      border-bottom: 1px solid rgba(59, 130, 246, 0.1);
       color: var(--text-primary);
-      font-size: 1.05rem;
+      font-size: 0.95rem;
+    }
+
+    .blogs-table tbody tr {
+      transition: all 0.3s ease;
     }
 
     .blogs-table tbody tr:hover {
-      background: var(--bg-secondary);
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(99, 102, 241, 0.04) 100%);
       cursor: pointer;
+      transform: scale(1.01);
+      box-shadow: inset 0 0 12px rgba(59, 130, 246, 0.1);
     }
 
     .blogs-table tr:last-child td {
@@ -362,8 +468,11 @@
     }
 
     .blog-title {
-      font-weight: 600;
-      color: var(--primary-color);
+      font-weight: 700;
+      background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
       max-width: 300px;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -372,46 +481,49 @@
 
     .blog-actions {
       display: flex;
-      gap: 0.5rem;
+      gap: 0.75rem;
       flex-wrap: wrap;
+      justify-content: center;
     }
 
     .blog-actions button {
-      padding: 0.5rem 1rem;
+      padding: 0.6rem 1.2rem;
       border: none;
-      border-radius: 4px;
+      border-radius: 8px;
       cursor: pointer;
-      font-size: 1rem;
+      font-size: 0.85rem;
       transition: all 0.3s ease;
-      display: flex;
+      display: inline-flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.4rem;
       white-space: nowrap;
+      font-weight: 600;
     }
 
     .btn-edit {
       background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
       color: white;
       border: none;
-      font-weight: 600;
-      box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
     }
 
     .btn-edit:hover {
       background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-      color: white;
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+      box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
     }
 
     .btn-delete {
-      background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
-      color: #dc2626;
-      box-shadow: 0 2px 6px rgba(220, 38, 38, 0.2);
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      color: white;
+      box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
     }
 
     .btn-delete:hover {
       background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4);
+    }
       color: white;
       transform: translateY(-2px);
       box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
@@ -427,10 +539,15 @@
     }
 
     .message {
-      padding: 1rem;
-      border-radius: 6px;
+      padding: 1.2rem 1.5rem;
+      border-radius: 12px;
       margin-bottom: 1.5rem;
       display: none;
+      font-weight: 500;
+      border-left: 4px solid;
+      animation: slideInDown 0.4s ease;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     }
 
     .message.show {
@@ -438,15 +555,70 @@
     }
 
     .message.success {
-      background: #dcfce7;
-      color: #166534;
-      border: 1px solid #86efac;
+      background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(74, 222, 128, 0.05) 100%);
+      color: #15803d;
+      border-left-color: #22c55e;
     }
 
     .message.error {
-      background: #fee2e2;
-      color: #991b1b;
-      border: 1px solid #fecaca;
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(248, 113, 113, 0.05) 100%);
+      color: #b91c1c;
+      border-left-color: #ef4444;
+    }
+
+    @keyframes slideInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .loading {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem 2rem;
+      color: var(--text-secondary);
+    }
+
+    .empty-state i {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      opacity: 0.4;
+      color: var(--primary-color);
+    }
+
+    .empty-state h3 {
+      color: var(--text-primary);
+      margin: 0.5rem 0;
+    }
+
+    .empty-state p {
+      margin: 0;
+      font-size: 0.95rem;
     }
 
     .message.info {
@@ -519,35 +691,520 @@
         padding: 1rem;
       }
 
+      .submission-tab {
+        padding: 0.4rem 1rem !important;
+        font-size: 0.85rem;
+      }
+
+      .submission-tabs-container {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        padding: 0.5rem;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+
+      .input-group {
+        width: 100%;
+      }
+
+      input,
+      textarea,
+      select {
+        width: 100%;
+        box-sizing: border-box;
+      }
+    }
+
+    /* Modal Responsiveness */
+    @media (max-width: 768px) {
+      .submission-modal {
+        padding: 0.5rem;
+      }
+
+      .submission-modal-content {
+        max-width: 100%;
+        padding: 1.5rem;
+        max-height: 90vh;
+        border-radius: 8px;
+      }
+
+      .submission-modal-title {
+        font-size: 1.3rem;
+        margin-bottom: 1rem;
+      }
+
+      .submission-detail {
+        margin-bottom: 1rem;
+      }
+
+      .submission-detail-value {
+        font-size: 0.95rem;
+        padding: 0.6rem;
+      }
+
+      .submission-modal-actions {
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+
+      .btn-close-modal {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .submission-modal {
+        padding: 0;
+      }
+
+      .submission-modal-content {
+        max-width: 100%;
+        padding: 1rem;
+        max-height: 95vh;
+        border-radius: 0;
+        border: none;
+      }
+
+      .submission-modal-title {
+        font-size: 1.1rem;
+        margin-bottom: 0.75rem;
+      }
+
+      .submission-modal-close {
+        top: 0.75rem;
+        right: 0.75rem;
+        width: 36px;
+        height: 36px;
+        font-size: 1.2rem;
+      }
+
+      .submission-detail {
+        margin-bottom: 0.75rem;
+      }
+
+      .submission-detail-label {
+        font-size: 0.85rem;
+        margin-bottom: 0.35rem;
+      }
+
+      .submission-detail-value {
+        font-size: 0.85rem;
+        padding: 0.5rem;
+        border-radius: 4px;
+      }
+
+      .submission-modal-actions {
+        flex-direction: column;
+        gap: 0.5rem;
+        margin-top: 1rem;
+        padding-top: 1rem;
+      }
+
+      .btn-close-modal {
+        width: 100%;
+        padding: 0.6rem 1rem;
+        font-size: 0.85rem;
+      }
+
+      .add-blog-form {
+        padding: 0;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+      }
+
+      .form-group input,
+      .form-group textarea,
+      .form-group select {
+        padding: 0.5rem;
+        font-size: 0.95rem;
+      }
+
+      .form-group label {
+        font-size: 0.8rem;
+      }
+    }
+
+    /* Responsive Table Styles */
+    @media (max-width: 768px) {
       .blogs-table {
         font-size: 0.85rem;
       }
 
       .blogs-table th,
       .blogs-table td {
-        padding: 0.75rem;
+        padding: 0.75rem 0.5rem;
       }
 
       .blog-actions {
+        display: flex;
         flex-direction: column;
+        gap: 0.5rem;
       }
 
-      .blog-actions button {
-        padding: 0.4rem 0.75rem;
+      .btn-edit,
+      .btn-delete {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.75rem;
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .blogs-table {
         font-size: 0.75rem;
       }
 
-      .content-area h2 {
-        font-size: 1.5rem;
+      .blogs-table th,
+      .blogs-table td {
+        padding: 0.5rem 0.25rem;
       }
 
-      .add-blog-form {
-        grid-template-columns: 1fr;
+      .blog-title {
+        max-width: 100px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .blog-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+      }
+
+      .btn-edit,
+      .btn-delete {
+        padding: 0.35rem 0.6rem;
+        font-size: 0.65rem;
+        width: 100%;
+      }
+
+      .btn-edit i,
+      .btn-delete i {
+        display: none;
+      }
+    }
+    @media (max-width: 480px) {
+      .admin-container {
+        flex-direction: column;
+      }
+
+      .admin-sidebar {
+        width: 100%;
+        padding: 0.75rem 0;
+        margin-bottom: 1rem;
+      }
+
+      .admin-main {
+        padding: 0.75rem;
+        margin-left: 0;
+      }
+
+      .sidebar-header {
+        padding: 1rem;
+        border-radius: 0;
+      }
+
+      .sidebar-logo {
+        font-size: 1.3rem;
+      }
+
+      .sidebar-nav {
+        flex-direction: column;
+        gap: 0.25rem;
+        padding: 0 0.5rem;
+      }
+
+      .sidebar-nav a {
+        flex: none;
+        width: 100%;
+        min-width: unset;
+        font-size: 0.8rem;
+        padding: 0.4rem 0.6rem;
+        margin: 0.15rem 0.25rem;
+      }
+
+      .admin-header {
+        padding: 0.75rem 0;
+        gap: 0.5rem;
+      }
+
+      .admin-header h1 {
+        font-size: 1.2rem;
+      }
+
+      .submission-tabs-container {
+        gap: 0.25rem;
+        padding: 0.4rem;
+        border-radius: 8px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
       }
 
       .submission-tab {
-        padding: 0.4rem 1rem !important;
+        padding: 0.35rem 0.7rem !important;
+        font-size: 0.75rem;
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+
+      .submission-tab i {
+        display: none;
+      }
+
+      .form-group {
+        margin-bottom: 0.75rem;
+      }
+
+      .form-group label {
+        font-size: 0.8rem;
+      }
+
+      .form-group input,
+      .form-group textarea,
+      .form-group select {
+        padding: 0.5rem;
+        font-size: 0.95rem;
+        border-radius: 4px;
+      }
+
+      .form-group textarea {
+        min-height: 100px;
+        resize: vertical;
+      }
+
+      .btn {
+        padding: 0.5rem 1rem !important;
         font-size: 0.85rem;
+        width: 100%;
+      }
+
+      .submit-btn,
+      .cancel-btn,
+      .delete-btn {
+        width: 100%;
+        padding: 0.5rem !important;
+        font-size: 0.8rem;
+      }
+
+      .form-actions {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .form-actions button {
+        width: 100%;
+      }
+
+      .submission-detail {
+        padding: 0.75rem;
+        margin-bottom: 0.75rem;
+      }
+
+      .submission-detail h3 {
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .submission-detail p {
+        font-size: 0.85rem;
+        margin-bottom: 0.4rem;
+      }
+
+      .sidebar-footer {
+        position: relative;
+        bottom: auto;
+        margin-top: 0.75rem;
+        padding: 0.75rem;
+        width: auto;
+        left: auto;
+        right: auto;
+      }
+
+      .logout-btn {
+        width: 100%;
+        padding: 0.5rem;
+        font-size: 0.8rem;
+      }
+
+      .message {
+        padding: 0.75rem;
+        font-size: 0.8rem;
+        border-radius: 6px;
+      }
+    }
+
+    /* Submission Tabs Styling */
+    .submission-tabs-container {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 2rem;
+      background: var(--card-bg);
+      padding: 0.75rem;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .submission-tab {
+      padding: 0.65rem 1.25rem;
+      background: transparent;
+      border: none;
+      border-bottom: 3px solid transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: all 0.3s ease;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      position: relative;
+    }
+
+    .submission-tab i {
+      font-size: 1rem;
+    }
+
+    .submission-tab:hover {
+      color: var(--primary-color);
+      background: rgba(59, 130, 246, 0.05);
+    }
+
+    .submission-tab.active {
+      color: var(--primary-color);
+      background: rgba(59, 130, 246, 0.1);
+      border-bottom-color: var(--primary-color);
+    }
+
+    /* Submission Details */
+    .submission-detail {
+      padding: 1rem;
+      background: var(--bg-secondary);
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+
+    .submission-detail-label {
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+    }
+
+    .submission-detail-value {
+      color: var(--text-primary);
+      font-size: 0.95rem;
+      word-break: break-word;
+    }
+
+    .submission-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .submission-modal.show {
+      display: flex;
+    }
+
+    .submission-modal-content {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 2rem;
+      max-width: 600px;
+      width: 100%;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      position: relative;
+      border: 1px solid var(--border-color);
+    }
+
+    .submission-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .submission-modal-header h3 {
+      margin: 0;
+      font-size: 1.3rem;
+      color: var(--text-primary);
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 1.5rem;
+      transition: color 0.3s ease;
+    }
+
+    .close-btn:hover {
+      color: var(--primary-color);
+    }
+
+    /* Message Styling */
+    .message {
+      display: none;
+      padding: 1rem 1.5rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+      font-weight: 500;
+      animation: slideIn 0.3s ease;
+      border-left: 4px solid;
+    }
+
+    .message.show {
+      display: block;
+    }
+
+    .message.success {
+      background: linear-gradient(135deg, rgba(76, 175, 80, 0.1) 0%, rgba(56, 142, 60, 0.1) 100%);
+      color: #2e7d32;
+      border-left-color: #4caf50;
+    }
+
+    .message.error {
+      background: linear-gradient(135deg, rgba(244, 67, 54, 0.1) 0%, rgba(211, 47, 47, 0.1) 100%);
+      color: #c62828;
+      border-left-color: #f44336;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateX(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
       }
     }
 
@@ -587,7 +1244,7 @@
       </div>
 
       <nav class="sidebar-nav">
-        <a href="#" class="nav-link active" data-section="dashboard">
+        <a href="#" class="nav-link" data-section="dashboard">
           <i class="fa-solid fa-chart-line"></i> Dashboard
         </a>
         <a href="#" class="nav-link" data-section="add-blog">
@@ -596,7 +1253,7 @@
         <a href="#" class="nav-link" data-section="manage-blogs">
           <i class="fa-solid fa-list"></i> Manage Blogs
         </a>
-        <a href="#" class="nav-link" data-section="submissions">
+        <a href="#" class="nav-link active" data-section="submissions">
           <i class="fa-solid fa-inbox"></i> Form Submissions
         </a>
         <a href="/" class="nav-link">
@@ -624,7 +1281,7 @@
       </div>
 
       <!-- Dashboard Section -->
-      <div id="dashboard" class="section active">
+      <div id="dashboard" class="section">
         <div class="content-area">
           <h2>
             <i class="fa-solid fa-tachometer-alt"></i> Dashboard
@@ -767,7 +1424,7 @@
       </div>
 
       <!-- Form Submissions Section -->
-      <div id="submissions" class="section">
+      <div id="submissions" class="section active">
         <div class="content-area">
           <h2>
             <i class="fa-solid fa-envelope"></i> Form Submissions
@@ -776,14 +1433,14 @@
           <div id="submissionsMessage" class="message"></div>
 
           <!-- Submission Tabs -->
-          <div style="display: flex; gap: 1rem; margin-bottom: 2rem; border-bottom: 2px solid var(--border-color); padding-bottom: 1rem; flex-wrap: wrap;">
-            <button class="submission-tab active" data-type="contact" style="padding: 0.5rem 1.5rem; background: none; border: none; border-bottom: 3px solid var(--primary-color); color: var(--primary-color); cursor: pointer; font-weight: 600; font-size: 1.1rem;">
+          <div class="submission-tabs-container">
+            <button class="submission-tab active" data-type="contact">
               <i class="fa-solid fa-envelope"></i> Contact Submissions
             </button>
-            <button class="submission-tab" data-type="join" style="padding: 0.5rem 1.5rem; background: none; border: none; color: var(--text-secondary); cursor: pointer; font-weight: 600; font-size: 1.1rem;">
+            <button class="submission-tab" data-type="join">
               <i class="fa-solid fa-user-plus"></i> Join Us Submissions
             </button>
-            <button class="submission-tab" data-type="ambassador" style="padding: 0.5rem 1.5rem; background: none; border: none; color: var(--text-secondary); cursor: pointer; font-weight: 600; font-size: 1.1rem;">
+            <button class="submission-tab" data-type="ambassador">
               <i class="fa-solid fa-star"></i> Ambassador Submissions
             </button>
           </div>
@@ -796,6 +1453,9 @@
 
   <script src="assets/js/utils.js" defer></script>
   <script defer>
+    // Global variables
+    let currentSubmissionType = 'contact';
+
     // Check authentication
     const token = localStorage.getItem('adminToken');
     if (!token) {
@@ -809,6 +1469,8 @@
         
         const section = e.currentTarget.dataset.section;
         const href = e.currentTarget.getAttribute('href');
+        
+        console.log('Navigation clicked:', { section, href });
         
         // Handle direct href navigation (e.g., Back to Site)
         if (!section && href && href !== '#') {
@@ -824,7 +1486,13 @@
 
         // Update active section
         document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-        document.getElementById(section).classList.add('active');
+        const targetSection = document.getElementById(section);
+        if (targetSection) {
+          targetSection.classList.add('active');
+          console.log('Section activated:', section);
+        } else {
+          console.error('Section not found:', section);
+        }
 
         // Load data for manage-blogs
         if (section === 'manage-blogs') {
@@ -846,29 +1514,41 @@
     // Load admin profile
     async function loadAdminProfile() {
       try {
-        const response = await fetch('https://hackhalt-cic-szfr.vercel.app/api/admin/profile', {
+        const response = await fetch('/api/admin/profile', {
           headers: {
             'Authorization': `Bearer ${token}`
           }
         });
 
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
         const data = await response.json();
-        if (data.success) {
-          document.getElementById('adminName').textContent = data.admin.username;
-          document.getElementById('adminRole').textContent = data.admin.role.toUpperCase();
+        if (data.success && data.admin) {
+          document.getElementById('adminName').textContent = data.admin.username || 'Admin';
+          document.getElementById('adminRole').textContent = (data.admin.role || 'admin').toUpperCase();
+        } else {
+          document.getElementById('adminName').textContent = 'Admin User';
         }
       } catch (error) {
         console.error('Error loading profile:', error);
+        document.getElementById('adminName').textContent = 'Admin User';
+        document.getElementById('adminRole').textContent = 'ADMIN';
       }
     }
 
     // Load dashboard stats
     async function loadDashboard() {
       try {
-        const response = await fetch('https://hackhalt-cic-szfr.vercel.app/api/submissions/blogs?limit=1000');
+        const response = await fetch('/api/submissions/blogs?limit=1000');
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
 
         const data = await response.json();
-        if (data.success) {
+        
+        if (data.success || (data.submissions && Array.isArray(data.submissions))) {
           const blogs = data.submissions || [];
           const published = blogs.filter(b => b.isPublished).length;
           const drafts = blogs.filter(b => !b.isPublished).length;
@@ -879,6 +1559,9 @@
         }
       } catch (error) {
         console.error('Error loading dashboard:', error);
+        document.getElementById('totalBlogs').textContent = '0';
+        document.getElementById('publishedBlogs').textContent = '0';
+        document.getElementById('draftBlogs').textContent = '0';
       }
     }
 
@@ -888,10 +1571,13 @@
       const blogsList = document.getElementById('blogsList');
 
       try {
-        const response = await fetch('https://hackhalt-cic-szfr.vercel.app/api/submissions/blogs?limit=100');
+        const response = await fetch('/api/submissions/blogs?limit=100');
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
 
         const data = await response.json();
-        if (!data.success) {
+        if (!data.success && !Array.isArray(data.submissions)) {
           throw new Error(data.error || 'Failed to load blogs');
         }
 
@@ -965,7 +1651,7 @@
 
     // View blog details
     function viewBlog(blogId) {
-      fetch('https://hackhalt-cic-szfr.vercel.app/api/submissions/blogs?limit=100')
+      fetch('/api/submissions/blogs?limit=100')
         .then(res => res.json())
         .then(data => {
           if (data.success) {
@@ -1034,7 +1720,7 @@
 
     // Edit blog
     function editBlog(blogId) {
-      fetch('https://hackhalt-cic-szfr.vercel.app/api/submissions/blogs?limit=100')
+      fetch('/api/submissions/blogs?limit=100')
         .then(res => res.json())
         .then(data => {
           if (data.success) {
@@ -1058,7 +1744,7 @@
 
       const message = document.getElementById('manageBlogsMessage');
 
-      fetch(`https://hackhalt-cic-szfr.vercel.app/api/submissions/blogs/${blogId}`, {
+      fetch(`/api/submissions/blogs/${blogId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -1101,7 +1787,7 @@
       publishBtn.innerHTML = '<div class="loading"><div class="spinner"></div></div> Publishing...';
 
       try {
-        const response = await fetch('https://hackhalt-cic-szfr.vercel.app/api/blog', {
+        const response = await fetch('/api/blog', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -1149,203 +1835,173 @@
     });
 
     // Form Submissions Management
-    let currentSubmissionType = 'contact';
-
     // Submission tab switching
-    document.querySelectorAll('.submission-tab').forEach(tab => {
+    console.log('Setting up submission tab listeners...');
+    const tabs = document.querySelectorAll('.submission-tab');
+    console.log('Found submission tabs:', tabs.length);
+    
+    tabs.forEach((tab, index) => {
+      console.log(`Tab ${index}:`, tab.dataset.type);
       tab.addEventListener('click', (e) => {
-        document.querySelectorAll('.submission-tab').forEach(t => {
-          t.style.color = 'var(--text-secondary)';
-          t.style.borderBottom = 'none';
-        });
-        e.currentTarget.style.color = 'var(--primary-color)';
-        e.currentTarget.style.borderBottom = '3px solid var(--primary-color)';
+        e.preventDefault();
+        console.log('🎯 Tab clicked:', tab.dataset.type);
         
-        currentSubmissionType = e.currentTarget.dataset.type;
+        // Update active tab styling
+        document.querySelectorAll('.submission-tab').forEach(t => {
+          t.classList.remove('active');
+        });
+        tab.classList.add('active');
+        
+        // Update currentSubmissionType
+        currentSubmissionType = tab.dataset.type;
+        console.log('Updated type to:', currentSubmissionType);
+        
+        // Reload submissions for new type
         loadSubmissions();
       });
     });
 
     // Load form submissions
     async function loadSubmissions() {
-      const message = document.getElementById('submissionsMessage');
-      const submissionsList = document.getElementById('submissionsList');
-      const baseUrl = 'https://hackhalt-cic-szfr.vercel.app';
+      console.log('===== loadSubmissions CALLED =====');
       
-      let endpoint;
-      if (currentSubmissionType === 'contact') {
-        endpoint = `${baseUrl}/api/submissions/contact`;
-      } else if (currentSubmissionType === 'join') {
-        endpoint = `${baseUrl}/api/submissions/join`;
-      } else if (currentSubmissionType === 'ambassador') {
-        endpoint = `${baseUrl}/api/submissions/ambassadors`;
+      const submissionsList = document.getElementById('submissionsList');
+      
+      if (!submissionsList) {
+        console.error('🔴 CRITICAL: submissionsList element not found!');
+        alert('ERROR: submissionsList element not found!');
+        return;
       }
+      
+      // Show visible loading
+      submissionsList.innerHTML = `<div style="padding: 3rem; text-align: center; background: #fffacd; border: 3px solid #ff6b6b; border-radius: 8px; font-size: 1.2rem; color: #000;"><strong>⏳ LOADING SUBMISSIONS...</strong></div>`;
+      
+      let endpoint = '/api/submissions/contact';
 
       try {
-        console.log('Loading submissions from:', endpoint);
+        console.log('🚀 Fetching:', endpoint);
         const response = await fetch(endpoint);
         const data = await response.json();
         
-        console.log('Response data:', data);
+        console.log('✅ Response received:', data);
 
-        if (!data.success) {
-          throw new Error(data.error || 'Failed to load submissions');
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
         }
 
         const submissions = data.submissions || [];
-        console.log('Submissions found:', submissions.length);
+        console.log('📊 Total submissions:', submissions.length);
         
-        let typeLabel = 'Submissions';
-        if (currentSubmissionType === 'contact') typeLabel = 'Contact';
-        else if (currentSubmissionType === 'join') typeLabel = 'Join Us';
-        else if (currentSubmissionType === 'ambassador') typeLabel = 'Ambassador';
-
         if (submissions.length === 0) {
-          submissionsList.innerHTML = `
-            <div class="empty-state">
-              <i class="fa-solid fa-inbox"></i>
-              <h3>No ${typeLabel} submissions yet</h3>
-              <p>Submissions will appear here when received</p>
-            </div>
-          `;
+          submissionsList.innerHTML = `<div style="padding: 2rem; text-align: center; background: #e8f4f8; border-radius: 8px; font-size: 1rem;"><strong>📭 No submissions found</strong></div>`;
           return;
         }
 
-        let html = `
-          <div style="overflow-x: auto;">
-            <table class="blogs-table">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Email</th>
-                  <th>${currentSubmissionType === 'contact' ? 'Subject' : currentSubmissionType === 'ambassador' ? 'Position' : 'Organization'}</th>
-                  <th>Date</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-        `;
-
-        submissions.forEach(submission => {
-          const date = new Date(submission.createdAt).toLocaleDateString();
-          
-          let displayField = 'N/A';
-          if (currentSubmissionType === 'contact') {
-            displayField = submission.subject;
-          } else if (currentSubmissionType === 'join') {
-            displayField = submission.organization;
-          } else if (currentSubmissionType === 'ambassador') {
-            displayField = submission.desiredPosition || submission.position || 'N/A';
-          }
-
-          html += `
+        let html = `<table class="blogs-table" style="width: 100%; border-collapse: collapse;">
+          <thead style="background: #3b82f6; color: white;">
             <tr>
-              <td>${submission.name}</td>
-              <td><a href="mailto:${submission.email}" style="color: var(--primary-color);">${submission.email}</a></td>
-              <td>${displayField}</td>
-              <td>${date}</td>
-              <td>
-                <div class="blog-actions">
-                  <button class="btn-edit" onclick="viewSubmission('${submission._id}', '${currentSubmissionType}')">
-                    <i class="fa-solid fa-eye"></i> View
-                  </button>
-                  <button class="btn-delete" onclick="deleteSubmission('${submission._id}', '${currentSubmissionType}')">
-                    <i class="fa-solid fa-trash"></i> Delete
-                  </button>
-                </div>
-              </td>
+              <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Name</th>
+              <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Email</th>
+              <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Subject</th>
+              <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Date</th>
+              <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Actions</th>
             </tr>
-          `;
+          </thead>
+          <tbody>`;
+
+        submissions.forEach((sub, idx) => {
+          const date = new Date(sub.createdAt).toLocaleDateString();
+          html += `<tr style="background: ${idx % 2 === 0 ? '#f9fafb' : '#ffffff'}; border-bottom: 1px solid #ddd;">
+            <td style="padding: 12px; border: 1px solid #ddd;"><strong>${sub.name || 'Unknown'}</strong></td>
+            <td style="padding: 12px; border: 1px solid #ddd;">${sub.email || 'N/A'}</td>
+            <td style="padding: 12px; border: 1px solid #ddd;">${sub.subject || 'N/A'}</td>
+            <td style="padding: 12px; border: 1px solid #ddd;">${date}</td>
+            <td style="padding: 12px; border: 1px solid #ddd;"><button class="btn-edit" onclick="viewSubmission('${sub._id}', 'contact')" style="padding: 6px 12px; background: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer;">View</button></td>
+          </tr>`;
         });
 
-        html += `
-              </tbody>
-            </table>
-          </div>
-        `;
-
+        html += `</tbody></table>`;
         submissionsList.innerHTML = html;
+        console.log('✅ Table rendered successfully');
       } catch (error) {
-        message.textContent = error.message || 'Failed to load submissions';
-        message.classList.add('show', 'error');
+        console.error('❌ Error:', error);
+        submissionsList.innerHTML = `<div style="padding: 2rem; background: #fee; border: 2px solid #c00; border-radius: 8px; color: #c00; font-size: 1rem;"><strong>❌ ERROR: ${error.message}</strong></div>`;
       }
     }
 
     // View submission details
     function viewSubmission(submissionId, type) {
-      const baseUrl = 'https://hackhalt-cic-szfr.vercel.app';
-      
       let endpoint;
       if (type === 'contact') {
-        endpoint = `${baseUrl}/api/submissions/contact`;
+        endpoint = `/api/submissions/contact`;
       } else if (type === 'join') {
-        endpoint = `${baseUrl}/api/submissions/join`;
+        endpoint = `/api/submissions/join`;
       } else if (type === 'ambassador') {
-        endpoint = `${baseUrl}/api/submissions/ambassadors`;
+        endpoint = `/api/submissions/ambassadors`;
       }
       
       fetch(endpoint)
         .then(res => res.json())
         .then(data => {
-          if (data.success) {
-            const submission = data.submissions.find(s => s._id === submissionId);
-            if (submission) {
-              let content = '';
+          const submissions = Array.isArray(data.submissions) ? data.submissions : data.submissions || [];
+          const submission = submissions.find(s => s._id === submissionId);
+          if (submission) {
+            let content = '';
+            
+            // Name
+            content += `<div class="submission-detail">
+              <div class="submission-detail-label"><i class="fa-solid fa-user" style="margin-right: 0.5rem;"></i>Name</div>
+              <div class="submission-detail-value">${submission.name}</div>
+            </div>`;
+            
+            // Email
+            content += `<div class="submission-detail">
+              <div class="submission-detail-label"><i class="fa-solid fa-envelope" style="margin-right: 0.5rem;"></i>Email</div>
+              <div class="submission-detail-value"><a href="mailto:${submission.email}" style="color: var(--primary-color); text-decoration: none;">${submission.email}</a></div>
+            </div>`;
+            
+            if (type === 'contact') {
+              // Phone
+              if (submission.phone) {
+                content += `<div class="submission-detail">
+                  <div class="submission-detail-label"><i class="fa-solid fa-phone" style="margin-right: 0.5rem;"></i>Phone</div>
+                  <div class="submission-detail-value">${submission.phone}</div>
+                </div>`;
+              }
               
-              // Name
+              // Subject
               content += `<div class="submission-detail">
-                <div class="submission-detail-label"><i class="fa-solid fa-user" style="margin-right: 0.5rem;"></i>Name</div>
-                <div class="submission-detail-value">${submission.name}</div>
+                <div class="submission-detail-label"><i class="fa-solid fa-heading" style="margin-right: 0.5rem;"></i>Subject</div>
+                <div class="submission-detail-value">${submission.subject}</div>
               </div>`;
               
-              // Email
+              // Message
               content += `<div class="submission-detail">
-                <div class="submission-detail-label"><i class="fa-solid fa-envelope" style="margin-right: 0.5rem;"></i>Email</div>
-                <div class="submission-detail-value"><a href="mailto:${submission.email}" style="color: var(--primary-color); text-decoration: none;">${submission.email}</a></div>
+                <div class="submission-detail-label"><i class="fa-solid fa-message" style="margin-right: 0.5rem;"></i>Message</div>
+                <div class="submission-detail-value">${submission.message.replace(/\n/g, '<br>')}</div>
               </div>`;
+            } else if (type === 'join') {
+              // Organization
+              if (submission.organization) {
+                content += `<div class="submission-detail">
+                  <div class="submission-detail-label"><i class="fa-solid fa-building" style="margin-right: 0.5rem;"></i>Organization</div>
+                  <div class="submission-detail-value">${submission.organization}</div>
+                </div>`;
+              }
               
-              if (type === 'contact') {
-                // Phone
-                if (submission.phone) {
-                  content += `<div class="submission-detail">
-                    <div class="submission-detail-label"><i class="fa-solid fa-phone" style="margin-right: 0.5rem;"></i>Phone</div>
-                    <div class="submission-detail-value">${submission.phone}</div>
-                  </div>`;
-                }
-                
-                // Subject
+              // Interests
+              if (submission.interests) {
                 content += `<div class="submission-detail">
-                  <div class="submission-detail-label"><i class="fa-solid fa-heading" style="margin-right: 0.5rem;"></i>Subject</div>
-                  <div class="submission-detail-value">${submission.subject}</div>
+                  <div class="submission-detail-label"><i class="fa-solid fa-star" style="margin-right: 0.5rem;"></i>Interests</div>
+                  <div class="submission-detail-value">${submission.interests}</div>
                 </div>`;
-                
-                // Message
+              }
+            } else if (type === 'ambassador') {
+              // Phone
+              if (submission.phone) {
                 content += `<div class="submission-detail">
-                  <div class="submission-detail-label"><i class="fa-solid fa-message" style="margin-right: 0.5rem;"></i>Message</div>
-                  <div class="submission-detail-value">${submission.message.replace(/\n/g, '<br>')}</div>
-                </div>`;
-              } else if (type === 'join') {
-                // Organization
-                if (submission.organization) {
-                  content += `<div class="submission-detail">
-                    <div class="submission-detail-label"><i class="fa-solid fa-building" style="margin-right: 0.5rem;"></i>Organization</div>
-                    <div class="submission-detail-value">${submission.organization}</div>
-                  </div>`;
-                }
-                
-                // Interests
-                if (submission.interests) {
-                  content += `<div class="submission-detail">
-                    <div class="submission-detail-label"><i class="fa-solid fa-star" style="margin-right: 0.5rem;"></i>Interests</div>
-                    <div class="submission-detail-value">${submission.interests}</div>
-                  </div>`;
-                }
-              } else if (type === 'ambassador') {
-                // Phone
-                if (submission.phone) {
-                  content += `<div class="submission-detail">
-                    <div class="submission-detail-label"><i class="fa-solid fa-phone" style="margin-right: 0.5rem;"></i>Phone</div>
-                    <div class="submission-detail-value">${submission.phone}</div>
+                  <div class="submission-detail-label"><i class="fa-solid fa-phone" style="margin-right: 0.5rem;"></i>Phone</div>
+                  <div class="submission-detail-value">${submission.phone}</div>
                   </div>`;
                 }
 
@@ -1411,15 +2067,13 @@
         return;
       }
 
-      const baseUrl = 'https://hackhalt-cic-szfr.vercel.app';
-      
       let endpoint;
       if (type === 'contact') {
-        endpoint = `${baseUrl}/api/submissions/contact/${submissionId}`;
+        endpoint = `/api/submissions/contact/${submissionId}`;
       } else if (type === 'join') {
-        endpoint = `${baseUrl}/api/submissions/join/${submissionId}`;
+        endpoint = `/api/submissions/join/${submissionId}`;
       } else if (type === 'ambassador') {
-        endpoint = `${baseUrl}/api/submissions/ambassadors/${submissionId}`;
+        endpoint = `/api/submissions/ambassadors/${submissionId}`;
       }
 
       fetch(endpoint, {
@@ -1441,9 +2095,20 @@
     }
 
     // Load initial data
+    console.log('Initializing page...');
+    console.log('Page DOM fully loaded');
+    
+    // Make sure tab listeners are set up
+    console.log('Checking if submission tabs are available...');
+    const submissionTabs = document.querySelectorAll('.submission-tab');
+    console.log('Number of submission tabs found:', submissionTabs.length);
+    
     loadAdminProfile();
-    loadDashboard();
+    
+    // Load Form Submissions by default (hard change)
+    console.log('Loading Form Submissions on page load...');
     loadSubmissions();
+    console.log('Form submissions initialized');
   </script>
 
   <!-- Submission View Modal -->
@@ -1558,6 +2223,7 @@
     }
   </style>
 
+  <!-- Submission Modal -->
   <div id="submissionModal" class="submission-modal">
     <div class="submission-modal-content">
       <button class="submission-modal-close" onclick="closeSubmissionModal()">
@@ -1571,14 +2237,155 @@
     </div>
   </div>
 
+  <!-- Blog Modal -->
+  <div id="blogModal" class="submission-modal">
+    <div class="submission-modal-content">
+      <button class="submission-modal-close" onclick="closeBlogModal()">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <h2 class="submission-modal-title">Blog Details</h2>
+      <div id="blogDetails"></div>
+      <div class="submission-modal-actions">
+        <button class="btn-close-modal" onclick="closeBlogModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Blog Modal -->
+  <div id="editBlogModal" class="submission-modal">
+    <div class="submission-modal-content">
+      <button class="submission-modal-close" onclick="closeEditBlogModal()">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <h2 class="submission-modal-title">Edit Blog</h2>
+      <form id="editBlogForm" class="add-blog-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="editBlogTitle">Blog Title *</label>
+            <input type="text" id="editBlogTitle" name="title" required />
+          </div>
+          <div class="form-group">
+            <label for="editBlogAuthor">Author</label>
+            <input type="text" id="editBlogAuthor" name="author" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="editBlogCategory">Category</label>
+            <select id="editBlogCategory" name="category">
+              <option value="Security">Security</option>
+              <option value="Cybersecurity">Cybersecurity</option>
+              <option value="Technology">Technology</option>
+              <option value="Education">Education</option>
+              <option value="Community">Community</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="editBlogImage">Featured Image URL</label>
+            <input type="url" id="editBlogImage" name="image" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="editBlogExcerpt">Excerpt</label>
+          <textarea id="editBlogExcerpt" name="excerpt"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="editBlogContent">Content *</label>
+          <textarea id="editBlogContent" name="content" required></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="editBlogTags">Tags</label>
+          <input type="text" id="editBlogTags" name="tags" />
+        </div>
+
+        <div class="submission-modal-actions">
+          <button type="submit" class="btn btn-primary" style="flex: 1;">Save Changes</button>
+          <button type="button" class="btn-close-modal" onclick="closeEditBlogModal()">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script>
+    // Modal Management
     function closeSubmissionModal() {
-      document.getElementById('submissionModal').classList.remove('show');
+      const modal = document.getElementById('submissionModal');
+      if (modal) modal.classList.remove('show');
     }
 
     function showSubmissionModal(content) {
-      document.getElementById('submissionDetails').innerHTML = content;
-      document.getElementById('submissionModal').classList.add('show');
+      const details = document.getElementById('submissionDetails');
+      if (details) details.innerHTML = content;
+      const modal = document.getElementById('submissionModal');
+      if (modal) modal.classList.add('show');
+    }
+
+    function closeBlogModal() {
+      const modal = document.getElementById('blogModal');
+      if (modal) modal.classList.remove('show');
+    }
+
+    function showBlogModal(content, blog, isEditing = false) {
+      const details = document.getElementById('blogDetails');
+      if (details) details.innerHTML = content;
+      const modal = document.getElementById('blogModal');
+      if (modal) modal.classList.add('show');
+    }
+
+    function closeEditBlogModal() {
+      const modal = document.getElementById('editBlogModal');
+      if (modal) modal.classList.remove('show');
+    }
+
+    function showEditBlogModal(blog) {
+      document.getElementById('editBlogTitle').value = blog.title || '';
+      document.getElementById('editBlogAuthor').value = blog.author || '';
+      document.getElementById('editBlogCategory').value = blog.category || '';
+      document.getElementById('editBlogImage').value = blog.image || '';
+      document.getElementById('editBlogExcerpt').value = blog.excerpt || '';
+      document.getElementById('editBlogContent').value = blog.content || '';
+      document.getElementById('editBlogTags').value = (blog.tags || []).join(', ');
+      
+      const modal = document.getElementById('editBlogModal');
+      if (modal) modal.classList.add('show');
+      
+      const form = document.getElementById('editBlogForm');
+      if (form) {
+        form.onsubmit = async (e) => {
+          e.preventDefault();
+          const formData = {
+            title: document.getElementById('editBlogTitle').value,
+            author: document.getElementById('editBlogAuthor').value,
+            category: document.getElementById('editBlogCategory').value,
+            image: document.getElementById('editBlogImage').value,
+            excerpt: document.getElementById('editBlogExcerpt').value,
+            content: document.getElementById('editBlogContent').value,
+            tags: document.getElementById('editBlogTags').value.split(',').map(t => t.trim()).filter(t => t)
+          };
+
+          try {
+            const response = await fetch(`/api/submissions/blogs/${blog._id}`, {
+              method: 'PUT',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              },
+              body: JSON.stringify(formData)
+            });
+
+            if (!response.ok) throw new Error('Failed to update blog');
+            
+            closeEditBlogModal();
+            loadBlogs();
+          } catch (error) {
+            alert('Error updating blog: ' + error.message);
+          }
+        };
+      }
     }
 
     // Close modal on escape key
@@ -1591,19 +2398,39 @@
     });
 
     // Close modal on backdrop click
-    document.getElementById('submissionModal').addEventListener('click', (e) => {
-      if (e.target.id === 'submissionModal') {
-        closeSubmissionModal();
-      }
-    });
-
-    // Blog modals
-    function closeBlogModal() {
-      document.getElementById('blogModal').classList.remove('show');
+    const submissionModal = document.getElementById('submissionModal');
+    if (submissionModal) {
+      submissionModal.addEventListener('click', (e) => {
+        if (e.target.id === 'submissionModal') {
+          closeSubmissionModal();
+        }
+      });
     }
 
-    function closeEditBlogModal() {
-      document.getElementById('editBlogModal').classList.remove('show');
+    const blogModal = document.getElementById('blogModal');
+    if (blogModal) {
+      blogModal.addEventListener('click', (e) => {
+        if (e.target.id === 'blogModal') {
+          closeBlogModal();
+        }
+      });
+    }
+
+    const editBlogModal = document.getElementById('editBlogModal');
+    if (editBlogModal) {
+      editBlogModal.addEventListener('click', (e) => {
+        if (e.target.id === 'editBlogModal') {
+          closeEditBlogModal();
+        }
+      });
+    }
+
+    // Notification helper
+    if (typeof Notification === 'undefined') {
+      window.Notification = {
+        success: (msg) => console.log('✓ ' + msg),
+        error: (msg) => console.error('✗ ' + msg)
+      };
     }
 
     function showBlogModal(content, blog, isEdit = false) {
@@ -1643,7 +2470,7 @@
         tags: document.getElementById('editBlogTags').value.split(',').map(t => t.trim()).filter(t => t)
       };
 
-      fetch(`https://hackhalt-cic-szfr.vercel.app/api/submissions/blogs/${blogId}`, {
+      fetch(`/api/submissions/blogs/${blogId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updatedBlog)

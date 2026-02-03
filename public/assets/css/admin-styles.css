@@ -88,10 +88,15 @@
   flex-wrap: wrap;
   padding-bottom: 1rem;
   overflow-x: auto;
+  background: var(--card-bg);
+  border-radius: 12px 12px 0 0;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  border-bottom: none;
 }
 
 .tab-btn {
-  padding: 0.6rem 1rem;
+  padding: 0.75rem 1.25rem;
   background: transparent;
   border: none;
   border-bottom: 3px solid transparent;
@@ -99,10 +104,13 @@
   font-weight: 700;
   color: var(--text-secondary);
   transition: all 0.3s ease;
-  border-radius: 4px 4px 0 0;
-  font-size: 0.85rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
   white-space: nowrap;
   position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .tab-btn::after {
@@ -118,17 +126,27 @@
 
 .tab-btn:hover {
   color: var(--primary-color);
+  background: rgba(102, 126, 234, 0.05);
 }
 
 .tab-btn.active {
   color: var(--primary-color);
   border-bottom-color: var(--primary-color);
-  background: rgba(37, 99, 235, 0.05);
+  background: rgba(102, 126, 234, 0.1);
+  border-radius: 8px;
+}
+
+.tab-btn i {
+  font-size: 1rem;
 }
 
 .tab-content {
   display: none;
   animation: fadeIn 0.3s ease;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 0 0 12px 12px;
+  padding: 2rem;
 }
 
 .tab-content.active {
@@ -203,6 +221,9 @@
   font-size: 0.85rem;
   font-weight: 500;
   transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .delete-btn:hover {
@@ -234,6 +255,9 @@
   font-weight: 600;
   transition: all 0.3s ease;
   font-size: 0.95rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .refresh-btn:hover {
@@ -251,6 +275,48 @@
 .timestamp {
   color: var(--text-secondary);
   font-size: 0.85rem;
+}
+
+/* Form Submission Message Styles */
+#submissionsMessage,
+.message {
+  display: none;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+  animation: slideIn 0.3s ease;
+  border-left: 4px solid;
+}
+
+#submissionsMessage.show,
+.message.show {
+  display: block;
+}
+
+#submissionsMessage.success,
+.message.success {
+  background: linear-gradient(135deg, rgba(76, 175, 80, 0.1) 0%, rgba(56, 142, 60, 0.1) 100%);
+  color: #2e7d32;
+  border-left-color: #4caf50;
+}
+
+#submissionsMessage.error,
+.message.error {
+  background: linear-gradient(135deg, rgba(244, 67, 54, 0.1) 0%, rgba(211, 47, 47, 0.1) 100%);
+  color: #c62828;
+  border-left-color: #f44336;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 /* Theme variables for admin */
@@ -274,7 +340,7 @@
   --primary-color: #1d4ed8;
 }
 
-/* Responsive design */
+/* Responsive design - Tablets */
 @media (max-width: 768px) {
   .admin-container {
     padding: 1rem;
@@ -283,6 +349,15 @@
   .admin-header {
     flex-direction: column;
     gap: 1rem;
+    align-items: stretch;
+  }
+
+  .admin-header h1 {
+    font-size: 1.2rem;
+  }
+
+  .refresh-btn {
+    width: 100%;
   }
 
   .admin-stats {
@@ -290,23 +365,227 @@
     gap: 1rem;
   }
 
+  .stat-card {
+    min-height: 100px;
+    padding: 1rem;
+  }
+
+  .stat-number {
+    font-size: 1.8rem;
+  }
+
+  .stat-label {
+    font-size: 0.85rem;
+  }
+
   .tabs-container {
     gap: 0.25rem;
+    padding: 0.5rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .tab-btn {
     padding: 0.5rem 0.75rem;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 8px;
+    margin: -2rem -1rem 0;
+  }
+
+  .submissions-table {
+    min-width: 600px;
   }
 
   .submissions-table th,
   .submissions-table td {
     padding: 0.75rem 0.5rem;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
   }
 
   .message-preview {
-    max-width: 150px;
+    max-width: 100px;
+  }
+
+  .delete-btn {
+    padding: 0.4rem 0.7rem;
+    font-size: 0.75rem;
+  }
+
+  .forms-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .response-header {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .response-date {
+    align-self: flex-start;
+  }
+}
+
+/* Responsive design - Mobile phones */
+@media (max-width: 480px) {
+  .admin-container {
+    padding: 0.75rem;
+  }
+
+  .admin-header {
+    padding: 1rem 0;
+    gap: 0.75rem;
+  }
+
+  .admin-header h1 {
+    font-size: 1rem;
+    width: 100%;
+  }
+
+  .refresh-btn {
+    width: 100%;
+    font-size: 0.85rem;
+  }
+
+  .admin-stats {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .stat-card {
+    min-height: 80px;
+    padding: 0.75rem;
+  }
+
+  .stat-number {
+    font-size: 1.5rem;
+  }
+
+  .stat-label {
+    font-size: 0.75rem;
+  }
+
+  .tabs-container {
+    padding: 0.5rem;
+    gap: 0;
+    border-radius: 0;
+    margin: 0 -0.75rem;
+  }
+
+  .tab-btn {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.7rem;
+    flex: 1;
+    text-align: center;
+  }
+
+  .tab-btn i {
+    display: none;
+  }
+
+  .tab-content {
+    padding: 1rem 0.5rem;
+    border-radius: 0;
+    margin: 0 -0.75rem;
+  }
+
+  .table-wrapper {
+    margin: 0;
+  }
+
+  .submissions-table {
+    font-size: 0.75rem;
+  }
+
+  .submissions-table th,
+  .submissions-table td {
+    padding: 0.5rem 0.25rem;
+    font-size: 0.7rem;
+  }
+
+  .submissions-table th {
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  .message-preview {
+    max-width: 80px;
+    font-size: 0.7rem;
+  }
+
+  .delete-btn {
+    padding: 0.3rem 0.5rem;
+    font-size: 0.65rem;
+  }
+
+  .delete-btn i {
+    display: none;
+  }
+
+  .timestamp {
+    font-size: 0.7rem;
+  }
+
+  .forms-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .form-response-card {
+    padding: 1rem;
+  }
+
+  .response-header h3 {
+    font-size: 0.9rem;
+  }
+
+  .response-date {
+    font-size: 0.65rem;
+  }
+
+  .response-meta {
+    gap: 0.25rem;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.75rem;
+  }
+
+  .meta-item {
+    font-size: 0.75rem;
+  }
+
+  .response-preview {
+    font-size: 0.8rem;
+    max-height: 60px;
+  }
+
+  .view-btn,
+  .delete-btn {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.7rem;
+  }
+
+  .view-btn i,
+  .delete-btn i {
+    display: none;
+  }
+
+  .blogs-header {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .blogs-header h2 {
+    font-size: 1rem;
+  }
+
+  .blogs-header h2 i {
+    font-size: 1rem;
   }
 }
 

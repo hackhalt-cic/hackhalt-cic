@@ -49,7 +49,89 @@
     .stat-card {
       min-height: 120px;
     }
-  </style>
+
+    /* Hard Responsive Fixes */
+    .table-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      display: block;
+    }
+
+    .submissions-table {
+      width: 100%;
+      min-width: 500px;
+    }
+
+    @media (max-width: 768px) {
+      .table-wrapper {
+        margin: -2rem -1rem 0;
+        padding: 0;
+        border-radius: 0;
+      }
+
+      .submissions-table {
+        min-width: 600px;
+      }
+
+      .tab-content {
+        padding: 1rem 0.5rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .table-wrapper {
+        margin: -1rem -0.75rem 0;
+      }
+
+      .submissions-table {
+        min-width: 700px;
+        font-size: 0.75rem;
+      }
+
+      .submissions-table th,
+      .submissions-table td {
+        padding: 0.5rem 0.25rem;
+      }
+
+      .message-preview {
+        max-width: 60px;
+      }
+
+      .delete-btn {
+        padding: 0.35rem 0.5rem;
+        font-size: 0.65rem;
+        width: 100%;
+      }
+
+      .delete-btn i {
+        display: none;
+      }
+
+      .forms-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .form-response-card {
+        padding: 0.75rem;
+      }
+
+      .response-header {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .response-date {
+        align-self: flex-start;
+        font-size: 0.65rem;
+      }
+
+      .response-preview {
+        font-size: 0.8rem;
+        max-height: 80px;
+      }
+    }
+
 </head>
 <body>
   <!-- ========== HEADER / NAV ========== -->
@@ -257,40 +339,82 @@
     // Set current year
     document.getElementById('year').textContent = new Date().getFullYear();
 
-    // Load submissions
+    // Load submissions with fallback
     async function loadSubmissions() {
       try {
-        const response = await fetch('/api/submissions');
-        const data = await response.json();
+        // Try main endpoint first
+        let response = await fetch('/api/submissions').catch(e => {
+          console.warn('Primary endpoint failed, trying fallback...');
+          return null;
+        });
 
-        if (data.success) {
-          // Update stats
-          document.getElementById('contactCount').textContent = data.counts.contact;
-          document.getElementById('joinCount').textContent = data.counts.join;
-          document.getElementById('blogCount').textContent = data.counts.blogs;
-          document.getElementById('ambassadorCount').textContent = data.counts.ambassadors || 0;
+        if (!response) {
+          // Try individual endpoints
+          const [contact, join, blogs, ambassadors] = await Promise.all([
+            fetch('/api/submissions/contact').then(r => r.json()).catch(e => ({ submissions: [] })),
+            fetch('/api/submissions/join').then(r => r.json()).catch(e => ({ submissions: [] })),
+            fetch('/api/submissions/blogs').then(r => r.json()).catch(e => ({ submissions: [] })),
+            fetch('/api/submissions/ambassadors').then(r => r.json()).catch(e => ({ submissions: [] }))
+          ]);
 
-          // Render contact submissions
-          renderContactSubmissions(data.submissions.contact);
-          // Render join submissions
-          renderJoinSubmissions(data.submissions.join);
-          // Render blog submissions
-          if (data.submissions.blogs) {
-            renderBlogSubmissions(data.submissions.blogs);
-            renderBlogFormResponses(data.submissions.blogs);
-          }
-          // Render ambassadors submissions
-          if (data.submissions.ambassadors) {
-            renderAmbassadorSubmissions(data.submissions.ambassadors);
-          }
+          const data = {
+            success: true,
+            counts: {
+              contact: (contact.submissions || []).length,
+              join: (join.submissions || []).length,
+              blogs: (blogs.submissions || []).length,
+              ambassadors: (ambassadors.submissions || []).length
+            },
+            submissions: {
+              contact: contact.submissions || [],
+              join: join.submissions || [],
+              blogs: blogs.submissions || [],
+              ambassadors: ambassadors.submissions || []
+            }
+          };
+          
+          updateDashboard(data);
+          return;
         }
+
+        const data = await response.json();
+        updateDashboard(data);
       } catch (error) {
         console.error('Error loading submissions:', error);
+        // Set default values
+        document.getElementById('contactCount').textContent = '0';
+        document.getElementById('joinCount').textContent = '0';
+        document.getElementById('blogCount').textContent = '0';
+        document.getElementById('ambassadorCount').textContent = '0';
+      }
+    }
+
+    function updateDashboard(data) {
+      if (data.success || data.counts) {
+        // Update stats
+        document.getElementById('contactCount').textContent = data.counts?.contact || 0;
+        document.getElementById('joinCount').textContent = data.counts?.join || 0;
+        document.getElementById('blogCount').textContent = data.counts?.blogs || 0;
+        document.getElementById('ambassadorCount').textContent = data.counts?.ambassadors || 0;
+
+        // Render submissions
+        const submissions = data.submissions || {};
+        renderContactSubmissions(submissions.contact || []);
+        renderJoinSubmissions(submissions.join || []);
+        if (submissions.blogs) {
+          renderBlogSubmissions(submissions.blogs);
+          renderBlogFormResponses(submissions.blogs);
+        }
+        if (submissions.ambassadors) {
+          renderAmbassadorSubmissions(submissions.ambassadors);
+        }
       }
     }
 
     function renderContactSubmissions(submissions) {
       const tbody = document.getElementById('contactBody');
+      if (!tbody) return;
+      
       if (!submissions || submissions.length === 0) {
         tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 2rem; color: var(--text-secondary);">No contact messages yet</td></tr>';
         return;
@@ -298,14 +422,14 @@
 
       tbody.innerHTML = submissions.map(sub => `
         <tr>
-          <td><strong>${sub.name}</strong></td>
-          <td><a href="mailto:${sub.email}">${sub.email}</a></td>
+          <td><strong>${sub.name || 'Unknown'}</strong></td>
+          <td><a href="mailto:${sub.email}">${sub.email || 'N/A'}</a></td>
           <td>${sub.phone || 'N/A'}</td>
           <td>${sub.subject || 'N/A'}</td>
-          <td class="message-preview" title="${sub.message}">${sub.message}</td>
-          <td class="timestamp">${new Date(sub.created_at).toLocaleDateString()}</td>
+          <td class="message-preview" title="${sub.message || ''}">${(sub.message || '').substring(0, 40)}...</td>
+          <td class="timestamp">${new Date(sub.created_at || sub.createdAt).toLocaleDateString()}</td>
           <td>
-            <button class="delete-btn" onclick="deleteContactSubmission(${sub.id})">
+            <button class="delete-btn" onclick="deleteContactSubmission(${sub.id || sub._id})">
               <i class="fa-solid fa-trash"></i> Delete
             </button>
           </td>
@@ -315,6 +439,8 @@
 
     function renderJoinSubmissions(submissions) {
       const tbody = document.getElementById('joinBody');
+      if (!tbody) return;
+      
       if (!submissions || submissions.length === 0) {
         tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem; color: var(--text-secondary);">No join requests yet</td></tr>';
         return;
@@ -322,13 +448,13 @@
 
       tbody.innerHTML = submissions.map(sub => `
         <tr>
-          <td><strong>${sub.name}</strong></td>
-          <td><a href="mailto:${sub.email}">${sub.email}</a></td>
+          <td><strong>${sub.name || 'Unknown'}</strong></td>
+          <td><a href="mailto:${sub.email}">${sub.email || 'N/A'}</a></td>
           <td>${sub.organization || 'N/A'}</td>
           <td>${sub.interests || 'N/A'}</td>
-          <td class="timestamp">${new Date(sub.created_at).toLocaleDateString()}</td>
+          <td class="timestamp">${new Date(sub.created_at || sub.createdAt).toLocaleDateString()}</td>
           <td>
-            <button class="delete-btn" onclick="deleteJoinSubmission(${sub.id})">
+            <button class="delete-btn" onclick="deleteJoinSubmission(${sub.id || sub._id})">
               <i class="fa-solid fa-trash"></i> Delete
             </button>
           </td>
@@ -338,6 +464,8 @@
 
     function renderBlogSubmissions(submissions) {
       const tbody = document.getElementById('blogsBody');
+      if (!tbody) return;
+      
       if (!submissions || submissions.length === 0) {
         tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem; color: var(--text-secondary);">No blog submissions yet</td></tr>';
         return;
@@ -348,10 +476,10 @@
           <td><strong>${sub.title || 'Untitled'}</strong></td>
           <td>${sub.author || 'Anonymous'}</td>
           <td><span class="badge">${sub.category || 'General'}</span></td>
-          <td class="message-preview" title="${sub.content}">${(sub.content || '').substring(0, 50)}...</td>
-          <td class="timestamp">${new Date(sub.createdAt).toLocaleDateString()}</td>
+          <td class="message-preview" title="${sub.content || ''}">${(sub.content || '').substring(0, 40)}...</td>
+          <td class="timestamp">${new Date(sub.createdAt || sub.created_at).toLocaleDateString()}</td>
           <td>
-            <button class="delete-btn" onclick="deleteBlogSubmission('${sub._id}')">
+            <button class="delete-btn" onclick="deleteBlogSubmission('${sub._id || sub.id}')">
               <i class="fa-solid fa-trash"></i> Delete
             </button>
           </td>
@@ -361,6 +489,8 @@
 
     function renderBlogFormResponses(submissions) {
       const grid = document.getElementById('blogFormsGrid');
+      if (!grid) return;
+      
       if (!submissions || submissions.length === 0) {
         grid.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--text-secondary); grid-column: 1 / -1;">No form responses yet</div>';
         return;
@@ -370,7 +500,7 @@
         <div class="form-response-card">
           <div class="response-header">
             <h3>${sub.title || 'Untitled'}</h3>
-            <span class="response-date">${new Date(sub.createdAt).toLocaleDateString()}</span>
+            <span class="response-date">${new Date(sub.createdAt || sub.created_at).toLocaleDateString()}</span>
           </div>
           <div class="response-meta">
             <span class="meta-item"><strong>Author:</strong> ${sub.author || 'Anonymous'}</span>
@@ -379,7 +509,7 @@
           <div class="response-preview">
             ${(sub.content || 'No content').substring(0, 150)}...
           </div>
-          <button class="view-btn" onclick="alert('Full response: ${(sub.content || '').replace(/'/g, "\\'")}')" style="margin-top: 1rem;">
+          <button class="view-btn" onclick="alert('Blog: ${(sub.content || '').replace(/'/g, "\\'").substring(0, 200)}')" style="margin-top: 1rem;">
             <i class="fa-solid fa-eye"></i> View Full
           </button>
         </div>
@@ -388,6 +518,8 @@
 
     function renderAmbassadorSubmissions(submissions) {
       const tbody = document.getElementById('ambassadorsBody');
+      if (!tbody) return;
+      
       if (!submissions || submissions.length === 0) {
         tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 2rem; color: var(--text-secondary);">No ambassador applications yet</td></tr>';
         return;
@@ -395,14 +527,14 @@
 
       tbody.innerHTML = submissions.map(sub => `
         <tr>
-          <td><strong>${sub.firstName} ${sub.lastName}</strong></td>
-          <td><a href="mailto:${sub.email}">${sub.email}</a></td>
+          <td><strong>${(sub.firstName || '') + ' ' + (sub.lastName || '')}</strong></td>
+          <td><a href="mailto:${sub.email}">${sub.email || 'N/A'}</a></td>
           <td>${sub.phone || 'N/A'}</td>
           <td>${sub.region || 'N/A'}</td>
-          <td class="message-preview" title="${sub.expertise}">${sub.expertise.substring(0, 50)}...</td>
-          <td class="timestamp">${new Date(sub.timestamp).toLocaleDateString()}</td>
+          <td class="message-preview" title="${sub.expertise || ''}">${(sub.expertise || '').substring(0, 40)}...</td>
+          <td class="timestamp">${new Date(sub.timestamp || sub.createdAt).toLocaleDateString()}</td>
           <td>
-            <button class="delete-btn" onclick="deleteAmbassadorSubmission(${sub.id})">
+            <button class="delete-btn" onclick="deleteAmbassadorSubmission(${sub.id || sub._id})">
               <i class="fa-solid fa-trash"></i> Delete
             </button>
           </td>
@@ -412,12 +544,9 @@
 
     async function deleteContactSubmission(id) {
       if (!confirm('Are you sure you want to delete this submission?')) return;
-      
       try {
         const response = await fetch(`/api/submissions/contact/${id}`, { method: 'DELETE' });
-        if (response.ok) {
-          loadSubmissions();
-        }
+        if (response.ok) loadSubmissions();
       } catch (error) {
         console.error('Error deleting submission:', error);
       }
@@ -425,12 +554,9 @@
 
     async function deleteJoinSubmission(id) {
       if (!confirm('Are you sure you want to delete this submission?')) return;
-      
       try {
         const response = await fetch(`/api/submissions/join/${id}`, { method: 'DELETE' });
-        if (response.ok) {
-          loadSubmissions();
-        }
+        if (response.ok) loadSubmissions();
       } catch (error) {
         console.error('Error deleting submission:', error);
       }
@@ -438,41 +564,24 @@
 
     async function deleteBlogSubmission(id) {
       if (!confirm('Are you sure you want to delete this blog submission?')) return;
-      
       try {
         const response = await fetch(`/api/submissions/blogs/${id}`, { method: 'DELETE' });
-        if (response.ok) {
-          loadSubmissions();
-        }
+        if (response.ok) loadSubmissions();
       } catch (error) {
-        console.error('Error deleting blog submission:', error);
+        console.error('Error deleting submission:', error);
       }
     }
 
     async function deleteAmbassadorSubmission(id) {
       if (!confirm('Are you sure you want to delete this submission?')) return;
-      
       try {
         const response = await fetch(`/api/ambassadors/${id}`, { method: 'DELETE' });
-        if (response.ok) {
-          loadSubmissions();
-        }
+        if (response.ok) loadSubmissions();
       } catch (error) {
         console.error('Error deleting submission:', error);
       }
     }
-    async function deleteAmbassadorSubmission(id) {
-      if (!confirm('Are you sure you want to delete this application?')) return;
-      
-      try {
-        const response = await fetch(`/api/ambassadors/${id}`, { method: 'DELETE' });
-        if (response.ok) {
-          loadSubmissions();
-        }
-      } catch (error) {
-        console.error('Error deleting application:', error);
-      }
-    }
+
     // Tab switching
     document.querySelectorAll('.tab-btn').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -480,14 +589,21 @@
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
         btn.classList.add('active');
-        document.getElementById(tab).classList.add('active');
+        const targetSection = document.getElementById(tab);
+        if (targetSection) {
+          targetSection.classList.add('active');
+        }
       });
     });
 
     // Refresh button
-    document.getElementById('refreshBtn').addEventListener('click', loadSubmissions);
+    const refreshBtn = document.getElementById('refreshBtn');
+    if (refreshBtn) {
+      refreshBtn.addEventListener('click', loadSubmissions);
+    }
 
     // Load on page load
+    console.log('Page loaded - loading submissions...');
     loadSubmissions();
 
     // Auto-refresh every 30 seconds

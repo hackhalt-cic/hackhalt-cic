@@ -389,7 +389,57 @@
       background: rgba(239, 68, 68, 0.2);
     }
 
-    /* Tables */
+    .btn-view {
+      padding: 0.5rem 1rem;
+      background: rgba(59, 130, 246, 0.1);
+      color: #2563eb;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 0.875rem;
+      transition: all 0.3s ease;
+    }
+
+    .btn-view:hover {
+      background: rgba(59, 130, 246, 0.2);
+    }
+
+    .tier-badge {
+      display: inline-block;
+      padding: 0.4rem 0.8rem;
+      background: rgba(59, 130, 246, 0.15);
+      color: #2563eb;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: capitalize;
+    }
+
+    .membership-filters {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .membership-filters select,
+    .membership-filters input {
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-size: 0.95rem;
+    }
+
+    .membership-filters input {
+      flex: 1;
+      min-width: 250px;
+    }
+
+    /* Tables
+ */
     .blogs-table {
       width: 100%;
       border-collapse: collapse;
@@ -617,6 +667,9 @@
           <a href="#submissions" class="nav-link" data-section="submissions">
             <i class="fa-solid fa-inbox"></i> <span>Form Submissions</span>
           </a>
+          <a href="#membership-submissions" class="nav-link" data-section="membership-submissions">
+            <i class="fa-solid fa-user-check"></i> <span>Membership Applications</span>
+          </a>
           <a href="/" class="nav-link">
             <i class="fa-solid fa-arrow-left"></i> <span>Back to Site</span>
           </a>
@@ -752,6 +805,24 @@
           <div id="submissionsList"></div>
         </div>
       </div>
+
+      <!-- Membership Submissions -->
+      <div id="membership-submissions" class="section">
+        <div class="content-area">
+          <h2><i class="fa-solid fa-user-check"></i> Membership Applications</h2>
+          <div id="membershipMessage" class="message"></div>
+          <div class="membership-filters">
+            <select id="membershipTierFilter">
+              <option value="">All Tiers</option>
+              <option value="student">Student</option>
+              <option value="professional">Professional</option>
+              <option value="organizational">Organizational</option>
+            </select>
+            <input type="text" id="membershipSearch" placeholder="Search by name or email...">
+          </div>
+          <div id="membershipList"></div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -853,6 +924,7 @@
           if (section === 'manage-blogs') loadBlogs();
           else if (section === 'dashboard') loadDashboard();
           else if (section === 'submissions') loadSubmissions();
+          else if (section === 'membership-submissions') loadMembershipSubmissions();
         }
       });
     });
@@ -1153,8 +1225,100 @@
       }
     }
 
+    // Membership Submissions Functions
+    async function loadMembershipSubmissions() {
+      try {
+        const list = document.getElementById('membershipList');
+        list.innerHTML = '<div style="text-align: center; padding: 2rem;"><i class="fa-solid fa-spinner fa-spin"></i> Loading...</div>';
+        
+        const res = await fetch('/api/submissions/membership', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        
+        if (!data.submissions || data.submissions.length === 0) {
+          list.innerHTML = '<p style="text-align: center; padding: 2rem; color: #999;">No membership applications yet.</p>';
+          return;
+        }
+
+        let html = '<table class="submissions-table"><thead><tr><th>Name</th><th>Email</th><th>Tier</th><th>Organization</th><th>Date</th><th>Actions</th></tr></thead><tbody>';
+        data.submissions.forEach(m => {
+          const date = new Date(m.submittedAt).toLocaleDateString();
+          html += `<tr style="transition: all 0.2s ease; animation: slideInUp 0.3s ease-out;">
+            <td>${m.fullName}</td>
+            <td>${m.email}</td>
+            <td><span class="tier-badge">${m.membershipTier}</span></td>
+            <td>${m.organization || '-'}</td>
+            <td>${date}</td>
+            <td>
+              <button class="btn-view" onclick="viewMembership('${m._id}')" title="View" style="transition: all 0.2s ease;"><i class="fa-solid fa-eye"></i></button>
+              <button class="btn-delete" onclick="deleteMembership('${m._id}')" title="Delete" style="transition: all 0.2s ease;"><i class="fa-solid fa-trash"></i></button>
+            </td>
+          </tr>`;
+        });
+        html += '</tbody></table>';
+        list.innerHTML = html;
+      } catch (e) {
+        console.error('Membership error:', e);
+        const list = document.getElementById('membershipList');
+        list.innerHTML = '<p style="text-align: center; padding: 2rem; color: #ff6b6b;">Error loading submissions</p>';
+      }
+    }
+
+    function viewMembership(id) {
+      fetch('/api/submissions/membership', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+        .then(r => r.json())
+        .then(d => {
+          const m = d.submissions.find(x => x._id === id);
+          if (m) {
+            let c = '';
+            c += `<div class="submission-detail" style="animation: slideInUp 0.3s ease-out;"><label>Full Name</label><p>${m.fullName}</p></div>`;
+            c += `<div class="submission-detail" style="animation: slideInUp 0.4s ease-out;"><label>Email</label><p>${m.email}</p></div>`;
+            c += `<div class="submission-detail" style="animation: slideInUp 0.5s ease-out;"><label>Phone</label><p>${m.phone}</p></div>`;
+            c += `<div class="submission-detail" style="animation: slideInUp 0.6s ease-out;"><label>Organization</label><p>${m.organization || '-'}</p></div>`;
+            c += `<div class="submission-detail" style="animation: slideInUp 0.7s ease-out;"><label>Designation</label><p>${m.designation}</p></div>`;
+            c += `<div class="submission-detail" style="animation: slideInUp 0.8s ease-out;"><label>Membership Tier</label><p><span class="tier-badge">${m.membershipTier}</span></p></div>`;
+            c += `<div class="submission-detail" style="animation: slideInUp 0.9s ease-out;"><label>Areas of Interest</label><p>${m.interests}</p></div>`;
+            if (m.message) c += `<div class="submission-detail" style="animation: slideInUp 1s ease-out;"><label>Message</label><p>${m.message}</p></div>`;
+            c += `<div class="submission-detail" style="animation: slideInUp 1.1s ease-out;"><label>Submitted</label><p>${new Date(m.submittedAt).toLocaleString()}</p></div>`;
+            
+            document.getElementById('submissionModalBody').innerHTML = c;
+            openModal('submissionModal');
+          }
+        });
+    }
+
+    async function deleteMembership(id) {
+      if (!confirm('Delete this membership application?')) return;
+
+      try {
+        const res = await fetch(`/api/submissions/membership/${id}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (res.ok) {
+          const msg = document.getElementById('membershipMessage');
+          msg.innerHTML = '✓ Application deleted successfully!';
+          msg.classList.add('show', 'success');
+          msg.style.animation = 'slideInRight 0.3s ease-out';
+          setTimeout(() => {
+            msg.classList.remove('show');
+            loadMembershipSubmissions();
+          }, 1500);
+        }
+      } catch (e) {
+        console.error('Delete error:', e);
+        alert('Error deleting application');
+      }
+    }
+
     function openModal(id) {
-      document.getElementById(id).classList.add('show');
+      const modal = document.getElementById(id);
+      modal.classList.add('show');
+      modal.style.animation = 'slideInUp 0.3s ease-out';
     }
 
     function closeModal(id) {

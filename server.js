@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require("express");
 const path = require("path");
+const compression = require("compression");
 const jwt = require('jsonwebtoken');
 const connectDB = require("./db-connect");
 const ContactSubmission = require("./models/ContactSubmission");
@@ -8,13 +9,26 @@ const JoinSubmission = require("./models/JoinSubmission");
 const BlogSubmission = require("./models/BlogSubmission");
 const BookingSession = require("./models/BookingSession");
 const AmbassadorSubmission = require("./models/AmbassadorSubmission");
+const MembershipSubmission = require("./models/MembershipSubmission");
 const Admin = require("./models/Admin");
 const authMiddleware = require("./middleware/authMiddleware");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
+// Middleware for compression and performance
+app.use(compression({
+  level: 6,
+  threshold: 1024,
+  filter: (req, res) => {
+    if (req.headers['x-no-compression']) {
+      return false;
+    }
+    return compression.filter(req, res);
+  }
+}));
+
+// Body parser middleware with size limits
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
@@ -55,22 +69,25 @@ app.use((req, res, next) => {
 });
 
 // serve static files from /public
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, "public"), {
+  maxAge: 0,
+  etag: false,
+  lastModified: false
+}));
 
-// Add cache control middleware for static assets and HTML pages
+// Add aggressive cache-busting headers for CSS/JS
 app.use((req, res, next) => {
-  // Don't cache HTML pages - always check for updates
-  if (req.path.endsWith('.html') || !req.path.includes('.')) {
-    res.set('Cache-Control', 'public, max-age=0, must-revalidate');
-    res.set('Pragma', 'no-cache');
-    res.set('Expires', '0');
+  // Force browser to always revalidate
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
+  res.set('Pragma', 'no-cache');
+  res.set('Expires', '-1');
+  res.set('Surrogate-Control', 'no-store');
+  
+  // Add ETag to force updates
+  if (req.path.endsWith('.css') || req.path.endsWith('.js') || req.path.endsWith('.html')) {
+    res.set('ETag', `"${Date.now()}"`);
   }
-  // Don't cache CSS and JS either - reload every time during development
-  if (req.path.endsWith('.css') || req.path.endsWith('.js')) {
-    res.set('Cache-Control', 'public, max-age=0, must-revalidate');
-    res.set('Pragma', 'no-cache');
-    res.set('Expires', '0');
-  }
+  
   // Add mobile optimization headers
   res.set('X-UA-Compatible', 'IE=edge');
   next();
@@ -997,6 +1014,70 @@ app.delete("/api/ambassadors/:id", async (req, res) => {
     res.status(500).json({
       success: false,
       error: "Failed to delete application"
+    });
+  }
+});
+
+// ========== MEMBERSHIP SUBMISSIONS ==========
+// POST /api/submissions/membership - Create membership submission
+app.post("/api/submissions/membership", async (req, res) => {
+  try {
+    const membershipSubmission = new MembershipSubmission(req.body);
+    const savedSubmission = await membershipSubmission.save();
+    
+    res.status(201).json({
+      success: true,
+      message: "Membership application submitted successfully",
+      submission: savedSubmission
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: "Error submitting membership application",
+      error: error.message
+    });
+  }
+});
+
+// GET /api/submissions/membership - Get all membership submissions
+app.get("/api/submissions/membership", authMiddleware, async (req, res) => {
+  try {
+    const submissions = await MembershipSubmission.find().sort({ submittedAt: -1 });
+    res.json({
+      success: true,
+      count: submissions.length,
+      submissions: submissions
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error fetching membership submissions",
+      error: error.message
+    });
+  }
+});
+
+// DELETE /api/submissions/membership/:id - Delete membership submission
+app.delete("/api/submissions/membership/:id", authMiddleware, async (req, res) => {
+  try {
+    const deleted = await MembershipSubmission.findByIdAndDelete(req.params.id);
+    
+    if (!deleted) {
+      return res.status(404).json({
+        success: false,
+        message: "Membership submission not found"
+      });
+    }
+    
+    res.json({
+      success: true,
+      message: "Membership submission deleted successfully"
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error deleting membership submission",
+      error: error.message
     });
   }
 });

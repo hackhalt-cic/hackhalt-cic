@@ -12,8 +12,6 @@ const connectDB = async (retries = 3) => {
     console.log('🔄 Connecting to MongoDB Atlas...');
     
     const conn = await mongoose.connect(mongoURI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
       serverSelectionTimeoutMS: 5000,
       socketTimeoutMS: 45000,
       family: 4 // Use IPv4, skip trying IPv6

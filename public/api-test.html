@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>API Test</title>
+  <style>
+    body { font-family: Arial; margin: 20px; }
+    .response { background: #f0f0f0; padding: 10px; margin-top: 20px; white-space: pre-wrap; word-wrap: break-word; }
+    .error { color: red; }
+    .success { color: green; }
+  </style>
+</head>
+<body>
+  <h1>API Test</h1>
+  <button onclick="testLogin()">Test Login API</button>
+  <div id="response" class="response"></div>
+
+  <script>
+    async function testLogin() {
+      const responseDiv = document.getElementById('response');
+      responseDiv.innerHTML = 'Testing...';
+      
+      try {
+        const response = await fetch('/api/admin/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            username: 'admin',
+            password: 'HackHalt@2025'  // Changed from admin123 to correct password
+          })
+        });
+
+        responseDiv.innerHTML += `\n\nStatus: ${response.status}\n`;
+        responseDiv.innerHTML += `Content-Type: ${response.headers.get('content-type')}\n\n`;
+
+        const text = await response.text();
+        responseDiv.innerHTML += `Response Body:\n${text}`;
+
+        if (response.status === 200) {
+          responseDiv.innerHTML = `<span class="success">${responseDiv.innerHTML}</span>`;
+        } else {
+          responseDiv.innerHTML = `<span class="error">${responseDiv.innerHTML}</span>`;
+        }
+      } catch (error) {
+        responseDiv.innerHTML = `<span class="error">Error: ${error.message}</span>`;
+      }
+    }
+
+    // Auto-test on page load
+    window.addEventListener('load', testLogin);
+  </script>
+</body>
+</html>

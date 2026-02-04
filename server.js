@@ -72,7 +72,12 @@ app.use((req, res, next) => {
 app.use(express.static(path.join(__dirname, "public"), {
   maxAge: 0,
   etag: false,
-  lastModified: false
+  lastModified: false,
+  fallthrough: true,  // Explicitly allow fallthrough for unmatched routes
+  setHeaders: (res, path, stat) => {
+    // Set cache control for all static files
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
+  }
 }));
 
 // Add aggressive cache-busting headers for CSS/JS

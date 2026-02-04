@@ -336,6 +336,19 @@
 
   <script src="assets/js/utils.js" defer></script>
   <script defer>
+    // API Base URL Configuration
+    let apiBase = window.location.origin;
+    if (window.location.hostname !== 'localhost' && !window.location.hostname.includes('vercel')) {
+      apiBase = 'https://hackhalt-cic-lemon.vercel.app';
+    }
+    console.log('API Base:', apiBase);
+    
+    // Helper function to get full API URL
+    function getApiUrl(endpoint) {
+      if (endpoint.startsWith('http')) return endpoint;
+      return apiBase + endpoint;
+    }
+
     // Set current year
     document.getElementById('year').textContent = new Date().getFullYear();
 
@@ -343,7 +356,7 @@
     async function loadSubmissions() {
       try {
         // Try main endpoint first
-        let response = await fetch('/api/submissions').catch(e => {
+        let response = await fetch(getApiUrl('/api/submissions')).catch(e => {
           console.warn('Primary endpoint failed, trying fallback...');
           return null;
         });
@@ -351,10 +364,10 @@
         if (!response) {
           // Try individual endpoints
           const [contact, join, blogs, ambassadors] = await Promise.all([
-            fetch('/api/submissions/contact').then(r => r.json()).catch(e => ({ submissions: [] })),
-            fetch('/api/submissions/join').then(r => r.json()).catch(e => ({ submissions: [] })),
-            fetch('/api/submissions/blogs').then(r => r.json()).catch(e => ({ submissions: [] })),
-            fetch('/api/submissions/ambassadors').then(r => r.json()).catch(e => ({ submissions: [] }))
+            fetch(getApiUrl('/api/submissions/contact')).then(r => r.json()).catch(e => ({ submissions: [] })),
+            fetch(getApiUrl('/api/submissions/join')).then(r => r.json()).catch(e => ({ submissions: [] })),
+            fetch(getApiUrl('/api/submissions/blogs')).then(r => r.json()).catch(e => ({ submissions: [] })),
+            fetch(getApiUrl('/api/submissions/ambassadors')).then(r => r.json()).catch(e => ({ submissions: [] }))
           ]);
 
           const data = {
@@ -545,7 +558,7 @@
     async function deleteContactSubmission(id) {
       if (!confirm('Are you sure you want to delete this submission?')) return;
       try {
-        const response = await fetch(`/api/submissions/contact/${id}`, { method: 'DELETE' });
+        const response = await fetch(getApiUrl(`/api/submissions/contact/${id}`), { method: 'DELETE' });
         if (response.ok) loadSubmissions();
       } catch (error) {
         console.error('Error deleting submission:', error);
@@ -555,7 +568,7 @@
     async function deleteJoinSubmission(id) {
       if (!confirm('Are you sure you want to delete this submission?')) return;
       try {
-        const response = await fetch(`/api/submissions/join/${id}`, { method: 'DELETE' });
+        const response = await fetch(getApiUrl(`/api/submissions/join/${id}`), { method: 'DELETE' });
         if (response.ok) loadSubmissions();
       } catch (error) {
         console.error('Error deleting submission:', error);
@@ -565,7 +578,7 @@
     async function deleteBlogSubmission(id) {
       if (!confirm('Are you sure you want to delete this blog submission?')) return;
       try {
-        const response = await fetch(`/api/submissions/blogs/${id}`, { method: 'DELETE' });
+        const response = await fetch(getApiUrl(`/api/submissions/blogs/${id}`), { method: 'DELETE' });
         if (response.ok) loadSubmissions();
       } catch (error) {
         console.error('Error deleting submission:', error);
@@ -575,7 +588,7 @@
     async function deleteAmbassadorSubmission(id) {
       if (!confirm('Are you sure you want to delete this submission?')) return;
       try {
-        const response = await fetch(`/api/ambassadors/${id}`, { method: 'DELETE' });
+        const response = await fetch(getApiUrl(`/api/ambassadors/${id}`), { method: 'DELETE' });
         if (response.ok) loadSubmissions();
       } catch (error) {
         console.error('Error deleting submission:', error);

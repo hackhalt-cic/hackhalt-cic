@@ -26,7 +26,7 @@ const pastEvents = [
     title: "Amity International School - Cybersecurity Workshop",
     image: "images/Amity school.jpg",
     type: "School Workshop",
-    mode: "Delhi — Completed",
+    mode: "Delhi ï¿½ Completed",
     date: "17 July 2025",
     time: "10:30 AM - 1:00 PM IST",
     location: "Mayur Vihar Phase 1, East Delhi",
@@ -41,7 +41,7 @@ const pastEvents = [
     title: "ASN Secondary Public School - Digital Literacy Drive",
     image: "images/ASN School.jpg",
     type: "Educational Initiative",
-    mode: "Delhi — Completed",
+    mode: "Delhi ï¿½ Completed",
     date: "17 July 2025",
     time: "8:00 AM - 10:00 AM IST",
     location: "Mayur Vihar Phase 1, East Delhi",
@@ -55,7 +55,7 @@ const pastEvents = [
     title: "AWS Convent School - Cybersecurity Bootcamp",
     image: "images/AWS school.jpg",
     type: "Technical Training",
-    mode: "Uttar Pradesh — Completed",
+    mode: "Uttar Pradesh ï¿½ Completed",
     date: "04 July 2025",
     time: "11:00 AM - 1:00 PM IST",
     location: "Lalganj, Mirzapur, Uttar Pradesh",
@@ -69,7 +69,7 @@ const pastEvents = [
     title: "Summer Cyber Camp 2025 - Pan-India",
     image: "images/summer cyber camp.jpg",
     type: "Summer Program",
-    mode: "Multiple Cities — Completed",
+    mode: "Multiple Cities ï¿½ Completed",
     date: "June 01 - July 31, 2025",
     time: "02:00 PM - 04:00 PM daily",
     location: "15+ Cities, 50+ Schools",
@@ -83,7 +83,7 @@ const pastEvents = [
     title: "National Digital Safety Month - 2025",
     image: "images/National Digital saftey month.jpg",
     type: "Awareness Campaign",
-    mode: "Pan-India — Completed",
+    mode: "Pan-India ï¿½ Completed",
     date: "May 01 - May 31, 2025",
     time: "Various - School Hours",
     location: "75+ Educational Institutions",
@@ -97,7 +97,7 @@ const pastEvents = [
     title: "Teacher Certification Program - Cybersecurity Educators",
     image: "images/Teacher certification program.jpg",
     type: "Educator Program",
-    mode: "Online — Completed",
+    mode: "Online ï¿½ Completed",
     date: "Apr 01 - Apr 30, 2025",
     time: "06:00 PM - 07:30 PM IST",
     location: "Online Platform (Accessible Pan-India)",
@@ -111,7 +111,7 @@ const pastEvents = [
     title: "Youth Cyber Challenge - National CTF for Schools",
     image: "images/Youth cyber challenge.jpg",
     type: "Competition",
-    mode: "Online — Completed",
+    mode: "Online ï¿½ Completed",
     date: "Mar 20 - Mar 22, 2025",
     time: "10:00 AM - 09:00 PM IST (72 hours)",
     location: "Online Platform - National Participation",
@@ -126,7 +126,7 @@ const pastEvents = [
     title: "SBV JJ Colony - School Awareness Session",
     image: "images/SBB JJ colony.jpg",
     type: "School Workshop",
-    mode: "In-Person — Completed",
+    mode: "In-Person ï¿½ Completed",
     date: "13 July 2025",
     time: "02:00 PM to 05:00 PM",
     location: "Khichripur Village, East Delhi",
@@ -141,7 +141,7 @@ const pastEvents = [
     title: "WellIndia Corp Services Pvt Ltd - Workplace Session",
     image: "images/Wellindai corp.jpg",
     type: "Corporate Workshop",
-    mode: "In-Person — Completed",
+    mode: "In-Person ï¿½ Completed",
     date: "25 June 2025",
     time: "01:00 PM to 02:30 PM",
     location: "Mayur Vihar Phase 1, East Delhi",
@@ -156,7 +156,7 @@ const pastEvents = [
     title: "Niev Institute Pvt. Ltd. - Student Outreach",
     image: "images/Niev campus.jpg",
     type: "Industry-Academic",
-    mode: "In-Person — Completed",
+    mode: "In-Person ï¿½ Completed",
     date: "28 June 2025",
     time: "03:30 PM to 04:30 PM",
     location: "Mayur Vihar Phase 1, East Delhi",
@@ -170,7 +170,7 @@ const pastEvents = [
     title: "PW Gurukulam School - Cyber Safety",
     image: "images/PW Gurukulam.jpg",
     type: "School Workshop",
-    mode: "In-Person — Completed",
+    mode: "In-Person ï¿½ Completed",
     date: "27 June 2025",
     time: "10:00 AM to 12:00 PM",
     location: "Gurugram",
@@ -184,7 +184,7 @@ const pastEvents = [
     title: "Dadasiya Village Outreach - Community Session",
     image: "images/Dadasiya village.jpg",
     type: "Community Outreach",
-    mode: "In-Person — Completed",
+    mode: "In-Person ï¿½ Completed",
     date: "25 June 2025",
     time: "04:00 PM to 06:00 PM",
     location: "Dadasiya Village, Faridabad",
@@ -198,7 +198,7 @@ const pastEvents = [
     title: "ITI College, Rewari - Student Workshop",
     image: "images/ITI college, rewari.jpg",
     type: "Technical Workshop",
-    mode: "In-Person — Completed",
+    mode: "In-Person ï¿½ Completed",
     date: "27 June 2025",
     time: "02:30 PM to 05:00 PM",
     location: "Rewari, Haryana",
@@ -212,7 +212,7 @@ const pastEvents = [
     title: "MRIIRS Campus Faridabad - Workshop",
     image: "images/MRIIRS campus.jpg",
     type: "Academic Program",
-    mode: "In-Person — Completed",
+    mode: "In-Person ï¿½ Completed",
     date: "19 Aug 2025",
     time: "02:00 PM",
     location: "Faridabad, Haryana",
@@ -226,7 +226,7 @@ const pastEvents = [
     title: "HackShastra - IIIT Delhi",
     image: "images/Hackshastra-IIIT Delhi.jpg",
     type: "Event",
-    mode: "In-Person — Completed",
+    mode: "In-Person ï¿½ Completed",
     date: "27 July 2025",
     time: "12:00 PM to 01:00 PM",
     location: "IIIT Delhi",
@@ -240,7 +240,7 @@ const pastEvents = [
     title: "DomainX @ Microsoft Noida - Awareness",
     image: "images/Microsoft noida.jpg",
     type: "Corporate Collaboration",
-    mode: "In-Person — Completed",
+    mode: "In-Person ï¿½ Completed",
     date: "26 July 2025",
     time: "12:00 PM to 01:00 PM",
     location: "Microsoft Noida",
@@ -254,7 +254,7 @@ const pastEvents = [
     title: "NIET Greater Noida - Campus Session",
     image: "images/NIET.jpg",
     type: "Academic Workshop",
-    mode: "In-Person — Completed",
+    mode: "In-Person ï¿½ Completed",
     date: "22 Aug 2025",
     time: "11:30 AM to 12:30 PM",
     location: "Greater Noida",
@@ -268,7 +268,7 @@ const pastEvents = [
     title: "Security in AI Summit - Delhi",
     image: "images/Security in AI summit.jpg",
     type: "Summit",
-    mode: "In-Person — Completed",
+    mode: "In-Person ï¿½ Completed",
     date: "14 Dec 2025",
     time: "Full day",
     location: "Delhi",
@@ -300,11 +300,13 @@ function renderEvents() {
           <span>${ev.type}</span>
         </div>
         <h3 class="event-title">${ev.title}</h3>
-        <div class="event-meta">${ev.mode} • ${ev.date}</div>
+        <div class="event-meta">${ev.mode} ï¿½ ${ev.date}</div>
         <p class="event-description">${ev.meta}</p>
       `;
       upcomingEventsContainer.appendChild(card);
     });
+    // Ensure upcoming is visible
+    upcomingEventsContainer.classList.remove("hidden");
   }
 
   if (pastEventsContainer) {
@@ -321,12 +323,14 @@ function renderEvents() {
           <span>${ev.type}</span>
         </div>
         <h3 class="event-title">${ev.title}</h3>
-        <div class="event-meta">${ev.mode} • ${ev.date}</div>
+        <div class="event-meta">${ev.mode} ï¿½ ${ev.date}</div>
         <p class="event-description">${ev.meta}</p>
         <div class="event-stats">${ev.stats || ''}</div>
       `;
       pastEventsContainer.appendChild(card);
     });
+    // Ensure past is hidden by default
+    pastEventsContainer.classList.add("hidden");
   }
 
   // Re-observe reveal elements

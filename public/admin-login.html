@@ -428,7 +428,22 @@
       loginBtn.innerHTML = '<div class="loading"><div class="spinner"></div></div> Signing in...';
 
       try {
-        const response = await fetch('/api/admin/login', {
+        // Get the API base URL
+        // If running on localhost, use localhost:5000
+        // If running on Vercel, use Vercel domain
+        // If running on Hostinger, use Vercel API endpoint
+        let apiBase = window.location.origin;
+        
+        // Override for Hostinger static hosting - point to Vercel backend
+        if (window.location.hostname !== 'localhost' && !window.location.hostname.includes('vercel')) {
+          // You're on Hostinger, use Vercel backend
+          apiBase = 'https://hackhalt-cic-lemon.vercel.app';
+        }
+        
+        const apiUrl = `${apiBase}/api/admin/login`;
+        console.log('Login API URL:', apiUrl); // Debug log
+        
+        const response = await fetch(apiUrl, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'

@@ -42,6 +42,8 @@ app.use((req, res, next) => {
     'http://localhost:3000',
     'http://localhost:5000',
     'http://localhost',
+    'https://hackhalt.org',
+    'https://www.hackhalt.org',
   ];
   
   // Add Vercel URL if available

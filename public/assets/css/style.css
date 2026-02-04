@@ -1849,6 +1849,10 @@ main::before {
   box-sizing: border-box;
 }
 
+.events-grid.hidden {
+  display: none !important;
+}
+
 .luma-calendar-container {
   display: flex;
   justify-content: center;
@@ -1916,7 +1920,8 @@ main::before {
 }
 
 .hidden {
-  display: none;
+  display: none !important;
+  visibility: hidden !important;
 }
 
 /* === PARTNERS =========================================================== */
@@ -2502,10 +2507,18 @@ main::before {
   }
 
   .stats-overlay {
-    bottom: 1.2rem;
-    left: 1.2rem;
-    right: 1.2rem;
-    padding: 1rem;
+    position: relative;
+    bottom: auto;
+    left: auto;
+    right: auto;
+    width: 100%;
+    padding: 1.2rem 1rem;
+    margin-top: 0;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
   }
 
   .cards-grid {
@@ -2581,29 +2594,58 @@ main::before {
 
   .hero-grid {
     grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .hero-visual {
+    width: 100%;
+    max-width: 100%;
   }
 
   .professional-hero {
-    min-height: 300px;
+    min-height: 250px;
+    width: 100%;
+  }
+
+  .hero-image {
+    width: 100%;
+    height: auto;
+    display: block;
   }
 
   .stats-overlay {
-    bottom: 1rem;
-    left: 1rem;
-    right: 1rem;
-    padding: 0.9rem;
+    position: relative;
+    bottom: auto;
+    left: auto;
+    right: auto;
+    width: 100%;
+    padding: 1.2rem 1rem;
+    margin-top: 0;
+    border-radius: 0 0 1.2rem 1.2rem;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.8rem;
   }
 
   .stat {
-    padding: 0.6rem;
+    padding: 0.8rem 0.5rem;
+    text-align: center;
+    flex: 1;
+    min-width: 80px;
   }
 
   .stat-label {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
+    display: block;
+    margin-bottom: 0.3rem;
   }
 
   .stat-value {
-    font-size: 0.9rem;
+    font-size: 0.95rem;
+    display: block;
+    font-weight: 600;
   }
 
   .nav-links {

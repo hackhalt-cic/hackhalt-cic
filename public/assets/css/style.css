@@ -1723,7 +1723,7 @@ main::before {
 .blogs-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 3rem;
+  gap: 3.5rem 2.5rem;
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
@@ -3073,7 +3073,7 @@ main::before {
 
   .blogs-grid {
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)) !important;
-    gap: 2.5rem !important;
+    gap: 2.5rem 2rem !important;
   }
 
   .events-grid {
@@ -3099,26 +3099,63 @@ main::before {
 @media (max-width: 768px) {
   html {
     overflow-x: hidden !important;
+    scroll-behavior: smooth;
   }
 
   body {
     overflow-x: hidden !important;
     max-width: 100vw !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Hide animated background blobs on mobile to prevent overflow */
+  body::before,
+  body::after,
+  .site-header::before,
+  main::before {
+    display: none !important;
+  }
+
+  * {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+    display: block;
   }
 
   .container {
     width: 100% !important;
     padding: 0 1rem !important;
     box-sizing: border-box !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
   }
 
   .section {
     padding: 2rem 1rem !important;
     margin-bottom: 2rem !important;
+    overflow: hidden;
   }
 
   .legal-compliance-section {
     padding: 2rem 1rem !important;
+  }
+
+  /* Final safeguard: constrain all elements */
+  main,
+  section,
+  article,
+  aside,
+  footer,
+  header {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
   }
 
   html, body {
@@ -3127,18 +3164,27 @@ main::before {
 
   h1 {
     font-size: 1.5rem !important;
+    word-break: break-word;
   }
 
   h2 {
     font-size: 1.3rem !important;
+    word-break: break-word;
   }
 
   h3 {
     font-size: 1.1rem !important;
+    word-break: break-word;
   }
 
   h4 {
     font-size: 1rem !important;
+    word-break: break-word;
+  }
+
+  p {
+    line-height: 1.6 !important;
+    word-break: break-word;
   }
 
   /* Aggressive spacing reduction */
@@ -3159,7 +3205,58 @@ main::before {
   }
 
   .hero-visual {
-    display: none;
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+  }
+
+  .professional-hero {
+    min-height: 280px !important;
+    width: 100% !important;
+  }
+
+  .hero-image {
+    width: 100% !important;
+    height: auto !important;
+    display: block !important;
+    max-height: 300px !important;
+    object-fit: cover !important;
+  }
+
+  .stats-overlay {
+    position: relative !important;
+    bottom: auto !important;
+    left: auto !important;
+    right: auto !important;
+    width: 100% !important;
+    padding: 1rem !important;
+    margin-top: 0 !important;
+    border-radius: 0 0 1.2rem 1.2rem !important;
+    display: flex !important;
+    justify-content: space-around !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+    gap: 0.5rem !important;
+  }
+
+  .stat {
+    padding: 0.6rem 0.4rem !important;
+    text-align: center !important;
+    flex: 1 !important;
+    min-width: 70px !important;
+  }
+
+  .stat-label {
+    font-size: 0.6rem !important;
+    display: block !important;
+    margin-bottom: 0.2rem !important;
+  }
+
+  .stat-value {
+    font-size: 0.9rem !important;
+    display: block !important;
+    font-weight: 600 !important;
   }
 
   .hero-content {
@@ -3205,8 +3302,24 @@ main::before {
   .why-grid,
   .partnership-grid {
     grid-template-columns: 1fr !important;
-    gap: 1.2rem !important;
+    gap: 2rem 1.5rem !important;
     max-width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    width: 100% !important;
+  }
+
+  /* Ensure all cards have proper margins */
+  .pillar-card,
+  .about-card,
+  .blog-card,
+  .event-card,
+  .partner-card,
+  .coe-card {
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 1rem !important;
   }
 
   .section {
@@ -3493,6 +3606,67 @@ main::before {
     margin-bottom: 1rem;
   }
 
+  html {
+    overflow-x: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  body {
+    overflow-x: hidden !important;
+    max-width: 100vw !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Hide animated background blobs on mobile to prevent overflow */
+  body::before,
+  body::after,
+  .site-header::before,
+  main::before {
+    display: none !important;
+  }
+
+  * {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .section {
+    padding: 1.5rem 0.75rem !important;
+    margin-bottom: 1.5rem !important;
+    overflow: hidden;
+  }
+
+  /* Final safeguard: constrain all elements on ultra-small screens */
+  main,
+  section,
+  article,
+  aside,
+  footer,
+  header {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+  }
+
+  /* Extreme spacing reduction */
+  .section {
+    padding-bottom: 1.2rem;
+    margin-bottom: 2rem;
+  }
+
+  .hero-section {
+    padding: 2rem 0.75rem 1.5rem;
+    margin-bottom: 1rem;
+  }
+
   .container {
     width: 100% !important;
     padding: 0 0.75rem !important;
@@ -3509,10 +3683,13 @@ main::before {
   .hero-content h1 {
     font-size: 1.4rem !important;
     margin-bottom: 0.75rem !important;
+    word-break: break-word;
   }
 
   .hero-content p {
     font-size: 0.85rem !important;
+    line-height: 1.5 !important;
+    word-break: break-word;
   }
 
   .hero-actions {
@@ -3523,6 +3700,26 @@ main::before {
   .btn {
     padding: 0.6rem 1rem !important;
     font-size: 0.85rem !important;
+  }
+
+  /* Mobile grids */
+  .cards-grid,
+  .about-grid,
+  .blogs-grid,
+  .events-grid,
+  .partners-cards-grid,
+  .join-grid,
+  .contact-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1.5rem !important;
+  }
+
+  .pillar-card,
+  .about-card,
+  .blog-card,
+  .event-card {
+    padding: 0.8rem !important;
+    margin: 0 !important;
   }
 
   /* Footer for small screens */

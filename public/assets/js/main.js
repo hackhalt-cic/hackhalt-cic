@@ -97,10 +97,12 @@ document.addEventListener("scroll", () => {
 
 // Mobile nav toggle
 if (navToggle && navLinks) {
-  // Simple, reliable toggle without complex event handling
-  navToggle.addEventListener("click", function(e) {
-    e.preventDefault();
-    e.stopPropagation();
+  // Function to toggle nav menu
+  function toggleNav(e) {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     
     const isOpen = navLinks.classList.contains("open");
     
@@ -113,7 +115,11 @@ if (navToggle && navLinks) {
       navLinks.classList.remove("open");
       navToggle.classList.remove("active");
     }
-  });
+  }
+  
+  // Handle both click and touch events for better mobile support
+  navToggle.addEventListener("click", toggleNav, false);
+  navToggle.addEventListener("touchend", toggleNav, false);
 
   // Close menu when clicking nav links (but keep open for submenu exploration)
   navLinks.querySelectorAll("a").forEach((link) => {
@@ -129,7 +135,7 @@ if (navToggle && navLinks) {
   });
 
   // Close menu when clicking outside nav
-  document.addEventListener("click", function(e) {
+  function closeNavOnClickOutside(e) {
     const isClickedInNav = e.target.closest(".nav");
     const isClickedOnToggle = e.target.closest(".nav-toggle");
     
@@ -137,7 +143,11 @@ if (navToggle && navLinks) {
       navLinks.classList.remove("open");
       navToggle.classList.remove("active");
     }
-  });
+  }
+  
+  // Listen for both click and touchend events
+  document.addEventListener("click", closeNavOnClickOutside, false);
+  document.addEventListener("touchend", closeNavOnClickOutside, false);
 }
 
 // Mobile submenu touch support

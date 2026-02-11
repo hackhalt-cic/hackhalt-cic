@@ -110,10 +110,12 @@ if (navToggle && navLinks) {
       // Open menu
       navLinks.classList.add("open");
       navToggle.classList.add("active");
+      document.body.classList.add("nav-open");
     } else {
       // Close menu
       navLinks.classList.remove("open");
       navToggle.classList.remove("active");
+      document.body.classList.remove("nav-open");
     }
   }
   
@@ -121,16 +123,52 @@ if (navToggle && navLinks) {
   navToggle.addEventListener("click", toggleNav, false);
   navToggle.addEventListener("touchend", toggleNav, false);
 
-  // Close menu when clicking nav links (but keep open for submenu exploration)
-  navLinks.querySelectorAll("a").forEach((link) => {
-    link.addEventListener("click", function() {
-      // Only close menu if link is NOT a submenu parent (keep open so user can explore submenu items)
-      const isSubmenuParent = link.closest(".nav-item-with-submenu") && link.parentElement.classList.contains("nav-item-with-submenu");
+  // Handle submenu toggle on mobile
+  const submenuParents = navLinks.querySelectorAll(".nav-item-with-submenu > a");
+  submenuParents.forEach((parentLink) => {
+    parentLink.addEventListener("click", function(e) {
+      const parentItem = this.closest(".nav-item-with-submenu");
+      const isOpen = parentItem.classList.contains("open");
       
-      if (!isSubmenuParent) {
+      // Close all other submenus
+      document.querySelectorAll(".nav-item-with-submenu.open").forEach((item) => {
+        if (item !== parentItem) {
+          item.classList.remove("open");
+        }
+      });
+      
+      // Toggle current submenu
+      if (isOpen) {
+        parentItem.classList.remove("open");
+      } else {
+        e.preventDefault();
+        e.stopPropagation();
+        parentItem.classList.add("open");
+      }
+    });
+  });
+
+  // Close menu when clicking actual nav links (not submenu parents or buttons)
+  navLinks.querySelectorAll("a").forEach((link) => {
+    link.addEventListener("click", function(e) {
+      const isSubmenuParent = this.closest(".nav-item-with-submenu > a");
+      const isButton = this.classList.contains("btn");
+      const isSubmenuItem = this.closest(".nav-submenu a") && !isSubmenuParent;
+      
+      // Only close if it's a regular link or submenu item (not parent, not button)
+      if (!isSubmenuParent && !isButton && isSubmenuItem) {
         navLinks.classList.remove("open");
         navToggle.classList.remove("active");
+        document.body.classList.remove("nav-open");
       }
+    });
+  });
+
+  // Handle button clicks - keep nav open
+  navLinks.querySelectorAll(".btn").forEach((btn) => {
+    btn.addEventListener("click", function(e) {
+      e.stopPropagation();
+      // Let the button handle its own navigation
     });
   });
 
@@ -142,6 +180,7 @@ if (navToggle && navLinks) {
     if (!isClickedInNav && !isClickedOnToggle && navLinks.classList.contains("open")) {
       navLinks.classList.remove("open");
       navToggle.classList.remove("active");
+      document.body.classList.remove("nav-open");
     }
   }
   

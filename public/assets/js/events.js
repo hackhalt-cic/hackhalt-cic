@@ -5,18 +5,18 @@
 const upcomingEvents = [
   {
     id: 1,
-    title: "National Cybersecurity Workshop",
+    title: "Security in AI Summit 2026",
     image: "images/Amity school.jpg",
-    type: "National Workshop",
+    type: "National Summit",
     mode: "In-Person",
     date: "Coming Soon",
     time: "TBD",
     location: "Across India",
-    sourceFile: "National Cybersecurity Workshop",
-    meta: "Interactive session, cybersecurity awareness focus",
-    description: "National cybersecurity workshop aimed at educating students and professionals about online threats, safe practices, and digital citizenship.",
-    speakers: ["HackHalt Trainers", "Industry Experts"],
-    icon: "fa-school"
+    sourceFile: "Security in AI Summit 2026",
+    meta: "Interactive session, AI security and emerging threats focus",
+    description: "Security in AI Summit 2026 - Exploring the intersection of artificial intelligence and cybersecurity, covering emerging threats, secure AI development, and future trends.",
+    speakers: ["HackHalt Trainers", "Industry Experts", "AI Security Researchers"],
+    icon: "fa-brain"
   }
 ];
 

@@ -6037,6 +6037,29 @@ a:focus-visible {
   margin-right: auto;
 }
 
+/* Member Form Optimization */
+.member-form {
+  position: relative;
+}
+
+.member-form input[type="text"],
+.member-form input[type="email"],
+.member-form input[type="tel"],
+.member-form select,
+.member-form textarea {
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.member-form input[type="text"]:focus,
+.member-form input[type="email"]:focus,
+.member-form input[type="tel"]:focus,
+.member-form select:focus,
+.member-form textarea:focus {
+  border-color: var(--color-primary);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
 /* ===== FOCUS AREAS ===== */
 .focus-areas-container {
   display: grid;
@@ -9232,6 +9255,13 @@ a:focus-visible {
   .form-group-full {
     grid-column: 1;
   }
+
+  /* Member form responsive */
+  .member-form {
+    padding: 1.5rem 1rem !important;
+    max-width: 100% !important;
+  }
+
 @media (max-width: 360px) {
   /* Extreme mobile devices */
   html {

@@ -3,7 +3,17 @@ const express = require("express");
 const path = require("path");
 const compression = require("compression");
 const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
+const helmet = require('helmet');
 const connectDB = require("./db-connect");
+
+// Security imports
+const { secureAuthMiddleware, requireRole } = require("./middleware/secureAuthMiddleware");
+const { apiLimiter } = require("./middleware/rateLimiter");
+const securityHeaders = require("./utils/securityHeaders");
+const secureAdminAuthRoutes = require("./routes/secureAdminAuth");
+
+// Models
 const ContactSubmission = require("./models/ContactSubmission");
 const JoinSubmission = require("./models/JoinSubmission");
 const BlogSubmission = require("./models/BlogSubmission");
@@ -15,6 +25,9 @@ const authMiddleware = require("./middleware/authMiddleware");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+// Security headers
+app.use(securityHeaders);
 
 // Middleware for compression and performance
 app.use(compression({
@@ -31,6 +44,7 @@ app.use(compression({
 // Body parser middleware with size limits
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(cookieParser(process.env.SESSION_SECRET));
 
 // CORS configuration for Vercel - FIXED for production
 app.use((req, res, next) => {
@@ -221,15 +235,31 @@ app.get("/add-blog", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "add-blog.html"));
 });
 
-app.get("/admin", (req, res) => {
+// ========== SECURITY & RATE LIMITING ==========
+app.use('/api/', apiLimiter);
+
+// ========== AUTHENTICATION ROUTES ==========
+app.use('/api/auth', secureAdminAuthRoutes);
+
+// ========== PROTECTED ADMIN ROUTES ==========
+app.get("/admin", secureAuthMiddleware, (req, res) => {
   res.sendFile(path.join(__dirname, "public", "admin.html"));
 });
 
 app.get("/admin-login", (req, res) => {
+  // Redirect authenticated users to /admin
+  if (req.cookies?.adminToken) {
+    try {
+      jwt.verify(req.cookies.adminToken, process.env.JWT_SECRET);
+      return res.redirect('/admin');
+    } catch (error) {
+      // Token invalid, show login page
+    }
+  }
   res.sendFile(path.join(__dirname, "public", "admin-login.html"));
 });
 
-app.get("/blog-admin", (req, res) => {
+app.get("/blog-admin", secureAuthMiddleware, (req, res) => {
   res.sendFile(path.join(__dirname, "public", "blog-admin.html"));
 });
 
@@ -331,132 +361,12 @@ app.post("/api/debug/test-password", async (req, res) => {
 });
 
 // ========== ADMIN AUTHENTICATION ==========
-
-// POST /api/admin/login - Admin login
-app.post("/api/admin/login", async (req, res) => {
-  try {
-    const { username, password } = req.body;
-    console.log(`\n🔐 LOGIN ATTEMPT: username=${username}`);
-
-    // Validation
-    if (!username || !password) {
-      console.log('❌ Missing credentials');
-      return res.status(400).json({
-        success: false,
-        error: "Missing username or password"
-      });
-    }
-
-    // Find admin by username
-    const admin = await Admin.findOne({ username }).select("+password");
-    
-    if (!admin) {
-      console.warn(`❌ User not found: ${username}`);
-      const allAdmins = await Admin.find().select('username');
-      console.log('📋 Available users:', allAdmins.map(a => a.username));
-      return res.status(401).json({
-        success: false,
-        error: "Invalid credentials"
-      });
-    }
-
-    console.log(`✓ Admin found: ${admin.username}`);
-    console.log(`✓ Password field exists: ${!!admin.password}`);
-    console.log(`✓ Password hash length: ${admin.password ? admin.password.length : 0}`);
-
-    // Compare password
-    let isPasswordValid = false;
-    try {
-      console.log(`🔍 Testing password comparison...`);
-      isPasswordValid = await admin.comparePassword(password);
-      console.log(`✓ Password comparison result: ${isPasswordValid}`);
-    } catch (compareError) {
-      console.error('❌ Password comparison error:', compareError.message);
-      return res.status(500).json({
-        success: false,
-        error: "Authentication error occurred"
-      });
-    }
-    
-    if (!isPasswordValid) {
-      console.warn(`❌ Invalid password for user: ${username}`);
-      return res.status(401).json({
-        success: false,
-        error: "Invalid credentials"
-      });
-    }
-
-    // Check if admin is active
-    if (!admin.isActive) {
-      return res.status(401).json({
-        success: false,
-        error: "Admin account is inactive"
-      });
-    }
-
-    // Generate JWT token
-    const token = jwt.sign(
-      { 
-        id: admin._id, 
-        username: admin.username,
-        email: admin.email,
-        role: admin.role 
-      },
-      process.env.JWT_SECRET || 'hackhalt_secret_key_2026',
-      { expiresIn: '7d' }
-    );
-
-    // Update last login
-    admin.lastLogin = new Date();
-    await admin.save();
-
-    console.log(`Admin login successful: ${username}`);
-
-    res.json({
-      success: true,
-      message: "Login successful",
-      token,
-      admin: {
-        id: admin._id,
-        username: admin.username,
-        email: admin.email,
-        role: admin.role
-      }
-    });
-  } catch (error) {
-    console.error("Error during admin login:", error.message);
-    console.error("Error stack:", error.stack);
-    
-    // Provide more specific error messages for debugging
-    let errorMessage = "Failed to process login";
-    if (error.message.includes('connect')) {
-      errorMessage = "Database connection error - MongoDB may not be accessible";
-    } else if (error.message.includes('ENOTFOUND')) {
-      errorMessage = "Cannot connect to database server";
-    } else if (error.message.includes('ECONNREFUSED')) {
-      errorMessage = "Database connection refused";
-    }
-    
-    res.status(500).json({
-      success: false,
-      error: errorMessage,
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
-    });
-  }
-});
+// Login endpoint now at: POST /api/auth/login (see routes/secureAdminAuth.js)
+// Includes: rate limiting, bcrypt, JWT, HTTP-only cookies, audit logging
 
 // POST /api/admin/register - Create new admin (protected)
-app.post("/api/admin/register", authMiddleware, async (req, res) => {
+app.post("/api/admin/register", secureAuthMiddleware, requireRole('super-admin'), async (req, res) => {
   try {
-    // Check if requester is super-admin
-    const requester = await Admin.findById(req.admin.id);
-    if (requester.role !== 'super-admin') {
-      return res.status(403).json({
-        success: false,
-        error: "Only super-admin can create new admins"
-      });
-    }
-
     const { username, email, password, role } = req.body;
 
     // Validation
@@ -509,7 +419,7 @@ app.post("/api/admin/register", authMiddleware, async (req, res) => {
 });
 
 // GET /api/admin/profile - Get current admin profile
-app.get("/api/admin/profile", authMiddleware, async (req, res) => {
+app.get("/api/admin/profile", secureAuthMiddleware, async (req, res) => {
   try {
     const admin = await Admin.findById(req.admin.id);
     

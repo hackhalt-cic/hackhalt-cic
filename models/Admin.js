@@ -37,6 +37,18 @@ const adminSchema = new mongoose.Schema({
   },
   lastLogin: {
     type: Date
+  },
+  lastLoginIP: {
+    type: String
+  },
+  failedLoginAttempts: {
+    type: Number,
+    default: 0,
+    select: false
+  },
+  lastFailedLogin: {
+    type: Date,
+    select: false
   }
 });
 

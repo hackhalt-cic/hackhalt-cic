@@ -35,6 +35,11 @@ const blogSubmissionSchema = new mongoose.Schema({
     type: String,
     maxlength: [50, 'Tag cannot exceed 50 characters']
   }],
+  status: {
+    type: String,
+    enum: ['Pending', 'Approved', 'Rejected'],
+    default: 'Pending'
+  },
   isPublished: {
     type: Boolean,
     default: false
@@ -45,8 +50,7 @@ const blogSubmissionSchema = new mongoose.Schema({
   },
   adminId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Admin',
-    required: true
+    ref: 'Admin'
   },
   createdAt: {
     type: Date,

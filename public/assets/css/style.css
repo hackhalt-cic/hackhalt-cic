@@ -6350,19 +6350,21 @@ a:focus-visible {
     rgba(37, 99, 235, 0.2),
     rgba(34, 197, 94, 0.1)
   );
-  height: 280px;
-  width: 100%;
-  padding-top: 0.8rem;
-  padding-left: 0.8rem;
-  padding-right: 0.8rem;
+  height: 250px;
+  width: 250px;
+  margin: 1rem auto;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .team-image {
   width: 100%;
-  height: calc(100% - 0.8rem);
+  height: 100%;
   object-fit: cover;
   transition: transform var(--transition-default);
-  border-radius: 0.8rem;
+  border-radius: 50%;
 }
 
 .team-card:hover .team-image {
@@ -6481,7 +6483,8 @@ a:focus-visible {
 
 /* Founder Card Specific Styling */
 .founder-card .team-image-wrapper {
-  height: 320px;
+  height: 280px;
+  width: 280px;
 }
 
 .founder-card .team-info {
@@ -6494,7 +6497,8 @@ a:focus-visible {
 
 /* Member Card Specific Styling */
 .member-card .team-image-wrapper {
-  height: 240px;
+  height: 220px;
+  width: 220px;
 }
 
 .member-card .team-info {
@@ -9392,4 +9396,30 @@ a:focus-visible {
   .footer-links a {
     font-size: 0.75rem;
   }
+}
+
+/* === AMBASSADOR FULL-WIDTH SECTION ===================================== */
+#ambassador-section {
+  position: relative;
+  z-index: 1;
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+  padding: 2rem 0;
+  background: transparent;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+.ambassador-full-width {
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+  padding: 2rem 0;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+.member-form-fullwidth {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
 }

@@ -242,8 +242,20 @@ app.use('/api/', apiLimiter);
 app.use('/api/auth', secureAdminAuthRoutes);
 
 // ========== PROTECTED ADMIN ROUTES ==========
-app.get("/admin", secureAuthMiddleware, (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "admin.html"));
+app.get("/admin", (req, res) => {
+  // Check if user has valid token
+  if (!req.cookies?.adminToken) {
+    return res.redirect('/admin-login');
+  }
+  
+  try {
+    jwt.verify(req.cookies.adminToken, process.env.JWT_SECRET);
+    res.sendFile(path.join(__dirname, "public", "admin.html"));
+  } catch (error) {
+    // Token invalid, redirect to login
+    res.clearCookie('adminToken');
+    res.redirect('/admin-login');
+  }
 });
 
 app.get("/admin-login", (req, res) => {
@@ -259,8 +271,20 @@ app.get("/admin-login", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "admin-login.html"));
 });
 
-app.get("/blog-admin", secureAuthMiddleware, (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "blog-admin.html"));
+app.get("/blog-admin", (req, res) => {
+  // Check if user has valid token
+  if (!req.cookies?.adminToken) {
+    return res.redirect('/admin-login');
+  }
+  
+  try {
+    jwt.verify(req.cookies.adminToken, process.env.JWT_SECRET);
+    res.sendFile(path.join(__dirname, "public", "blog-admin.html"));
+  } catch (error) {
+    // Token invalid, redirect to login
+    res.clearCookie('adminToken');
+    res.redirect('/admin-login');
+  }
 });
 
 // ========== API ENDPOINTS ==========
@@ -653,12 +677,11 @@ app.get("/api/submissions", async (req, res) => {
   }
 });
 
-// POST /api/blog - Handle blog submissions (protected)
-app.post("/api/blog", authMiddleware, async (req, res) => {
+// POST /api/blog - Admin: Create blog immediately (protected)
+app.post("/api/blog", secureAuthMiddleware, async (req, res) => {
   try {
     const { title, author, category, content, excerpt, image, tags } = req.body;
 
-    // Validation
     if (!title || !content) {
       return res.status(400).json({
         success: false,
@@ -666,7 +689,6 @@ app.post("/api/blog", authMiddleware, async (req, res) => {
       });
     }
 
-    // Create new blog submission with adminId
     const blogSubmission = new BlogSubmission({
       title,
       author: author || "Anonymous",
@@ -675,25 +697,68 @@ app.post("/api/blog", authMiddleware, async (req, res) => {
       excerpt: excerpt || content.substring(0, 500),
       image: image || null,
       tags: tags || [],
+      status: 'Approved',
       adminId: req.admin.id,
       isPublished: true
     });
 
-    // Save to MongoDB
     const savedSubmission = await blogSubmission.save();
-
-    console.log("Blog submission received:", { title, author, adminId: req.admin.id, timestamp: new Date() });
+    console.log("Admin blog created:", { title, adminId: req.admin.id });
 
     res.json({
       success: true,
-      message: "Blog post submitted successfully!",
+      message: "Blog post created successfully!",
       submissionId: savedSubmission._id
     });
   } catch (error) {
-    console.error("Error processing blog form:", error);
+    console.error("Error creating blog:", error);
     res.status(500).json({
       success: false,
-      error: "Failed to process blog form"
+      error: "Failed to create blog"
+    });
+  }
+});
+
+// PUT /api/blog/:id - Admin: Edit & approve/reject blog (protected)
+app.put("/api/blog/:id", secureAuthMiddleware, async (req, res) => {
+  try {
+    const { title, author, category, content, excerpt, image, status } = req.body;
+    
+    // Build update object with only provided fields
+    const updateData = { updatedAt: new Date() };
+    if (title !== undefined && title !== null) updateData.title = title;
+    if (author !== undefined && author !== null) updateData.author = author;
+    if (category !== undefined && category !== null) updateData.category = category;
+    if (content !== undefined && content !== null) updateData.content = content;
+    if (excerpt !== undefined && excerpt !== null) updateData.excerpt = excerpt;
+    if (image !== undefined && image !== null) updateData.image = image;
+    if (status !== undefined && status !== null) updateData.status = status;
+
+    const blog = await BlogSubmission.findByIdAndUpdate(
+      req.params.id,
+      updateData,
+      { new: true, runValidators: true }
+    );
+
+    if (!blog) {
+      return res.status(404).json({
+        success: false,
+        error: "Blog not found"
+      });
+    }
+
+    console.log("✅ Blog updated:", { id: req.params.id, title: blog.title, status: blog.status });
+
+    res.json({
+      success: true,
+      message: "Blog updated successfully",
+      blog
+    });
+  } catch (error) {
+    console.error("❌ Error updating blog:", error);
+    res.status(500).json({
+      success: false,
+      error: error.message || "Failed to update blog"
     });
   }
 });
@@ -737,7 +802,7 @@ app.get("/api/submissions/join", async (req, res) => {
   }
 });
 
-// GET /api/submissions/blogs - Get all blog submissions
+// GET /api/submissions/blogs - Admin: Get all blog submissions (all statuses)
 app.get("/api/submissions/blogs", async (req, res) => {
   try {
     const limit = req.query.limit ? parseInt(req.query.limit) : 100;
@@ -752,6 +817,23 @@ app.get("/api/submissions/blogs", async (req, res) => {
     res.status(500).json({
       success: false,
       error: "Failed to fetch blog submissions"
+    });
+  }
+});
+
+// GET /api/blogs - Public: Get approved blogs only (sorted descending by date)
+app.get("/api/blogs", async (req, res) => {
+  try {
+    const blogs = await BlogSubmission.find({ status: 'Approved' })
+      .sort({ createdAt: -1 });
+    res.json({
+      success: true,
+      blogs: blogs
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: "Failed to fetch blogs"
     });
   }
 });

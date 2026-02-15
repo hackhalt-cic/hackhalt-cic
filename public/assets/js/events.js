@@ -265,7 +265,7 @@ const pastEvents = [
   },
   {
     id: 18,
-    title: "Security in AI Summit - Delhi",
+    title: "Pre-meetup event security in summit 2026",
     image: "images/Security in AI summit.jpg",
     type: "Summit",
     mode: "In-Person � Completed",

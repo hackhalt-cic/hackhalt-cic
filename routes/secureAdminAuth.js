@@ -127,7 +127,7 @@ router.post('/login', loginLimiter, async (req, res) => {
       secure: process.env.NODE_ENV === 'production', // HTTPS only in production
       sameSite: 'strict', // CSRF protection
       maxAge: 15 * 60 * 1000, // 15 minutes
-      path: '/api',
+      path: '/',
       domain: process.env.COOKIE_DOMAIN || undefined
     });
 
@@ -137,7 +137,7 @@ router.post('/login', loginLimiter, async (req, res) => {
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      path: '/api/auth'
+      path: '/'
     });
 
     // 10. Audit log

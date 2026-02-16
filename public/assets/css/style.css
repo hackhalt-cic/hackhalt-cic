@@ -2339,6 +2339,10 @@ main::before {
   margin-bottom: 0.25rem;
 }
 
+.footer-links .social-links li {
+  margin-bottom: 0;
+}
+
 .footer-links a {
   font-size: 0.85rem;
   color: var(--color-text-muted);
@@ -2353,6 +2357,12 @@ main::before {
   display: flex;
   gap: 0.8rem;
   flex-wrap: wrap;
+  list-style: none;
+  justify-content: center;
+}
+
+.social-links li {
+  list-style: none;
 }
 
 .social-links a {
@@ -2364,6 +2374,8 @@ main::before {
   align-items: center;
   justify-content: center;
   font-size: 0.95rem;
+  color: var(--color-text-muted);
+  text-decoration: none;
   transition: all var(--transition-default);
 }
 
@@ -6398,6 +6410,11 @@ a:focus-visible {
   display: flex;
   gap: 1rem;
   justify-content: center;
+  list-style: none;
+}
+
+.social-links li {
+  list-style: none;
 }
 
 .social-links a {

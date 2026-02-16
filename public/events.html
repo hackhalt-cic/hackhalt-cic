@@ -28,22 +28,14 @@
     onload="this.media='all'"
   />
 
-  <!-- Font Awesome Icons (async loading) -->
+  <!-- Font Awesome Icons -->
   <link
-    rel="preload"
+    rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-    as="style"
-    onload="this.onload=null;this.rel='stylesheet'"
+    integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
   />
-  <noscript>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-      integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    />
-  </noscript>
 
   <link rel="stylesheet" href="assets/css/style.css" />
 </head>
@@ -200,15 +192,11 @@
       <div class="footer-links">
         <h4>Follow</h4>
         <ul class="social-links">
-          <li><a href="https://www.linkedin.com/company/hack-halt/posts/?feedView=all" target="_blank" title="LinkedIn"><i class="fa-brands fa-linkedin"></i></a></li>
-          <li><a href="https://www.instagram.com/hackhalt/?hl=en" target="_blank" title="Instagram"><i class="fa-brands fa-instagram"></i></a></li>
+          <li><a href="https://www.linkedin.com/company/hack-halt/posts/?feedView=all" target="_blank" rel="noreferrer" title="LinkedIn"><i class="fa-brands fa-linkedin"></i></a></li>
+          <li><a href="https://www.instagram.com/hackhalt/?hl=en" target="_blank" rel="noreferrer" title="Instagram"><i class="fa-brands fa-instagram"></i></a></li>
+          <li><a href="https://x.com/hack_halt" target="_blank" rel="noreferrer" title="X (Twitter)"><i class="fa-brands fa-x-twitter"></i></a></li>
+          <li><a href="https://www.facebook.com/hackhalt" target="_blank" rel="noreferrer" title="Facebook"><i class="fa-brands fa-facebook"></i></a></li>
         </ul>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <span>© <span id="year"></span> HackHalt - Cyber Intelligence Council. All rights reserved. | CIN: U94990DL2025NPL459178 | NITI Aayog: DL/2025/0920083 | MSME: UDYAM-DL-02-0107864</span>
-    </div>
-  </footer>
 
   <!-- Back to top -->
   <button id="backToTop" class="back-to-top" aria-label="Back to top">

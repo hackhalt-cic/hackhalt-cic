@@ -643,6 +643,16 @@ app.delete("/api/submissions/bookings/:id", async (req, res) => {
 // GET /api/submissions - Get all submissions (for admin/testing)
 app.get("/api/submissions", async (req, res) => {
   try {
+    // Check database connection
+    const mongoStatus = require('mongoose').connection.readyState;
+    if (mongoStatus !== 1) {
+      return res.status(503).json({
+        success: false,
+        error: "Database not connected",
+        dbStatus: mongoStatus
+      });
+    }
+
     const [contactSubmissions, joinSubmissions, blogSubmissions, bookingSubmissions, ambassadorSubmissions] = await Promise.all([
       ContactSubmission.find().sort({ createdAt: -1 }),
       JoinSubmission.find().sort({ createdAt: -1 }),
@@ -672,7 +682,8 @@ app.get("/api/submissions", async (req, res) => {
     console.error("Error fetching submissions:", error);
     res.status(500).json({
       success: false,
-      error: "Failed to fetch submissions"
+      error: "Failed to fetch submissions",
+      details: error.message
     });
   }
 });

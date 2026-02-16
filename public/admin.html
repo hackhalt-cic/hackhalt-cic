@@ -544,9 +544,18 @@
     async function loadData() {
       try {
         const resp = await fetch(apiBase + '/api/submissions', { credentials: 'include' });
-        if (!resp.ok) throw new Error('Failed to fetch');
+        
+        if (!resp.ok) {
+          const errorText = await resp.text();
+          throw new Error(`API Error (${resp.status}): ${errorText}`);
+        }
 
         const data = await resp.json();
+        
+        if (!data.success) {
+          throw new Error(data.error || 'API returned unsuccessful response');
+        }
+        
         document.getElementById('contactCount').textContent = data.counts?.contact || 0;
         document.getElementById('joinCount').textContent = data.counts?.join || 0;
         document.getElementById('ambassadorCount').textContent = data.counts?.ambassadors || 0;
@@ -555,7 +564,13 @@
         renderJoin(data.submissions?.join || []);
         renderAmbassadors(data.submissions?.ambassadors || []);
       } catch (err) {
-        console.error(err);
+        console.error('Data loading error:', err);
+        
+        // Show error in UI
+        const errorMsg = `<tr><td colspan="5" class="no-data">Error: ${err.message}</td></tr>`;
+        document.getElementById('contactBody').innerHTML = errorMsg;
+        document.getElementById('joinBody').innerHTML = `<tr><td colspan="5" class="no-data">Error: ${err.message}</td></tr>`;
+        document.getElementById('ambassadorsBody').innerHTML = `<tr><td colspan="6" class="no-data">Error: ${err.message}</td></tr>`;
       }
     }
 

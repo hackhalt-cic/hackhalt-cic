@@ -529,48 +529,46 @@
     function openModal(content) {
       document.getElementById('modalBody').innerHTML = content;
       document.getElementById('modal').classList.add('active');
+      document.body.style.overflow = 'hidden';
     }
 
     function closeModal() {
       document.getElementById('modal').classList.remove('active');
+      document.body.style.overflow = 'auto';
+      document.getElementById('modalBody').innerHTML = '';
     }
 
     window.onclick = function(e) {
       const modal = document.getElementById('modal');
-      if (e.target === modal) modal.classList.remove('active');
+      if (e.target === modal) closeModal();
     }
 
     // Load Response Data
     async function loadData() {
       try {
-        const resp = await fetch(apiBase + '/api/submissions', { credentials: 'include' });
-        
-        if (!resp.ok) {
-          const errorText = await resp.text();
-          throw new Error(`API Error (${resp.status}): ${errorText}`);
-        }
+        const endpoints = [
+          { url: '/api/submissions/contact', key: 'contact', countId: 'contactCount', bodyId: 'contactBody', render: renderContact },
+          { url: '/api/submissions/join', key: 'join', countId: 'joinCount', bodyId: 'joinBody', render: renderJoin },
+          { url: '/api/submissions/ambassadors', key: 'ambassadors', countId: 'ambassadorCount', bodyId: 'ambassadorsBody', render: renderAmbassadors }
+        ];
 
-        const data = await resp.json();
-        
-        if (!data.success) {
-          throw new Error(data.error || 'API returned unsuccessful response');
+        const allData = {};
+        for (const endpoint of endpoints) {
+          try {
+            const resp = await fetch(apiBase + endpoint.url, { credentials: 'include' });
+            if (!resp.ok) throw new Error(`API Error (${resp.status})`);
+            const data = await resp.json();
+            if (!data.success) throw new Error(data.error || 'API error');
+            allData[endpoint.key] = data.submissions || [];
+            document.getElementById(endpoint.countId).textContent = allData[endpoint.key].length;
+            endpoint.render(allData[endpoint.key]);
+          } catch (err) {
+            console.error(`Error loading ${endpoint.key}:`, err);
+            document.getElementById(endpoint.bodyId).innerHTML = `<tr><td colspan="6" class="no-data">Error: ${err.message}</td></tr>`;
+          }
         }
-        
-        document.getElementById('contactCount').textContent = data.counts?.contact || 0;
-        document.getElementById('joinCount').textContent = data.counts?.join || 0;
-        document.getElementById('ambassadorCount').textContent = data.counts?.ambassadors || 0;
-
-        renderContact(data.submissions?.contact || []);
-        renderJoin(data.submissions?.join || []);
-        renderAmbassadors(data.submissions?.ambassadors || []);
       } catch (err) {
         console.error('Data loading error:', err);
-        
-        // Show error in UI
-        const errorMsg = `<tr><td colspan="5" class="no-data">Error: ${err.message}</td></tr>`;
-        document.getElementById('contactBody').innerHTML = errorMsg;
-        document.getElementById('joinBody').innerHTML = `<tr><td colspan="5" class="no-data">Error: ${err.message}</td></tr>`;
-        document.getElementById('ambassadorsBody').innerHTML = `<tr><td colspan="6" class="no-data">Error: ${err.message}</td></tr>`;
       }
     }
 
@@ -684,9 +682,11 @@
     async function loadBlogs() {
       try {
         const resp = await fetch(apiBase + '/api/submissions/blogs', { credentials: 'include' });
-        if (!resp.ok) throw new Error('Failed to fetch blogs');
+        if (!resp.ok) throw new Error(`API Error (${resp.status})`);
 
         const data = await resp.json();
+        if (!data.success) throw new Error(data.error || 'API error');
+        
         document.getElementById('blogCount').textContent = data.submissions?.length || 0;
 
         const container = document.getElementById('blogsContainer');
@@ -720,7 +720,7 @@
         }).join('');
       } catch (err) {
         console.error(err);
-        document.getElementById('blogsContainer').innerHTML = '<div class="no-data">Error loading blogs</div>';
+        document.getElementById('blogsContainer').innerHTML = `<div class="no-data">Error: ${err.message}</div>`;
       }
     }
 
@@ -729,20 +729,26 @@
 
     // View Blog
     async function showBlogView(blogId) {
-      if (!blogCache[blogId]) {
-        const resp = await fetch(apiBase + '/api/submissions/blogs', { credentials: 'include' });
-        const data = await resp.json();
-        data.submissions.forEach(b => blogCache[b._id] = b);
+      try {
+        if (!blogCache[blogId]) {
+          const resp = await fetch(apiBase + '/api/submissions/blogs', { credentials: 'include' });
+          if (!resp.ok) throw new Error(`API Error (${resp.status})`);
+          const data = await resp.json();
+          if (!data.success) throw new Error(data.error);
+          data.submissions.forEach(b => blogCache[b._id] = b);
+        }
+        const blog = blogCache[blogId];
+        if (!blog) throw new Error('Blog not found');
+        openModal(`
+          ${blog.image ? `<img src="${blog.image}" style="width: 100%; max-height: 300px; object-fit: cover; border-radius: 6px; margin-bottom: 1rem;" alt="${blog.title}" onerror="this.style.display='none';">` : ''}
+          <h2>${blog.title}</h2>
+          <p style="color: #cbd5e1;"><strong>By ${blog.author}</strong> • ${blog.category || 'General'}</p>
+          <hr>
+          <div style="line-height: 1.8; color: #f1f5f9;">${(blog.content || '').split('\n').join('<br>')}</div>
+        `);
+      } catch (err) {
+        alert('Error: ' + err.message);
       }
-      const blog = blogCache[blogId];
-      if (!blog) { alert('Blog not found'); return; }
-      openModal(`
-        ${blog.image ? `<img src="${blog.image}" style="width: 100%; max-height: 300px; object-fit: cover; border-radius: 6px; margin-bottom: 1rem;" alt="${blog.title}" onerror="this.style.display='none';">` : ''}
-        <h2>${blog.title}</h2>
-        <p style="color: #cbd5e1;"><strong>By ${blog.author}</strong> • ${blog.category || 'General'}</p>
-        <hr>
-        <div style="line-height: 1.8; color: #f1f5f9;">${(blog.content || '').split('\n').join('<br>')}</div>
-      `);
     }
 
     // Blog Form
@@ -791,9 +797,11 @@
           body: JSON.stringify({ title, author, category, content, image })
         });
 
-        if (!resp.ok) throw new Error('Failed to create blog');
+        const data = await resp.json();
+        if (!resp.ok) throw new Error(data.error || 'Failed to create blog');
+        
         closeModal();
-        loadBlogs();
+        await loadBlogs();
       } catch (err) {
         alert('Error creating blog: ' + err.message);
       }
@@ -801,71 +809,74 @@
 
     // Edit Blog Form
     async function showEditBlogForm(blogId) {
-      if (!blogCache[blogId]) {
-        const resp = await fetch(apiBase + '/api/submissions/blogs', { credentials: 'include' });
-        const data = await resp.json();
-        data.submissions.forEach(b => blogCache[b._id] = b);
+      try {
+        if (!blogCache[blogId]) {
+          const resp = await fetch(apiBase + '/api/submissions/blogs', { credentials: 'include' });
+          if (!resp.ok) throw new Error(`API Error (${resp.status})`);
+          const data = await resp.json();
+          if (!data.success) throw new Error(data.error);
+          data.submissions.forEach(b => blogCache[b._id] = b);
+        }
+        const blog = blogCache[blogId];
+        if (!blog) throw new Error('Blog not found');
+        
+        openModal(`
+          <h2>Edit Blog Post</h2>
+          <form onsubmit="submitEditBlog(event, '${blogId}')">
+            <div class="form-group">
+              <label>Title *</label>
+              <input type="text" id="editBlogTitle" value="${blog.title}" required>
+            </div>
+            <div class="form-group">
+              <label>Author *</label>
+              <input type="text" id="editBlogAuthor" value="${blog.author}" required>
+            </div>
+            <div class="form-group">
+              <label>Category</label>
+              <input type="text" id="editBlogCategory" value="${blog.category || ''}">
+            </div>
+            <div class="form-group">
+              <label>Image URL</label>
+              <input type="url" id="editBlogImage" value="${blog.image || ''}">
+            </div>
+            <div class="form-group">
+              <label>Content *</label>
+              <textarea id="editBlogContent" required>${blog.content || ''}</textarea>
+            </div>
+            <div class="form-group">
+              <label>Status</label>
+              <select id="editBlogStatus" style="margin-bottom: 1rem;">
+                <option value="Pending" ${blog.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                <option value="Approved" ${blog.status === 'Approved' ? 'selected' : ''}>Approved</option>
+                <option value="Rejected" ${blog.status === 'Rejected' ? 'selected' : ''}>Rejected</option>
+              </select>
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+              <button type="submit" style="flex: 1;"><i class="fas fa-save"></i> Save Changes</button>
+              <button type="button" style="flex: 1; background: #ef4444;" onclick="closeModal()"><i class="fas fa-times"></i> Cancel</button>
+            </div>
+          </form>
+        `);
+      } catch (err) {
+        alert('Error: ' + err.message);
       }
-      const blog = blogCache[blogId];
-      if (!blog) { alert('Blog not found'); return; }
-      
-      openModal(`
-        <h2>Edit Blog Post</h2>
-        <form onsubmit="submitEditBlog(event, '${blogId}')">
-          <div class="form-group">
-            <label>Title *</label>
-            <input type="text" id="editBlogTitle" value="${blog.title}" required>
-          </div>
-          <div class="form-group">
-            <label>Author *</label>
-            <input type="text" id="editBlogAuthor" value="${blog.author}" required>
-          </div>
-          <div class="form-group">
-            <label>Category</label>
-            <input type="text" id="editBlogCategory" value="${blog.category || ''}">
-          </div>
-          <div class="form-group">
-            <label>Image URL</label>
-            <input type="url" id="editBlogImage" value="${blog.image || ''}">
-          </div>
-          <div class="form-group">
-            <label>Content *</label>
-            <textarea id="editBlogContent" required>${blog.content || ''}</textarea>
-          </div>
-          <div class="form-group">
-            <label>Status</label>
-            <select id="editBlogStatus" style="margin-bottom: 1rem;">
-              <option value="Pending" ${blog.status === 'Pending' ? 'selected' : ''}>Pending</option>
-              <option value="Approved" ${blog.status === 'Approved' ? 'selected' : ''}>Approved</option>
-              <option value="Rejected" ${blog.status === 'Rejected' ? 'selected' : ''}>Rejected</option>
-            </select>
-          </div>
-          <div style="display: flex; gap: 0.5rem;">
-            <button type="submit" style="flex: 1;"><i class="fas fa-save"></i> Save Changes</button>
-            <button type="button" style="flex: 1; background: #ef4444;" onclick="closeModal()"><i class="fas fa-times"></i> Cancel</button>
-          </div>
-        </form>
-      `);
     }
 
     async function submitEditBlog(e, id) {
       e.preventDefault();
-      try {
-        const title = document.getElementById('editBlogTitle')?.value;
-        const author = document.getElementById('editBlogAuthor')?.value;
-        const category = document.getElementById('editBlogCategory')?.value;
-        const image = document.getElementById('editBlogImage')?.value;
-        const content = document.getElementById('editBlogContent')?.value;
-        const status = document.getElementById('editBlogStatus')?.value;
+      const title = document.getElementById('editBlogTitle')?.value;
+      const author = document.getElementById('editBlogAuthor')?.value;
+      const category = document.getElementById('editBlogCategory')?.value;
+      const image = document.getElementById('editBlogImage')?.value;
+      const content = document.getElementById('editBlogContent')?.value;
+      const status = document.getElementById('editBlogStatus')?.value;
 
+      try {
         if (!title || !author || !content) {
-          alert('Title, Author, and Content are required');
-          return;
+          throw new Error('Title, Author, and Content are required');
         }
 
         const payload = { title, author, category, content, image, status };
-        console.log('Sending PUT request with:', { id, ...payload });
-        
         const resp = await fetch(apiBase + '/api/blog/' + id, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -874,13 +885,8 @@
         });
 
         const result = await resp.json();
-        console.log('Response:', result);
+        if (!resp.ok) throw new Error(result.error || result.message || 'Failed to update blog');
         
-        if (!resp.ok) {
-          throw new Error(result.error || result.message || 'Failed to update blog');
-        }
-        
-        alert('Blog updated successfully');
         closeModal();
         await loadBlogs();
       } catch (err) {
@@ -893,17 +899,21 @@
     async function deleteSubmission(type, id) {
       if (!confirm('Delete permanently?')) return;
       try {
-        const endpoints = {
+        const deleteEndpoints = {
           'contact': `/api/submissions/contact/${id}`,
           'join': `/api/submissions/join/${id}`,
           'blogs': `/api/submissions/blogs/${id}`,
           'ambassadors': `/api/submissions/ambassadors/${id}`
         };
-        await fetch(apiBase + (endpoints[type] || ''), {
+        
+        const resp = await fetch(apiBase + (deleteEndpoints[type] || ''), {
           method: 'DELETE',
           credentials: 'include'
         });
+
+        if (!resp.ok) throw new Error(`Delete failed (${resp.status})`);
         currentSection === 'response' ? loadData() : loadBlogs();
+        alert('Deleted successfully');
       } catch (err) {
         alert('Delete failed: ' + err.message);
       }

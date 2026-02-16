@@ -184,23 +184,29 @@
       try {
         showDashboard();
         
-        const resp = await fetch(apiBase + '/api/submissions', { credentials: 'include' });
-        if (!resp.ok) throw new Error('API failed');
-        
-        const data = await resp.json();
-        
-        // Update counts
-        document.getElementById('contactCount').textContent = (data.counts?.contact || 0);
-        document.getElementById('joinCount').textContent = (data.counts?.join || 0);
-        document.getElementById('blogCount').textContent = (data.counts?.blogs || 0);
-        document.getElementById('ambassadorCount').textContent = (data.counts?.ambassadors || 0);
-        
-        // Render tables
-        renderTable('contact', data.submissions?.contact || []);
-        renderTable('join', data.submissions?.join || []);
-        renderTable('blogs', data.submissions?.blogs || []);
-        renderTable('ambassadors', data.submissions?.ambassadors || []);
-        
+        const endpoints = [
+          { url: '/api/submissions/contact', countId: 'contactCount', bodyId: 'contactBody' },
+          { url: '/api/submissions/join', countId: 'joinCount', bodyId: 'joinBody' },
+          { url: '/api/submissions/blogs', countId: 'blogCount', bodyId: 'blogsBody' },
+          { url: '/api/submissions/ambassadors', countId: 'ambassadorCount', bodyId: 'ambassadorsBody' }
+        ];
+
+        for (const endpoint of endpoints) {
+          try {
+            const resp = await fetch(apiBase + endpoint.url, { credentials: 'include' });
+            if (!resp.ok) throw new Error(`API Error (${resp.status})`);
+            const data = await resp.json();
+            if (!data.success) throw new Error(data.error || 'API error');
+            
+            const submissions = data.submissions || [];
+            document.getElementById(endpoint.countId).textContent = submissions.length;
+            renderTable(endpoint.bodyId, submissions);
+          } catch (err) {
+            console.error(`Error loading ${endpoint.url}:`, err);
+            const tbody = document.getElementById(endpoint.bodyId);
+            if (tbody) tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #ef4444;">Error: ${err.message}</td></tr>`;
+          }
+        }
       } catch (err) {
         console.error('Load error:', err);
         showDashboard();
@@ -208,17 +214,21 @@
     }
 
     // Render table
-    function renderTable(type, submissions) {
-      const tbody = document.getElementById(type + 'Body');
-      if (!tbody || !submissions.length) return;
+    function renderTable(bodyId, submissions) {
+      const tbody = document.getElementById(bodyId);
+      if (!tbody) return;
+      
+      if (!submissions.length) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">No data</td></tr>';
+        return;
+      }
       
       tbody.innerHTML = submissions.map(s => {
-        const data = JSON.stringify(s);
         return `<tr>
-          <td>${s.name || s.title || '-'}</td>
+          <td>${s.name || s.title || s.firstName || '-'} ${s.lastName || ''}</td>
           <td>${s.email || '-'}</td>
-          <td>${s.phone || s.organization || s.category || '-'}</td>
-          <td>${(s.message || s.expertise || '').substring(0, 30)}...</td>
+          <td>${s.phone || s.organization || s.category || s.region || '-'}</td>
+          <td>${(s.message || s.expertise || s.content || '').substring(0, 30)}...</td>
           <td>${new Date(s.createdAt).toLocaleDateString()}</td>
           <td><button onclick="alert('Delete - ID: ${s._id}')">Delete</button></td>
         </tr>`;

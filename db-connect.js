@@ -17,7 +17,10 @@ const connectDB = async (retries = 5) => {
       connectTimeoutMS: 15000,
       family: 4, // Use IPv4, skip trying IPv6
       retryWrites: true,
-      w: 'majority'
+      w: 'majority',
+      maxPoolSize: 10,  // Connection pool size for better performance
+      minPoolSize: 5,   // Minimum connections
+      maxIdleTimeMS: 45000 // Close idle connections after 45s
     });
 
     console.log(`✅ MongoDB Connected: ${conn.connection.host}`);

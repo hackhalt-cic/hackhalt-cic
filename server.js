@@ -84,19 +84,35 @@ app.use((req, res, next) => {
   next();
 });
 
-// serve static files from /public
+// Serve static files from /public with optimized caching
 app.use(express.static(path.join(__dirname, "public"), {
-  maxAge: 0,
-  etag: false,
-  lastModified: false,
-  fallthrough: true,  // Explicitly allow fallthrough for unmatched routes
-  setHeaders: (res, path, stat) => {
-    // Set cache control for all static files
-    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
+  maxAge: '1d',
+  etag: true,
+  lastModified: true,
+  fallthrough: true,
+  setHeaders: (res, filePath, stat) => {
+    // Cache static assets for 1 day, but allow revalidation
+    if (filePath.match(/\.(js|css|woff|woff2|ttf|eot|svg)$/)) {
+      res.set('Cache-Control', 'public, max-age=86400, immutable');
+      res.set('ETag', '"' + stat.mtimeMs.toString(16) + '"');
+    } else if (filePath.match(/\.(jpg|jpeg|png|gif|webp|svg)$/)) {
+      res.set('Cache-Control', 'public, max-age=2592000, immutable');
+    } else if (filePath.match(/\.(html)$/)) {
+      res.set('Cache-Control', 'public, max-age=3600, must-revalidate');
+    }
   }
 }));
 
-// Add aggressive cache-busting headers for CSS/JS
+// Set performance headers
+app.use((req, res, next) => {
+  res.set('X-Content-Type-Options', 'nosniff');
+  res.set('X-Frame-Options', 'SAMEORIGIN');
+  res.set('X-XSS-Protection', '1; mode=block');
+  res.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  next();
+});
+
+// Compression and performance optimization
 app.use((req, res, next) => {
   // Force browser to always revalidate
   res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');

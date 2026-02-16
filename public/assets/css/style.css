@@ -63,6 +63,7 @@ html {
   scroll-padding-top: 80px;
   width: 100%;
   overflow-x: hidden;
+  contain: layout style paint;
 }
 
 /* Light theme overrides - Keep dark mode only */
@@ -194,8 +195,11 @@ body::before {
   background-size: 50px 50px;
   pointer-events: none;
   z-index: -1;
+  will-change: transform;
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
 }
 
 body::after {
@@ -290,6 +294,11 @@ main {
   box-sizing: border-box;
   overflow: visible !important;
   width: 100%;
+  will-change: backdrop-filter, box-shadow;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
 
 :root[data-theme="light"] .site-header {

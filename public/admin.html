@@ -605,6 +605,7 @@
           document.getElementById(endpoint.bodyId).innerHTML = `<tr><td colspan="6" class="no-data">Error: ${err.message}</td></tr>`;
         }
       }
+      attachTableListeners();
     }
 
     // Render Contact
@@ -622,8 +623,8 @@
           <td style="min-width: 100px;">${new Date(s.createdAt).toLocaleDateString()}</td>
           <td style="min-width: 200px;">
             <div class="btn-group" style="gap: 0.5rem; display: flex;">
-              <button class="small" onclick="viewContact('${escape(s.name)}', '${escape(s.email)}', '${escape(s.phone || '')}', '${escape(s.subject || '')}', '${escape(s.message)}')"><i class="fas fa-eye"></i> View</button>
-              <button class="small danger" onclick="deleteSubmission('contact', '${s._id}')"><i class="fas fa-trash"></i></button>
+              <button class="small view-btn" data-type="contact" data-id="${s._id}" data-name="${s.name}" data-email="${s.email}" data-phone="${s.phone || ''}" data-subject="${s.subject || ''}" data-message="${s.message}"><i class="fas fa-eye"></i> View</button>
+              <button class="small danger delete-btn" data-type="contact" data-id="${s._id}"><i class="fas fa-trash"></i></button>
             </div>
           </td>
         </tr>
@@ -645,8 +646,8 @@
           <td style="min-width: 100px;">${new Date(s.createdAt).toLocaleDateString()}</td>
           <td style="min-width: 200px;">
             <div class="btn-group" style="gap: 0.5rem; display: flex;">
-              <button class="small" onclick="viewJoin('${escape(s.name)}', '${escape(s.email)}', '${escape(s.organization || '')}', '${escape(s.interests || '')}')"><i class="fas fa-eye"></i> View</button>
-              <button class="small danger" onclick="deleteSubmission('join', '${s._id}')"><i class="fas fa-trash"></i></button>
+              <button class="small view-btn" data-type="join" data-id="${s._id}" data-name="${s.name}" data-email="${s.email}" data-org="${s.organization || ''}" data-interests="${s.interests || ''}"><i class="fas fa-eye"></i> View</button>
+              <button class="small danger delete-btn" data-type="join" data-id="${s._id}"><i class="fas fa-trash"></i></button>
             </div>
           </td>
         </tr>
@@ -669,8 +670,8 @@
           <td style="min-width: 100px;">${new Date(s.createdAt).toLocaleDateString()}</td>
           <td style="min-width: 200px;">
             <div class="btn-group" style="gap: 0.5rem; display: flex;">
-              <button class="small" onclick="viewAmbassador('${escape(s.firstName || s.name)} ${escape(s.lastName || '')}', '${escape(s.email)}', '${escape(s.phone)}', '${escape(s.region)}', '${escape(s.expertise || '')}', '${escape(s.bio || '')}')"><i class="fas fa-eye"></i> View</button>
-              <button class="small danger" onclick="deleteSubmission('ambassadors', '${s._id}')"><i class="fas fa-trash"></i></button>
+              <button class="small view-btn" data-type="ambassador" data-id="${s._id}" data-name="${s.firstName || s.name} ${s.lastName || ''}" data-email="${s.email}" data-phone="${s.phone}" data-region="${s.region}" data-expertise="${s.expertise || ''}" data-bio="${s.bio || ''}"><i class="fas fa-eye"></i> View</button>
+              <button class="small danger delete-btn" data-type="ambassadors" data-id="${s._id}"><i class="fas fa-trash"></i></button>
             </div>
           </td>
         </tr>
@@ -680,37 +681,69 @@
     // View Functions
     function viewContact(name, email, phone, subject, message) {
       openModal(`
-        <h2>${unescape(subject) || 'Contact Message'}</h2>
-        <p><strong>From:</strong> ${unescape(name)}</p>
-        <p><strong>Email:</strong> ${unescape(email)}</p>
-        <p><strong>Phone:</strong> ${unescape(phone) || 'Not provided'}</p>
+        <h2>${subject || 'Contact Message'}</h2>
+        <p><strong>From:</strong> ${name}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Phone:</strong> ${phone || 'Not provided'}</p>
         <hr>
         <p><strong>Message:</strong></p>
-        <p style="white-space: pre-wrap; line-height: 1.6;">${unescape(message)}</p>
+        <p style="white-space: pre-wrap; line-height: 1.6;">${message}</p>
       `);
     }
 
     function viewJoin(name, email, org, interests) {
       openModal(`
         <h2>Join Request</h2>
-        <p><strong>Name:</strong> ${unescape(name)}</p>
-        <p><strong>Email:</strong> ${unescape(email)}</p>
-        <p><strong>Organization:</strong> ${unescape(org) || 'Not provided'}</p>
-        <p><strong>Interests:</strong> ${unescape(interests) || 'Not specified'}</p>
+        <p><strong>Name:</strong> ${name}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Organization:</strong> ${org || 'Not provided'}</p>
+        <p><strong>Interests:</strong> ${interests || 'Not specified'}</p>
       `);
     }
 
     function viewAmbassador(name, email, phone, region, expertise, bio) {
       openModal(`
-        <h2>${unescape(name)}</h2>
-        <p><strong>Email:</strong> ${unescape(email)}</p>
-        <p><strong>Phone:</strong> ${unescape(phone)}</p>
-        <p><strong>Region:</strong> ${unescape(region)}</p>
+        <h2>${name}</h2>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Phone:</strong> ${phone}</p>
+        <p><strong>Region:</strong> ${region}</p>
         <hr>
         <p><strong>Expertise:</strong></p>
-        <p style="white-space: pre-wrap; line-height: 1.6;">${unescape(expertise) || 'Not provided'}</p>
-        ${unescape(bio) ? `<hr><p><strong>Bio:</strong></p><p style="white-space: pre-wrap; line-height: 1.6;">${unescape(bio)}</p>` : ''}
+        <p style="white-space: pre-wrap; line-height: 1.6;">${expertise || 'Not provided'}</p>
+        ${bio ? `<hr><p><strong>Bio:</strong></p><p style="white-space: pre-wrap; line-height: 1.6;">${bio}</p>` : ''}
       `);
+    }
+
+    // Event delegation for buttons
+    function attachTableListeners() {
+      document.addEventListener('click', (e) => {
+        const viewBtn = e.target.closest('.view-btn');
+        if (viewBtn) {
+          const type = viewBtn.dataset.type;
+          if (type === 'contact') {
+            viewContact(viewBtn.dataset.name, viewBtn.dataset.email, viewBtn.dataset.phone, viewBtn.dataset.subject, viewBtn.dataset.message);
+          } else if (type === 'join') {
+            viewJoin(viewBtn.dataset.name, viewBtn.dataset.email, viewBtn.dataset.org, viewBtn.dataset.interests);
+          } else if (type === 'ambassador') {
+            viewAmbassador(viewBtn.dataset.name, viewBtn.dataset.email, viewBtn.dataset.phone, viewBtn.dataset.region, viewBtn.dataset.expertise, viewBtn.dataset.bio);
+          }
+        }
+
+        const blogViewBtn = e.target.closest('.blog-view-btn');
+        if (blogViewBtn) {
+          showBlogView(blogViewBtn.dataset.id);
+        }
+
+        const blogEditBtn = e.target.closest('.blog-edit-btn');
+        if (blogEditBtn) {
+          showEditBlogForm(blogEditBtn.dataset.id);
+        }
+
+        const deleteBtn = e.target.closest('.delete-btn');
+        if (deleteBtn) {
+          deleteSubmission(deleteBtn.dataset.type, deleteBtn.dataset.id);
+        }
+      });
     }
 
     // Load Blogs
@@ -747,14 +780,15 @@
                 <div class="blog-card-meta">By ${blog.author} • ${blog.category || 'General'} • ${new Date(blog.createdAt).toLocaleDateString()}</div>
                 <div class="blog-card-excerpt">${blog.excerpt?.substring(0, 80) || blog.content.substring(0, 80)}...</div>
                 <div class="blog-card-actions">
-                  <button class="small" onclick="showBlogView('${blog._id}');"><i class="fas fa-eye"></i> Read</button>
-                  <button class="small secondary" onclick="showEditBlogForm('${blog._id}');"><i class="fas fa-edit"></i> Edit</button>
-                  <button class="small danger" onclick="deleteSubmission('blogs', '${blog._id}')"><i class="fas fa-trash"></i></button>
+                  <button class="small blog-view-btn" data-id="${blog._id}"><i class="fas fa-eye"></i> Read</button>
+                  <button class="small secondary blog-edit-btn" data-id="${blog._id}"><i class="fas fa-edit"></i> Edit</button>
+                  <button class="small danger delete-btn" data-type="blogs" data-id="${blog._id}"><i class="fas fa-trash"></i></button>
                 </div>
               </div>
             </div>
           `;
         }).join('');
+        attachTableListeners();
       } catch (err) {
         console.error(err);
         container.innerHTML = `<div class="no-data">Error: ${err.message}</div>`;

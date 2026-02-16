@@ -1092,6 +1092,103 @@ app.delete("/api/submissions/membership/:id", authMiddleware, async (req, res) =
   }
 });
 
+// ========== API ENDPOINT ALIASES ==========
+// GET /api/contact - Alias for /api/submissions/contact
+app.get("/api/contact", async (req, res) => {
+  try {
+    const submissions = await ContactSubmission.find().sort({ createdAt: -1 });
+    res.json({
+      success: true,
+      submissions: submissions
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: "Failed to fetch contact submissions"
+    });
+  }
+});
+
+// GET /api/join - Alias for /api/submissions/join
+app.get("/api/join", async (req, res) => {
+  try {
+    const submissions = await JoinSubmission.find().sort({ createdAt: -1 });
+    res.json({
+      success: true,
+      submissions: submissions
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: "Failed to fetch join submissions"
+    });
+  }
+});
+
+// GET /api/ambassador - Alias for /api/submissions/ambassadors
+app.get("/api/ambassador", async (req, res) => {
+  try {
+    const submissions = await AmbassadorSubmission.find().sort({ createdAt: -1 });
+    res.json({
+      success: true,
+      submissions: submissions
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: "Failed to fetch ambassador submissions"
+    });
+  }
+});
+
+// DELETE /api/contact/:id - Delete contact submission
+app.delete("/api/contact/:id", async (req, res) => {
+  try {
+    await ContactSubmission.findByIdAndDelete(req.params.id);
+    res.json({
+      success: true,
+      message: "Contact submission deleted"
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: "Failed to delete contact submission"
+    });
+  }
+});
+
+// DELETE /api/join/:id - Delete join submission
+app.delete("/api/join/:id", async (req, res) => {
+  try {
+    await JoinSubmission.findByIdAndDelete(req.params.id);
+    res.json({
+      success: true,
+      message: "Join submission deleted"
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: "Failed to delete join submission"
+    });
+  }
+});
+
+// DELETE /api/ambassador/:id - Delete ambassador submission
+app.delete("/api/ambassador/:id", async (req, res) => {
+  try {
+    await AmbassadorSubmission.findByIdAndDelete(req.params.id);
+    res.json({
+      success: true,
+      message: "Ambassador submission deleted"
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: "Failed to delete ambassador submission"
+    });
+  }
+});
+
 // Catch-all for unmatched routes
 app.use((req, res) => {
   // Don't return 404 for API calls that failed to match

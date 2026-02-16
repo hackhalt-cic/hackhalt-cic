@@ -240,7 +240,7 @@ main {
   animation: backgroundGradientShift 20s ease-in-out infinite;
   background-size: 200% 200%;
   pointer-events: none;
-  z-index: 0;
+  z-index: -1;
 }
 
 :root[data-theme="light"] .section-alt {
@@ -259,11 +259,12 @@ main {
   top: 0;
   z-index: 1000;
   backdrop-filter: blur(10px);
-  background: rgba(10, 14, 39, 0.95);
+  background: rgba(10, 14, 39, 0.98);
   border-bottom: 1px solid rgba(0, 217, 255, 0.2);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
   box-sizing: border-box;
   overflow: visible !important;
+  width: 100%;
 }
 
 :root[data-theme="light"] .site-header {
@@ -596,7 +597,7 @@ main {
 
 .hero-section::before {
   content: '';
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
   width: 100%;
@@ -608,7 +609,7 @@ main {
   animation: backgroundGradientShift 15s ease infinite;
   background-size: 200% 200%;
   pointer-events: none;
-  z-index: -1;
+  z-index: 0;
 }
 
 .hero-grid {
@@ -1092,7 +1093,7 @@ main {
   animation: backgroundGradientShift 20s ease-in-out infinite;
   background-size: 200% 200%;
   pointer-events: none;
-  z-index: 0;
+  z-index: -1;
 }
 
 /* Section styling with dynamic backgrounds */

@@ -23,7 +23,7 @@
       padding: 1.5rem 0;
       position: sticky;
       top: 0;
-      z-index: 100;
+      z-index: 999;
     }
     header h1 { color: #667eea; margin: 0; font-size: 1.8rem; }
     
@@ -52,6 +52,7 @@
       padding: 1rem 1.5rem;
       transition: all 0.3s ease;
       border-left: 3px solid transparent;
+      pointer-events: auto;
     }
     .nav-item:hover { background: rgba(102, 126, 234, 0.1); color: #667eea; }
     .nav-item.active { background: rgba(102, 126, 234, 0.2); border-left-color: #667eea; color: #667eea; }
@@ -90,6 +91,7 @@
       gap: 0.5rem;
       white-space: nowrap;
       justify-content: center;
+      pointer-events: auto;
     }
     button:hover { background: #5568d3; }
     button:active { transform: scale(0.98); }
@@ -134,6 +136,7 @@
       border-bottom: 3px solid transparent;
       transition: all 0.3s;
       font-size: 0.9rem;
+      pointer-events: auto;
     }
     .tab-btn:hover { color: #667eea; }
     .tab-btn.active { color: #667eea; border-bottom-color: #667eea; background: rgba(102, 126, 234, 0.1); }
@@ -216,8 +219,23 @@
     .blog-card-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
     
     /* Modal */
-    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center; }
-    .modal.active { display: flex; }
+    .modal { 
+      display: none; 
+      position: fixed; 
+      top: 0; 
+      left: 0; 
+      width: 100%; 
+      height: 100%; 
+      background: rgba(0,0,0,0.7); 
+      z-index: 1000; 
+      align-items: center; 
+      justify-content: center; 
+      pointer-events: none;
+    }
+    .modal.active { 
+      display: flex;
+      pointer-events: auto;
+    }
     .modal-content {
       background: #152d2d;
       border: 1px solid rgba(0,217,255,0.3);
@@ -545,30 +563,26 @@
 
     // Load Response Data
     async function loadData() {
-      try {
-        const endpoints = [
-          { url: '/api/submissions/contact', key: 'contact', countId: 'contactCount', bodyId: 'contactBody', render: renderContact },
-          { url: '/api/submissions/join', key: 'join', countId: 'joinCount', bodyId: 'joinBody', render: renderJoin },
-          { url: '/api/submissions/ambassadors', key: 'ambassadors', countId: 'ambassadorCount', bodyId: 'ambassadorsBody', render: renderAmbassadors }
-        ];
+      const endpoints = [
+        { url: '/api/contact', key: 'contact', countId: 'contactCount', bodyId: 'contactBody', render: renderContact },
+        { url: '/api/join', key: 'join', countId: 'joinCount', bodyId: 'joinBody', render: renderJoin },
+        { url: '/api/ambassador', key: 'ambassadors', countId: 'ambassadorCount', bodyId: 'ambassadorsBody', render: renderAmbassadors }
+      ];
 
-        const allData = {};
-        for (const endpoint of endpoints) {
-          try {
-            const resp = await fetch(apiBase + endpoint.url, { credentials: 'include' });
-            if (!resp.ok) throw new Error(`API Error (${resp.status})`);
-            const data = await resp.json();
-            if (!data.success) throw new Error(data.error || 'API error');
-            allData[endpoint.key] = data.submissions || [];
-            document.getElementById(endpoint.countId).textContent = allData[endpoint.key].length;
-            endpoint.render(allData[endpoint.key]);
-          } catch (err) {
-            console.error(`Error loading ${endpoint.key}:`, err);
-            document.getElementById(endpoint.bodyId).innerHTML = `<tr><td colspan="6" class="no-data">Error: ${err.message}</td></tr>`;
-          }
+      const allData = {};
+      for (const endpoint of endpoints) {
+        try {
+          const resp = await fetch(apiBase + endpoint.url, { credentials: 'include' });
+          if (!resp.ok) throw new Error(`API Error (${resp.status})`);
+          const data = await resp.json();
+          if (!data.success) throw new Error(data.error || 'API error');
+          allData[endpoint.key] = data.submissions || [];
+          document.getElementById(endpoint.countId).textContent = allData[endpoint.key].length;
+          endpoint.render(allData[endpoint.key]);
+        } catch (err) {
+          console.error(`Error loading ${endpoint.key}:`, err);
+          document.getElementById(endpoint.bodyId).innerHTML = `<tr><td colspan="6" class="no-data">Error: ${err.message}</td></tr>`;
         }
-      } catch (err) {
-        console.error('Data loading error:', err);
       }
     }
 
@@ -680,6 +694,9 @@
 
     // Load Blogs
     async function loadBlogs() {
+      const container = document.getElementById('blogsContainer');
+      container.innerHTML = '<div class="loading"><span class="spinner"></span>Loading blogs...</div>';
+      
       try {
         const resp = await fetch(apiBase + '/api/submissions/blogs', { credentials: 'include' });
         if (!resp.ok) throw new Error(`API Error (${resp.status})`);
@@ -689,7 +706,6 @@
         
         document.getElementById('blogCount').textContent = data.submissions?.length || 0;
 
-        const container = document.getElementById('blogsContainer');
         if (!data.submissions?.length) {
           container.innerHTML = '<div class="no-data">No blog posts. <a href="#" onclick="openBlogForm(); return false;">Create one now</a></div>';
           return;
@@ -720,7 +736,7 @@
         }).join('');
       } catch (err) {
         console.error(err);
-        document.getElementById('blogsContainer').innerHTML = `<div class="no-data">Error: ${err.message}</div>`;
+        container.innerHTML = `<div class="no-data">Error: ${err.message}</div>`;
       }
     }
 
@@ -900,10 +916,10 @@
       if (!confirm('Delete permanently?')) return;
       try {
         const deleteEndpoints = {
-          'contact': `/api/submissions/contact/${id}`,
-          'join': `/api/submissions/join/${id}`,
+          'contact': `/api/contact/${id}`,
+          'join': `/api/join/${id}`,
           'blogs': `/api/submissions/blogs/${id}`,
-          'ambassadors': `/api/submissions/ambassadors/${id}`
+          'ambassadors': `/api/ambassador/${id}`
         };
         
         const resp = await fetch(apiBase + (deleteEndpoints[type] || ''), {

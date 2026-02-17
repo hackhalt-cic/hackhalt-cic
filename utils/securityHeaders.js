@@ -22,8 +22,8 @@ const securityHeaders = helmet({
     directives: {
       defaultSrc: ["'self'"],
       scriptSrc: ["'self'", "'unsafe-inline'"],
-      styleSrc: ["'self'", "'unsafe-inline'", 'fonts.googleapis.com'],
-      fontSrc: ["'self'", 'fonts.gstatic.com'],
+      styleSrc: ["'self'", "'unsafe-inline'", 'fonts.googleapis.com', 'cdnjs.cloudflare.com'],
+      fontSrc: ["'self'", 'fonts.gstatic.com', 'cdnjs.cloudflare.com'],
       imgSrc: ["'self'", 'data:', 'https:'],
       connectSrc: ["'self'", 'https:'],
       // Block form submissions to external domains

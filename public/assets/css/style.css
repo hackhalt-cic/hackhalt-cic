@@ -63,6 +63,20 @@ i[class^="fa-"], i[class*=" fa-"] {
   color: inherit !important;
 }
 
+/* Global Font Awesome Safety Reset - Ensures icons cannot collapse to 0x0 */
+i[class^="fa-"],
+i[class*=" fa-"] {
+  font-family: "Font Awesome 6 Free" !important;
+  font-weight: 900 !important;
+  display: inline-block !important;
+  font-style: normal !important;
+  font-variant: normal !important;
+  text-rendering: auto !important;
+  line-height: 1 !important;
+  width: auto !important;
+  height: auto !important;
+}
+
 /* === THEME VARIABLES - PREMIUM DARK CYBERSECURITY THEME ===================================================== */
 :root {
   /* Premium Dark Cybersecurity Palette */
@@ -2132,62 +2146,7 @@ main::before {
   outline-color: var(--color-primary);
 }
 
-.icon-circle {
-  /* Container sizing */
-  width: 60px !important;
-  height: 60px !important;
-  min-width: 60px !important;
-  min-height: 60px !important;
-  
-  /* Layout */
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  flex-direction: row !important;
-  
-  /* Styling */
-  border-radius: var(--radius-full);
-  background: radial-gradient(circle, rgba(37, 99, 235, 0.15), transparent 70%);
-  border: 1px solid rgba(37, 99, 235, 0.6);
-  margin-bottom: 0.8rem;
-  
-  /* Positioning */
-  position: relative;
-  z-index: 2;
-  
-  /* Visibility */
-  overflow: visible !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-}
 
-.icon-circle i {
-  /* Font settings */
-  font-family: 'Font Awesome 6 Free' !important;
-  font-weight: 900 !important;
-  font-size: 22px !important;
-  font-style: normal !important;
-  
-  /* Display */
-  display: inline-block !important;
-  width: 22px !important;
-  height: 22px !important;
-  line-height: 1 !important;
-  
-  /* Positioning */
-  position: relative;
-  z-index: 10 !important;
-  
-  /* Text */
-  text-align: center !important;
-  
-  /* Visibility */
-  opacity: 1 !important;
-  visibility: visible !important;
-  
-  /* Color - inherit from parent or icon */
-  color: inherit !important;
-}
 
 .pillar-card h3 {
   margin: 0 0 0.4rem;
@@ -5801,41 +5760,6 @@ a:focus-visible {
   box-shadow: 0 24px 56px rgba(37, 99, 235, 0.3), 0 8px 24px rgba(37, 99, 235, 0.15);
 }
 
-/* Ensure icon circle sits consistently at top */
-.expertise-card .icon-circle {
-  width: 80px;
-  height: 80px;
-  margin: 2rem auto 1rem;
-  background: #1a2d4a;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 40px;
-  color: #5fd3ff;
-  border: 1px solid #2f4f6f;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-  transition: all 0.2s ease;
-  flex-shrink: 0;
-  will-change: transform, box-shadow;
-  transform: translateZ(0);
-}
-
-.expertise-card:hover .icon-circle {
-  background: #253555;
-  transform: scale(1.1);
-  box-shadow: 0 4px 12px rgba(95, 211, 255, 0.25);
-  color: #ffffff;
-}
-
-.expertise-body {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  justify-content: space-between;
-  height: 100%;
-}
-
 .expertise-card .expertise-body {
   text-align: center;
   display: flex;
@@ -8690,7 +8614,6 @@ a:focus-visible {
 
 .registration-card:hover .registration-icon {
   background: linear-gradient(135deg, rgba(37, 99, 235, 0.25) 0%, rgba(37, 99, 235, 0.1) 100%);
-  transform: scale(1.15) rotateY(5deg);
   box-shadow: 0 12px 24px rgba(37, 99, 235, 0.2);
 }
 
@@ -9055,6 +8978,24 @@ a:focus-visible {
 }
 
 .clean-icon i {
+  font-size: 44px;
+  color: #38bdf8;
+  line-height: 1;
+  font-family: "Font Awesome 6 Free" !important;
+  font-weight: 900 !important;
+}
+
+.legal-info-icon {
+  width: 100px;
+  height: 100px;
+  background: #1e293b;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.legal-info-icon i {
   font-size: 44px;
   color: #38bdf8;
   line-height: 1;

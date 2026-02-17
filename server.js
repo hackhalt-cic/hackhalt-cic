@@ -84,6 +84,12 @@ app.use((req, res, next) => {
   next();
 });
 
+// Configure Express to handle font MIME types correctly for production
+app.set('view cache', true);
+express.static.mime.types['woff'] = 'font/woff';
+express.static.mime.types['woff2'] = 'font/woff2';
+express.static.mime.types['ttf'] = 'font/ttf';
+
 // Serve static files from /public with optimized caching
 app.use(express.static(path.join(__dirname, "public"), {
   maxAge: '1d',
@@ -95,6 +101,10 @@ app.use(express.static(path.join(__dirname, "public"), {
     if (filePath.match(/\.(js|css|woff|woff2|ttf|eot|svg)$/)) {
       res.set('Cache-Control', 'public, max-age=86400, immutable');
       res.set('ETag', '"' + stat.mtimeMs.toString(16) + '"');
+      // Ensure correct MIME types for fonts
+      if (filePath.endsWith('.woff2')) res.set('Content-Type', 'font/woff2');
+      if (filePath.endsWith('.woff')) res.set('Content-Type', 'font/woff');
+      if (filePath.endsWith('.ttf')) res.set('Content-Type', 'font/ttf');
     } else if (filePath.match(/\.(jpg|jpeg|png|gif|webp|svg)$/)) {
       res.set('Cache-Control', 'public, max-age=2592000, immutable');
     } else if (filePath.match(/\.(html)$/)) {

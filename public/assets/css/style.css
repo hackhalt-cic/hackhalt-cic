@@ -171,15 +171,20 @@ i, .fa, .fas, .fab, .far, .fal, .fad, [class^="fa-"], [class*=" fa-"] {
 
 /* Ensure Font Awesome 6 icons render with correct weights */
 .fa-solid, .fa {
-  font-weight: 900;
+  font-weight: 900 !important;
+  font-family: 'Font Awesome 6 Free', sans-serif !important;
 }
 
 .fa-brands {
-  font-weight: 400;
+  font-weight: 400 !important;
+  font-family: 'Font Awesome 6 Brands', sans-serif !important;
+}
 }
 
 i.fa-sun, i.fa-moon, i.fa-arrow-up, i.fa-bars, i.fa-times {
   color: inherit;
+  font-weight: 900 !important;
+  font-family: 'Font Awesome 6 Free', sans-serif !important;
 }
 
 button i, a i {
@@ -575,7 +580,7 @@ main {
 
 .theme-toggle i {
   font-size: 1.35rem;
-  font-weight: 900;
+  font-weight: 900 !important;
   color: #ffffff;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
   display: inline-block !important;
@@ -583,6 +588,7 @@ main {
   vertical-align: middle;
   width: auto;
   height: auto;
+  font-family: 'Font Awesome 6 Free', sans-serif !important;
 }
 
 .theme-toggle:hover {
@@ -2646,13 +2652,14 @@ button[type="submit"]:disabled {
 .social-links a i {
   font-size: 1.5rem;
   color: #ffffff;
-  font-weight: 900;
+  font-weight: 900 !important;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
   display: inline-block !important;
   line-height: 1;
   vertical-align: middle;
   width: auto;
   height: auto;
+  font-family: 'Font Awesome 6 Brands', 'Font Awesome 6 Free', sans-serif !important;
 }
 
 .social-links a::before {
@@ -2725,7 +2732,7 @@ button[type="submit"]:disabled {
 
 .back-to-top i {
   color: #ffffff;
-  font-weight: 900;
+  font-weight: 900 !important;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   display: inline-block !important;
   line-height: 1;
@@ -2733,6 +2740,7 @@ button[type="submit"]:disabled {
   font-size: 1.4rem;
   width: auto;
   height: auto;
+  font-family: 'Font Awesome 6 Free', sans-serif !important;
 }
 
 :root[data-theme="light"] .back-to-top {
@@ -9870,16 +9878,40 @@ body {
   height: auto !important;
 }
 
-/* Font Awesome icons visibility - let FA CSS handle font-family */
+/* Force Font Awesome icons to render - override all restrictions */
 [class^="fa-"], [class*=" fa-"] {
+  display: inline-block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  font-size: inherit !important;
+  color: inherit !important;
+}
+
+/* Ensure Font Awesome content renders from pseudo-elements */
+.fa-solid, .fa-brands, .fa-regular {
+  font-style: normal !important;
+  font-variant: normal !important;
+  font-weight: inherit !important;
+  line-height: 1 !important;
+  text-rendering: auto !important;
+}
+
+/* Specific icon fixes */
+.theme-toggle i.fa-sun, .theme-toggle i.fa-moon {
   display: inline-block !important;
   visibility: visible !important;
   opacity: 1 !important;
 }
 
-/* Ensure Font Awesome pseudo-element content shows */
-[class^="fa-"]::before, [class*=" fa-"]::before {
-  display: inline !important;
+.back-to-top i.fa-arrow-up {
+  display: inline-block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+.social-links a i.fa-linkedin, .social-links a i.fa-instagram, 
+.social-links a i.fa-x-twitter, .social-links a i.fa-facebook {
+  display: inline-block !important;
   visibility: visible !important;
   opacity: 1 !important;
 }

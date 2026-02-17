@@ -63,7 +63,8 @@ html {
   scroll-padding-top: 80px;
   width: 100%;
   overflow-x: hidden;
-  contain: layout style paint;
+  position: static;
+  background: transparent;
 }
 
 /* Light theme overrides - Keep dark mode only */
@@ -128,7 +129,10 @@ img {
 
 body {
   margin: 0;
-  padding: 80px 0 0 0;
+  padding-top: 80px;
+  padding-left: 0;
+  padding-right: 0;
+  padding-bottom: 0;
   font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   background: linear-gradient(135deg, #0a0e27 0%, #111829 25%, #1a1f3a 50%, #0f1628 75%, #0a0e27 100%);
   background-attachment: fixed;
@@ -282,23 +286,24 @@ main {
 
 /* === HEADER / NAV ======================================================== */
 .site-header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 1000;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 9999 !important;
   backdrop-filter: blur(10px);
   background: rgba(10, 14, 39, 0.98);
   border-bottom: 1px solid rgba(0, 217, 255, 0.2);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
   box-sizing: border-box;
   overflow: visible !important;
-  width: 100%;
+  width: 100% !important;
+  height: auto;
+  min-height: 80px;
   will-change: backdrop-filter, box-shadow;
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
-  -webkit-transform: translateZ(0);
-  transform: translateZ(0);
+  display: block !important;
 }
 
 :root[data-theme="light"] .site-header {
@@ -317,6 +322,8 @@ main {
   width: 100%;
   box-sizing: border-box;
   overflow: visible !important;
+  position: relative;
+  z-index: 10000;
 }
 
 .logo-wrapper {
@@ -9800,4 +9807,59 @@ a:focus-visible {
   width: 100% !important;
   max-width: 100% !important;
   margin: 0 !important;
+}
+
+/* ===== MASTER STICKY HEADER RULE - ENSURES HEADER STAYS STICKY ON ALL PAGES ===== */
+/* This rule is placed at the end to override any conflicting styles */
+body, html {
+  position: static !important;
+  overflow-y: auto !important;
+}
+
+main {
+  position: relative !important;
+  overflow: visible !important;
+}
+
+.site-header {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 99999 !important;
+  width: 100vw !important;
+  max-width: 100% !important;
+  height: auto !important;
+  min-height: 80px !important;
+  display: block !important;
+  background: rgba(10, 14, 39, 0.98) !important;
+  border-bottom: 1px solid rgba(0, 217, 255, 0.2) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5) !important;
+  box-sizing: border-box !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  pointer-events: auto !important;
+}
+
+.site-header .container,
+.site-header .nav-container {
+  position: relative !important;
+  z-index: 100000 !important;
+  pointer-events: auto !important;
+}
+
+/* Ensure all pages account for fixed header */
+body {
+  padding-top: 80px !important;
+}
+
+/* Mobile responsive header */
+@media screen and (max-width: 768px) {
+  .site-header {
+    min-height: 72px !important;
+  }
+  
+  body {
+    padding-top: 72px !important;
+  }
 }

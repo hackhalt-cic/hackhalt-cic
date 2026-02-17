@@ -1118,9 +1118,11 @@ app.get("/api/contact", async (req, res) => {
       submissions: submissions
     });
   } catch (error) {
+    console.error('❌ Error fetching contact submissions:', error);
     res.status(500).json({
       success: false,
-      error: "Failed to fetch contact submissions"
+      error: "Failed to fetch contact submissions",
+      details: error.message
     });
   }
 });

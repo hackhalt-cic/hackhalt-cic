@@ -7,12 +7,18 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
     * { box-sizing: border-box; }
-    html, body {
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 100px;
+      overflow-x: hidden;
+    }
+    body {
       margin: 0; padding: 0;
       background: #0a0e27;
       color: #f1f5f9;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif;
       min-height: 100vh;
+      overflow-x: hidden;
     }
     .container { max-width: 1400px; margin: 0 auto; }
     
@@ -28,22 +34,29 @@
     header h1 { color: #667eea; margin: 0; font-size: 1.8rem; }
     
     /* Main Layout */
-    .admin-wrapper { display: flex; min-height: 100vh; }
+    .admin-wrapper { 
+      display: flex; 
+      min-height: 100vh;
+      width: 100%;
+    }
     .sidebar {
       width: 250px;
       background: #0f1428;
       border-right: 1px solid rgba(102, 126, 234, 0.2);
       padding: 2rem 0;
       position: fixed;
-      height: 100vh;
+      height: calc(100vh - 80px);
+      top: 80px;
       overflow-y: auto;
+      z-index: 100;
     }
     .main-content {
       margin-left: 250px;
       flex: 1;
       padding: 2rem;
+      width: calc(100% - 250px);
+      overflow-y: auto;
       position: relative;
-      z-index: 1;
     }
     .nav-item {
       display: flex;
@@ -62,10 +75,15 @@
     /* Section */
     .section { 
       display: none;
-      position: relative;
-      z-index: 1;
     }
-    .section.active { display: block; }
+    .section.active { 
+      display: block;
+      animation: fadeIn 0.3s ease-in;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
     
     /* Top Actions */
     .top-actions {
@@ -75,8 +93,6 @@
       gap: 1rem;
       margin-bottom: 2rem;
       flex-wrap: wrap;
-      position: relative;
-      z-index: 1;
     }
     .top-actions button {
       padding: 0.85rem 1.75rem;
@@ -86,8 +102,6 @@
       display: flex;
       gap: 0.5rem;
       flex-wrap: wrap;
-      position: relative;
-      z-index: 1;
     }
     
     /* Buttons */
@@ -177,8 +191,6 @@
       margin-bottom: 1.5rem;
       border-bottom: 1px solid rgba(102, 126, 234, 0.2);
       flex-wrap: wrap;
-      position: relative;
-      z-index: 1;
     }
     .tab-btn {
       background: none;
@@ -190,12 +202,10 @@
       transition: all 0.3s;
       font-size: 0.9rem;
       pointer-events: auto;
-      position: relative;
-      z-index: 1;
     }
     .tab-btn:hover { color: #667eea; }
     .tab-btn.active { color: #667eea; border-bottom-color: #667eea; background: rgba(102, 126, 234, 0.1); }
-    .tab-content { display: none; position: relative; z-index: 1; }
+    .tab-content { display: none; }
     .tab-content.active { display: block; }
     
     /* Table */\n    .table-wrapper {
@@ -684,9 +694,24 @@
       const allData = {};
       for (const endpoint of endpoints) {
         try {
-          const resp = await fetch(apiBase + endpoint.url, { credentials: 'include' });
-          if (!resp.ok) throw new Error(`API Error (${resp.status})`);
+          console.log('📡 Fetching from:', apiBase + endpoint.url);
+          const resp = await fetch(apiBase + endpoint.url, { 
+            credentials: 'include',
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          if (!resp.ok) {
+            const errorData = await resp.text();
+            console.error(`❌ API Error for ${endpoint.key}:`, resp.status, errorData);
+            throw new Error(`API Error (${resp.status})`);
+          }
+          
           const data = await resp.json();
+          console.log(`✅ ${endpoint.key} data:`, data);
+          
           if (!data.success) throw new Error(data.error || 'API error');
           allData[endpoint.key] = data.submissions || [];
           document.getElementById(endpoint.countId).textContent = allData[endpoint.key].length;
@@ -891,10 +916,24 @@
       container.innerHTML = '<div class="loading"><span class="spinner"></span>Loading blogs...</div>';
       
       try {
-        const resp = await fetch(apiBase + '/api/submissions/blogs', { credentials: 'include' });
-        if (!resp.ok) throw new Error(`API Error (${resp.status})`);
+        console.log('📡 Fetching blogs from:', apiBase + '/api/submissions/blogs');
+        const resp = await fetch(apiBase + '/api/submissions/blogs', { 
+          credentials: 'include',
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (!resp.ok) {
+          const errorData = await resp.text();
+          console.error('❌ API Error:', resp.status, errorData);
+          throw new Error(`API Error (${resp.status})`);
+        }
 
         const data = await resp.json();
+        console.log('✅ Blogs data:', data);
+        
         if (!data.success) throw new Error(data.error || 'API error');
         
         const blogCountEl = document.getElementById('blogCount');
@@ -1153,8 +1192,16 @@
       }
     }
 
-    // Init
-    loadData();
+    // Init - Wait for DOM to be ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => {
+        console.log('📍 Admin panel initializing...');
+        loadData();
+      });
+    } else {
+      console.log('📍 Admin panel initializing...');
+      loadData();
+    }
   </script>
 </body>
 </html>

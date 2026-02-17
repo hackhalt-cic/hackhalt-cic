@@ -28,31 +28,64 @@
     onload="this.media='all'"
   />
 
+  <!-- Font Awesome Icons CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
   <!-- Font Awesome Icons - LOCAL FONTS FOR PRODUCTION RELIABILITY -->
+  <link rel="preload" href="assets/fonts/fa-solid-900.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="assets/fonts/fa-brands-400.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="assets/fonts/fa-regular-400.woff2" as="font" type="font/woff2" crossorigin />
   <style>
     @font-face {
       font-family: 'Font Awesome 6 Free';
       font-style: normal;
       font-weight: 400;
-      font-display: swap;
-      src: url('assets/fonts/fa-regular-400.woff2') format('woff2');
+      font-display: block;
+      src: url('assets/fonts/fa-regular-400.woff2') format('woff2'), url('assets/fonts/fa-regular-400.woff') format('woff');
     }
     @font-face {
       font-family: 'Font Awesome 6 Free';
       font-style: normal;
       font-weight: 900;
-      font-display: swap;
-      src: url('assets/fonts/fa-solid-900.woff2') format('woff2');
+      font-display: block;
+      src: url('assets/fonts/fa-solid-900.woff2') format('woff2'), url('assets/fonts/fa-solid-900.woff') format('woff');
     }
     @font-face {
       font-family: 'Font Awesome 6 Brands';
       font-style: normal;
       font-weight: 400;
-      font-display: swap;
-      src: url('assets/fonts/fa-brands-400.woff2') format('woff2');
+      font-display: block;
+      src: url('assets/fonts/fa-brands-400.woff2') format('woff2'), url('assets/fonts/fa-brands-400.woff') format('woff');
     }
-    .fa, .fas, .fa-solid { font-family: 'Font Awesome 6 Free'; font-weight: 900; }
-    .fab, .fa-brands { font-family: 'Font Awesome 6 Brands'; font-weight: 400; }
+    /* Font Awesome 6 Icon Rendering - Fixed Size 22px */
+    [class*="fa-"] {
+      display: inline-block !important;
+      font-family: 'Font Awesome 6 Free', 'Font Awesome 6 Brands' !important;
+      font-style: normal !important;
+      font-variant: normal !important;
+      text-rendering: auto !important;
+      line-height: 1 !important;
+      -webkit-font-smoothing: antialiased !important;
+      -moz-osx-font-smoothing: grayscale !important;
+      width: auto !important;
+      height: auto !important;
+      min-width: 0 !important;
+      min-height: 0 !important;
+      font-size: 22px !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+      color: inherit !important;
+      vertical-align: -0.125em;
+    }
+    .fa, .fas, .fa-solid { font-family: 'Font Awesome 6 Free' !important; font-weight: 900 !important; }
+    .fab, .fa-brands { font-family: 'Font Awesome 6 Brands' !important; font-weight: 400 !important; }
+    i[class*="fa-"] {
+      font-size: 22px !important;
+      font-weight: 900 !important;
+      display: inline-block !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+    }
   </style>
 
   <link rel="stylesheet" href="assets/css/style.css" />
@@ -106,7 +139,7 @@
     </nav>
 
     <a href="/admin-login.html" target="_blank" rel="noopener noreferrer" class="btn btn-nav-secondary">Admin</a>
-    <a href="/contact" class="btn btn-nav-cta">Contact Us</a>
+    <a href="/contact.html" class="btn btn-nav-cta">Contact Us</a>
 
     <button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle theme">
       <i class="fa-solid fa-sun"></i>
@@ -185,12 +218,12 @@
 
       <div class="legal-info-grid reveal">
         <div class="legal-info-card">
-          <div class="legal-info-icon">
+          <div class="clean-icon">
             <i class="fa-solid fa-certificate"></i>
           </div>
           <h3>Registration Status</h3>
           <p>Incorporated as a Section 8 Company under the Companies Act, 2013, and registered with multiple government bodies.</p>
-          <a href="/legal-compliance" class="btn btn-outline btn-sm">Learn More</a>
+          <a href="/legal-compliance" class="card-btn-outline">Learn More</a>
         </div>
 
         <div class="legal-info-card">
@@ -199,7 +232,7 @@
           </div>
           <h3>Data Protection</h3>
           <p>We follow stringent data protection and privacy protocols to safeguard your information and ensure compliance with applicable laws.</p>
-          <a href="/legal-compliance" class="btn btn-outline btn-sm">View Details</a>
+          <a href="/legal-compliance" class="card-btn-outline">View Details</a>
         </div>
 
         <div class="legal-info-card">
@@ -208,7 +241,7 @@
           </div>
           <h3>Transparency & Accountability</h3>
           <p>Committed to transparent operations and public accountability through regular reporting and governance practices.</p>
-          <a href="/legal-compliance" class="btn btn-outline btn-sm">Explore</a>
+          <a href="/legal-compliance" class="card-btn-outline">Explore</a>
         </div>
       </div>
 
@@ -398,7 +431,7 @@
             <div class="expertise-body">
               <h3>Security Assessment</h3>
               <p>Comprehensive vulnerability assessments, penetration testing, and security audits to identify and address risks in your organization's infrastructure and applications.</p>
-              <a class="btn btn-primary btn-card" href="/contact.html">Contact Us</a>
+              <a class="card-btn-primary" href="/contact.html">Contact Us</a>
             </div>
           </div>
         </a>
@@ -410,7 +443,7 @@
             <div class="expertise-body">
               <h3>Training & Certification</h3>
               <p>Professional certification programs in cybersecurity, ISSO/ISO, and specialized training for security professionals, developers, and organizational leaders.</p>
-              <a class="btn btn-primary btn-card" href="/book-session.html">Book Session</a>
+              <a class="card-btn-primary" href="/book-session.html">Book Session</a>
             </div>
           </div>
         </a>
@@ -422,7 +455,7 @@
             <div class="expertise-body">
               <h3>Digital Forensics & Investigation</h3>
               <p>Expert investigation of cyber incidents, digital evidence collection, analysis, and forensic reporting to support incident response and legal proceedings.</p>
-              <a class="btn btn-primary btn-card" href="/contact.html">Learn More</a>
+              <a class="card-btn-primary" href="/contact.html">Learn More</a>
             </div>
           </div>
         </a>
@@ -434,7 +467,7 @@
             <div class="expertise-body">
               <h3>Research & Analysis</h3>
               <p>Threat intelligence research, cyber threat analysis, trend forecasting, and security research to keep organizations informed about emerging risks and attack patterns.</p>
-              <a class="btn btn-primary btn-card" href="/contact.html">Explore Services</a>
+              <a class="card-btn-primary" href="/contact.html">Explore Services</a>
             </div>
           </div>
         </a>
@@ -461,7 +494,7 @@
             <li><i class="fa-solid fa-check-circle"></i> Educational resources</li>
             <li><i class="fa-solid fa-check-circle"></i> Certification tracks</li>
           </ul>
-          <a href="/community.html" class="btn btn-outline btn-sm">Learn More</a>
+          <a href="/community.html" class="card-btn-outline">Learn More</a>
         </div>
 
         <!-- Initiative 2 -->
@@ -474,7 +507,7 @@
             <li><i class="fa-solid fa-check-circle"></i> Advisory reports</li>
             <li><i class="fa-solid fa-check-circle"></i> Expert insights</li>
           </ul>
-          <a href="/blogs.html" class="btn btn-outline btn-sm">Learn More</a>
+          <a href="/blogs.html" class="card-btn-outline">Learn More</a>
         </div>
 
         <!-- Initiative 3 -->
@@ -487,7 +520,7 @@
             <li><i class="fa-solid fa-check-circle"></i> Research papers</li>
             <li><i class="fa-solid fa-check-circle"></i> Innovation grants</li>
           </ul>
-          <a href="/about.html" class="btn btn-outline btn-sm">Learn More</a>
+          <a href="/about.html" class="card-btn-outline">Learn More</a>
         </div>
 
         <!-- Initiative 4 -->
@@ -500,7 +533,7 @@
             <li><i class="fa-solid fa-check-circle"></i> Industry certification</li>
             <li><i class="fa-solid fa-check-circle"></i> Career guidance</li>
           </ul>
-          <a href="/events.html" class="btn btn-outline btn-sm">Learn More</a>
+          <a href="/events.html" class="card-btn-outline">Learn More</a>
         </div>
 
         <!-- Initiative 5 -->
@@ -513,7 +546,7 @@
             <li><i class="fa-solid fa-check-circle"></i> Collaboration opportunities</li>
             <li><i class="fa-solid fa-check-circle"></i> Mentorship programs</li>
           </ul>
-          <a href="/community.html" class="btn btn-outline btn-sm">Learn More</a>
+          <a href="/community.html" class="card-btn-outline">Learn More</a>
         </div>
 
         <!-- Initiative 6 -->
@@ -526,7 +559,7 @@
             <li><i class="fa-solid fa-check-circle"></i> Regulatory guidance</li>
             <li><i class="fa-solid fa-check-circle"></i> Government liaison</li>
           </ul>
-          <a href="/about.html" class="btn btn-outline btn-sm">Learn More</a>
+          <a href="/about.html" class="card-btn-outline">Learn More</a>
         </div>
       </div>
     </div>

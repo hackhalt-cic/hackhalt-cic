@@ -46,38 +46,40 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser(process.env.SESSION_SECRET));
 
-// CORS configuration for Vercel - FIXED for production
+// CORS configuration
 app.use((req, res, next) => {
   const origin = req.headers.origin || '';
   const isProduction = process.env.NODE_ENV === 'production';
   
-  // Build allowed origins list
+  // Always allow same-origin and localhost for development
   const allowedOrigins = [
     'http://localhost:3000',
     'http://localhost:5000',
     'http://localhost',
+    'http://127.0.0.1:5000',
+    'http://127.0.0.1',
     'https://hackhalt.org',
     'https://www.hackhalt.org',
   ];
   
-  // Add Vercel URL if available
   if (process.env.VERCEL_URL) {
     allowedOrigins.push(`https://${process.env.VERCEL_URL}`);
   }
   
-  // Add custom frontend URL if set
   if (process.env.FRONTEND_URL) {
     allowedOrigins.push(process.env.FRONTEND_URL);
   }
   
-  // Allow same-origin requests and all origins in production (served from same domain)
+  // Allow requests from allowed origins or same-origin (when no origin header) or production
   if (allowedOrigins.includes(origin) || !origin || isProduction) {
     res.header('Access-Control-Allow-Origin', origin || '*');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     res.header('Access-Control-Allow-Credentials', 'true');
+    res.header('Access-Control-Max-Age', '86400');
   }
 
+  // Handle preflight requests
   if (req.method === 'OPTIONS') {
     return res.sendStatus(200);
   }
@@ -119,23 +121,6 @@ app.use((req, res, next) => {
   res.set('X-Frame-Options', 'SAMEORIGIN');
   res.set('X-XSS-Protection', '1; mode=block');
   res.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-  next();
-});
-
-// Compression and performance optimization
-app.use((req, res, next) => {
-  // Force browser to always revalidate
-  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
-  res.set('Pragma', 'no-cache');
-  res.set('Expires', '-1');
-  res.set('Surrogate-Control', 'no-store');
-  
-  // Add ETag to force updates
-  if (req.path.endsWith('.css') || req.path.endsWith('.js') || req.path.endsWith('.html')) {
-    res.set('ETag', `"${Date.now()}"`);
-  }
-  
-  // Add mobile optimization headers
   res.set('X-UA-Compatible', 'IE=edge');
   next();
 });
@@ -1294,6 +1279,21 @@ app.delete("/api/ambassador/:id", async (req, res) => {
 });
 
 // Catch-all for unmatched routes
+// Global error handler
+app.use((err, req, res, next) => {
+  console.error('[ERROR]', err);
+  
+  if (req.path.startsWith('/api/')) {
+    return res.status(err.status || 500).json({
+      success: false,
+      error: err.message || 'Internal server error'
+    });
+  }
+  
+  res.status(err.status || 500).send(err.message || 'Internal server error');
+});
+
+// 404 handler
 app.use((req, res) => {
   // Don't return 404 for API calls that failed to match
   if (req.path.startsWith('/api/')) {
@@ -1313,7 +1313,7 @@ module.exports = app;
 
 // Only listen locally (not on Vercel)
 if (require.main === module && process.env.NODE_ENV !== 'production') {
-  app.listen(PORT, () => {
+  app.listen(PORT, '0.0.0.0', () => {
     console.log(`HackHalt CIC server running at http://localhost:${PORT}`);
   });
 }

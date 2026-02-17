@@ -4,9 +4,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Dashboard - HackHalt</title>
-  <link rel="stylesheet" href="assets/css/style.css">
-  <link rel="stylesheet" href="assets/css/admin-styles.css">
+  
+  <!-- Performance optimizations -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com" />
+  
+  <!-- Font Awesome Icons CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  
   <!-- Font Awesome Icons - LOCAL FONTS FOR PRODUCTION RELIABILITY -->
+  <link rel="preload" href="assets/fonts/fa-solid-900.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="assets/fonts/fa-brands-400.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="assets/fonts/fa-regular-400.woff2" as="font" type="font/woff2" crossorigin />
   <style>
     @font-face {
       font-family: 'Font Awesome 6 Free';
@@ -32,8 +42,35 @@
       src: url('assets/fonts/fa-brands-400.woff2') format('woff2'),
            url('assets/fonts/fa-brands-400.woff') format('woff');
     }
-    .fa, .fas, .fa-solid { font-family: 'Font Awesome 6 Free'; font-weight: 900; }
-    .fab, .fa-brands { font-family: 'Font Awesome 6 Brands'; font-weight: 400; }
+    /* Font Awesome 6 Icon Rendering - Fixed Size 22px */
+    [class*="fa-"] {
+      display: inline-block !important;
+      font-family: 'Font Awesome 6 Free', 'Font Awesome 6 Brands' !important;
+      font-style: normal !important;
+      font-variant: normal !important;
+      text-rendering: auto !important;
+      line-height: 1 !important;
+      -webkit-font-smoothing: antialiased !important;
+      -moz-osx-font-smoothing: grayscale !important;
+      width: auto !important;
+      height: auto !important;
+      min-width: 0 !important;
+      min-height: 0 !important;
+      font-size: 22px !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+      color: inherit !important;
+      vertical-align: -0.125em;
+    }
+    .fa, .fas, .fa-solid { font-family: 'Font Awesome 6 Free' !important; font-weight: 900 !important; }
+    .fab, .fa-brands { font-family: 'Font Awesome 6 Brands' !important; font-weight: 400 !important; }
+    i[class*="fa-"] {
+      font-size: 22px !important;
+      font-weight: 900 !important;
+      display: inline-block !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+    }
       padding: 0 !important;
       background: #0a0e27 !important;
       color: #f1f5f9 !important;

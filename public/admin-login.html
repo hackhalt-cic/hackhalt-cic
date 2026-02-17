@@ -12,6 +12,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com" />
 
+  <!-- Performance optimizations -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com" />
+
   <!-- Google Font with optimized loading -->
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
@@ -20,14 +25,66 @@
     onload="this.media='all'"
   />
 
-  <!-- Font Awesome Icons -->
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-    integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
-    crossorigin="anonymous"
-    referrerpolicy="no-referrer"
-  />
+  <!-- Font Awesome Icons CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <!-- Font Awesome Icons - LOCAL FONTS FOR PRODUCTION RELIABILITY -->
+  <link rel="preload" href="assets/fonts/fa-solid-900.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="assets/fonts/fa-brands-400.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="assets/fonts/fa-regular-400.woff2" as="font" type="font/woff2" crossorigin />
+  
+  <style>
+    @font-face {
+      font-family: 'Font Awesome 6 Free';
+      font-style: normal;
+      font-weight: 400;
+      font-display: block;
+      src: url('assets/fonts/fa-regular-400.woff2') format('woff2'), url('assets/fonts/fa-regular-400.woff') format('woff');
+    }
+    @font-face {
+      font-family: 'Font Awesome 6 Free';
+      font-style: normal;
+      font-weight: 900;
+      font-display: block;
+      src: url('assets/fonts/fa-solid-900.woff2') format('woff2'), url('assets/fonts/fa-solid-900.woff') format('woff');
+    }
+    @font-face {
+      font-family: 'Font Awesome 6 Brands';
+      font-style: normal;
+      font-weight: 400;
+      font-display: block;
+      src: url('assets/fonts/fa-brands-400.woff2') format('woff2'), url('assets/fonts/fa-brands-400.woff') format('woff');
+    }
+    /* Font Awesome 6 Icon Rendering - Fixed Size 22px */
+    [class*="fa-"] {
+      display: inline-block !important;
+      font-family: 'Font Awesome 6 Free', 'Font Awesome 6 Brands' !important;
+      font-style: normal !important;
+      font-variant: normal !important;
+      text-rendering: auto !important;
+      line-height: 1 !important;
+      -webkit-font-smoothing: antialiased !important;
+      -moz-osx-font-smoothing: grayscale !important;
+      width: auto !important;
+      height: auto !important;
+      min-width: 0 !important;
+      min-height: 0 !important;
+      font-size: 22px !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+      color: inherit !important;
+      vertical-align: -0.125em;
+    }
+    .fa, .fas, .fa-solid { font-family: 'Font Awesome 6 Free' !important; font-weight: 900 !important; }
+    .fab, .fa-brands { font-family: 'Font Awesome 6 Brands' !important; font-weight: 400 !important; }
+    i[class*="fa-"] {
+      font-size: 22px !important;
+      font-weight: 900 !important;
+      display: inline-block !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+    }
+  </style>
 
   <link rel="stylesheet" href="assets/css/style.css" />
   <style>
@@ -422,20 +479,8 @@
       loginBtn.innerHTML = '<div class="loading"><div class="spinner"></div></div> Signing in...';
 
       try {
-        // Get the API base URL
-        // If running on localhost, use localhost:5000
-        // If running on Vercel, use Vercel domain
-        // If running on Hostinger, use Vercel API endpoint
-        let apiBase = window.location.origin;
-        
-        // Override for Hostinger static hosting - point to Vercel backend
-        if (window.location.hostname !== 'localhost' && !window.location.hostname.includes('vercel')) {
-          // You're on Hostinger, use Vercel backend
-          apiBase = 'https://hackhalt-cic-lemon.vercel.app';
-        }
-        
-        const apiUrl = `${apiBase}/api/auth/login`;
-        console.log('Login API URL:', apiUrl); // Debug log
+        const apiUrl = '/api/auth/login';
+        const requestBody = JSON.stringify({ username, password });
         
         const response = await fetch(apiUrl, {
           method: 'POST',
@@ -443,28 +488,29 @@
             'Content-Type': 'application/json'
           },
           credentials: 'include',
-          body: JSON.stringify({ username, password })
+          body: requestBody
         });
 
-        // ✓ Check HTTP status FIRST
+        let data;
+        try {
+          data = await response.json();
+        } catch (parseError) {
+          console.error('Failed to parse response:', parseError);
+          throw new Error(`Server returned invalid JSON: ${response.statusText}`);
+        }
+
         if (!response.ok) {
-          const data = await response.json();
-          throw new Error(data.error || `Login failed (HTTP ${response.status})`);
+          throw new Error(data.error || `Login failed with status ${response.status}`);
         }
 
-        const contentType = response.headers.get('content-type');
-        if (!contentType?.includes('application/json')) {
-          throw new Error('Invalid server response format');
+        if (!data.success) {
+          throw new Error(data.error || 'Authentication failed');
         }
 
-        const data = await response.json();
-
-        // Validate response structure
-        if (!data.success || !data.admin) {
-          throw new Error('Invalid response from server');
+        if (!data.admin) {
+          throw new Error('Invalid response structure from server');
         }
 
-        // ✓ Token is now in HTTP-only cookie (not in localStorage)
         successMessage.innerHTML = '<i class="fa-solid fa-check-circle"></i><span>Login successful! Redirecting...</span>';
         successMessage.classList.add('show');
 
@@ -473,7 +519,7 @@
         }, 1500);
       } catch (error) {
         console.error('Login error:', error);
-        const errorMsg = error.message || 'Login failed. Please check your credentials and ensure the server is running.';
+        const errorMsg = error.message || 'Failed to fetch. Please ensure the server is running and accessible.';
         errorMessage.innerHTML = `<i class="fa-solid fa-exclamation-circle"></i><span>${errorMsg}</span>`;
         errorMessage.classList.add('show');
 

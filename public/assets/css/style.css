@@ -169,6 +169,15 @@ i, .fa, .fas, .fab, .far, .fal, .fad, [class^="fa-"], [class*=" fa-"] {
   color: inherit;
 }
 
+/* Ensure Font Awesome 6 icons render with correct weights */
+.fa-solid, .fa {
+  font-weight: 900;
+}
+
+.fa-brands {
+  font-weight: 400;
+}
+
 i.fa-sun, i.fa-moon, i.fa-arrow-up, i.fa-bars, i.fa-times {
   color: inherit;
 }
@@ -569,7 +578,7 @@ main {
   font-weight: 900;
   color: #ffffff;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
-  display: inline-block;
+  display: inline-block !important;
   line-height: 1;
   vertical-align: middle;
   width: auto;
@@ -1477,7 +1486,6 @@ main::before {
   transform: translateZ(0);
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
-  contain: layout style paint;
   touch-action: manipulation;
   position: relative;
 }
@@ -2640,7 +2648,7 @@ button[type="submit"]:disabled {
   color: #ffffff;
   font-weight: 900;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-  display: inline-block;
+  display: inline-block !important;
   line-height: 1;
   vertical-align: middle;
   width: auto;
@@ -2719,7 +2727,7 @@ button[type="submit"]:disabled {
   color: #ffffff;
   font-weight: 900;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  display: inline-block;
+  display: inline-block !important;
   line-height: 1;
   vertical-align: middle;
   font-size: 1.4rem;
@@ -9851,6 +9859,29 @@ main {
 /* Ensure all pages account for fixed header */
 body {
   padding-top: 80px !important;
+}
+
+/* Ensure icon elements are visible */
+.theme-toggle i, .back-to-top i, .social-links a i {
+  display: inline-block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  width: auto !important;
+  height: auto !important;
+}
+
+/* Font Awesome icons visibility - let FA CSS handle font-family */
+[class^="fa-"], [class*=" fa-"] {
+  display: inline-block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Ensure Font Awesome pseudo-element content shows */
+[class^="fa-"]::before, [class*=" fa-"]::before {
+  display: inline !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 /* Mobile responsive header */

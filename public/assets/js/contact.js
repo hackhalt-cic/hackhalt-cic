@@ -1,5 +1,5 @@
 // assets/js/contact.js
-// Contact page specific functionality
+// Unified contact form handler with purpose-based field visibility
 
 console.log('🟢 contact.js loaded at top level');
 
@@ -7,42 +7,86 @@ console.log('🟢 contact.js loaded at top level');
 function initializeFormHandlers() {
   console.log('🔵 initializeFormHandlers() called');
   
-  const joinForm = document.getElementById("joinForm");
-  const contactForm = document.getElementById("contactForm");
+  const unifiedForm = document.getElementById("contactForm");
 
-  console.log('📋 contactForm element:', contactForm);
-  console.log('📋 joinForm element:', joinForm);
+  console.log('📋 Unified form element:', unifiedForm);
   
-  if (!contactForm && !joinForm) {
-    console.error('❌ NO FORMS FOUND! This is the problem!');
+  if (!unifiedForm) {
+    console.error('❌ Unified form not found!');
     return;
   }
 
-  // Enhanced form submission with validation
-  function handleFormSubmit(form, isJoinForm = false) {
-    console.log('🟡 Attaching listener to form, isJoinForm=', isJoinForm);
+  // Handle purpose selection to show/hide conditional fields
+  const purposeSelect = unifiedForm.querySelector('[name="purpose"]');
+  if (purposeSelect) {
+    purposeSelect.addEventListener('change', function() {
+      const purpose = this.value;
+      console.log('🎯 Purpose changed to:', purpose);
+      
+      // Hide all field groups first
+      unifiedForm.querySelectorAll('[data-field-type]').forEach(el => {
+        el.style.display = 'none';
+        el.querySelectorAll('input, textarea, select').forEach(field => {
+          field.required = false;
+        });
+      });
+
+      // Show/hide based on purpose
+      if (purpose === 'Contact Inquiry') {
+        const contactFields = unifiedForm.querySelector('[data-field-type="contact"]');
+        if (contactFields) {
+          contactFields.style.display = 'block';
+          contactFields.querySelectorAll('[data-required="true"]').forEach(field => {
+            field.required = true;
+          });
+        }
+      } else if (purpose === 'Join Initiative') {
+        const joinFields = unifiedForm.querySelector('[data-field-type="join"]');
+        if (joinFields) {
+          joinFields.style.display = 'block';
+          joinFields.querySelectorAll('[data-required="true"]').forEach(field => {
+            field.required = true;
+          });
+        }
+      } else if (purpose === 'Ambassador Application') {
+        const ambassadorFields = unifiedForm.querySelector('[data-field-type="ambassador"]');
+        if (ambassadorFields) {
+          ambassadorFields.style.display = 'block';
+          ambassadorFields.querySelectorAll('[data-required="true"]').forEach(field => {
+            field.required = true;
+          });
+        }
+      }
+    });
     
-    form.addEventListener("submit", async (e) => {
-      console.log('🔴 FORM SUBMIT EVENT FIRED!');
-      console.log('Is join form?', isJoinForm);
-      e.preventDefault();
-      e.stopPropagation();
-      console.log('🔴 preventDefault() called');
+    // Trigger change on page load to set initial state
+    purposeSelect.dispatchEvent(new Event('change'));
+  }
+
+  // Enhanced form submission with validation
+  unifiedForm.addEventListener("submit", async (e) => {
+    console.log('🔴 FORM SUBMIT EVENT FIRED!');
+    e.preventDefault();
+    e.stopPropagation();
 
     // Get form data
-    const formData = new FormData(form);
+    const formData = new FormData(unifiedForm);
     const data = Object.fromEntries(formData);
+    const purpose = data.purpose;
+
+    console.log('📦 Form data:', data);
+    console.log('Purpose selected:', purpose);
 
     // Validate form
     const validation = FormValidator.validateForm(data);
 
     // Show validation errors
-    const errorElements = form.querySelectorAll(".form-error");
+    const errorElements = unifiedForm.querySelectorAll(".form-error");
     errorElements.forEach((el) => el.remove());
 
     if (!validation.isValid) {
       Object.keys(validation.errors).forEach((field) => {
-        const input = form.querySelector(`[name="${field}"]`);
+        const input = unifiedForm.querySelector(`[name="${field}"]`);
         if (input) {
           const errorDiv = document.createElement("div");
           errorDiv.className = "form-error";
@@ -56,85 +100,92 @@ function initializeFormHandlers() {
     }
 
     // Show loading state
-    const submitBtn = form.querySelector('button[type="submit"]');
+    const submitBtn = unifiedForm.querySelector('button[type="submit"]');
     const originalText = submitBtn.textContent;
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Submitting...';
 
     try {
-      console.log('⚡ INSIDE TRY BLOCK - Form submission in progress');
+      console.log('⚡ Submitting unified form');
       
-      // Send to backend API - use relative path to work with any domain
-      const endpoint = isJoinForm ? '/api/join' : '/api/contact';
-      console.log('🚀 Submitting form to:', endpoint);
-      console.log('📦 Form data:', data);
-      
-      const response = await fetch(endpoint, {
+      // Prepare payload based on purpose
+      const payload = {
+        purpose,
+        name: data.name,
+        email: data.email
+      };
+
+      if (purpose === 'Contact Inquiry') {
+        payload.phone = data.phone || undefined;
+        payload.subject = data.subject;
+        payload.message = data.message;
+      } else if (purpose === 'Join Initiative') {
+        payload.organization = data.organization || undefined;
+        payload.interests = data.interests;
+        if (data.joinMessage) payload.message = data.joinMessage;
+      } else if (purpose === 'Ambassador Application') {
+        payload.region = data.region;
+        payload.linkedin = data.linkedin || undefined;
+        payload.experience = data.experience;
+        payload.subject = `Ambassador Application - ${data.region}`;
+        if (data.ambassadorMessage) payload.message = data.ambassadorMessage;
+      }
+
+      console.log('📤 Sending payload:', payload);
+
+      // Send to backend API
+      const response = await fetch('/api/contact', {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify(data)
+        body: JSON.stringify(payload)
       });
 
       const result = await response.json();
       
       console.log('✅ Response status:', response.status);
       console.log('📊 Response data:', result);
-      console.log('Response ok?:', response.ok);
 
       if (!response.ok) {
         const errorMsg = result.error || "Form submission failed";
-        console.error('❌ Response not ok. Error:', errorMsg);
+        console.error('❌ Response error:', errorMsg);
         throw new Error(errorMsg);
       }
 
-      // Show success message with thank you
-      const thankYouMessage = isJoinForm 
-        ? `✨ Thank You! We're excited to have you join us. We'll review your information and get back to you soon.`
-        : `✨ Thank You! We appreciate your message and will get back to you as soon as possible.`;
-      
-      console.log('✨ Showing thank you message');
-      
-      // Verify Notification object exists
-      if (typeof Notification === 'undefined') {
-        console.error('❌ Notification object is undefined!');
-      } else {
-        console.log('✅ Notification object exists:', Notification);
+      // Show success message based on purpose
+      let thankYouMessage = '✨ Thank You! We appreciate your submission.';
+      if (purpose === 'Contact Inquiry') {
+        thankYouMessage = '✨ Thank You! We appreciate your inquiry. We\'ll get back to you within 2-3 business days.';
+      } else if (purpose === 'Join Initiative') {
+        thankYouMessage = '✨ Welcome! Thank you for your interest. We\'ll review your information and contact you soon.';
+      } else if (purpose === 'Ambassador Application') {
+        thankYouMessage = '✨ Thank you for applying! We\'re honored by your interest. Our team will review your application and reach out shortly.';
       }
       
-      if (typeof Notification.success !== 'function') {
-        console.error('❌ Notification.success is not a function!', typeof Notification.success);
-      } else {
-        console.log('✅ Notification.success is a function');
-      }
-      
-      // Show notification
-      console.log('🔔 Calling Notification.success()');
-      try {
-        Notification.success(thankYouMessage, 6000);
-        console.log('🔔 Notification.success() called');
-      } catch (notifError) {
-        console.error('❌ Notification.success() failed:', notifError);
-      }
+      Notification.success(thankYouMessage, 6000);
 
       console.log('🔄 Resetting form');
       // Reset form
-      form.reset();
-      form.querySelectorAll(".error").forEach((el) => el.classList.remove("error"));
+      unifiedForm.reset();
+      unifiedForm.querySelectorAll(".error").forEach((el) => el.classList.remove("error"));
+      
+      // Re-trigger purpose change to reset field visibility
+      if (purposeSelect) {
+        purposeSelect.dispatchEvent(new Event('change'));
+      }
 
       // Track event
       console.log('📈 Tracking event');
-      Analytics.trackEvent(isJoinForm ? "join_submitted" : "contact_submitted", {
-        role: data.role || data.subject
+      Analytics.trackEvent("submission_sent", {
+        purpose: purpose,
+        type: purpose.toLowerCase().replace(/\s+/g, '_')
       });
       
       console.log('✅ Form submission completed successfully');
 
     } catch (error) {
       console.error("❌ Form submission error:", error);
-      console.error("Error message:", error.message);
-      console.error("Error stack:", error.stack);
       Notification.error(error.message || "An error occurred. Please try again.");
 
     } finally {
@@ -143,79 +194,35 @@ function initializeFormHandlers() {
       submitBtn.textContent = originalText;
     }
   });
-}
 
-// Handle contact form
-  if (contactForm) {
-    console.log('✅ Contact form found, attaching handler');
-    handleFormSubmit(contactForm, false);
-    console.log('✅ Contact form handler attached');
+  // Add real-time validation
+  unifiedForm.querySelectorAll("input, textarea, select").forEach((field) => {
+    field.addEventListener("blur", () => {
+      const value = field.value;
+      const name = field.name;
+      const validation = FormValidator.validateForm({ [name]: value });
 
-    // Add real-time validation
-    contactForm.querySelectorAll("input, textarea, select").forEach((field) => {
-      field.addEventListener("blur", () => {
-        const value = field.value;
-        const name = field.name;
-        const validation = FormValidator.validateForm({ [name]: value });
+      const errorDiv = field.parentElement.querySelector(".form-error");
+      if (errorDiv) errorDiv.remove();
 
-        const errorDiv = field.parentElement.querySelector(".form-error");
-        if (errorDiv) errorDiv.remove();
-
-        if (!validation.isValid && value.trim()) {
-          const error = document.createElement("div");
-          error.className = "form-error";
-          error.textContent = validation.errors[name];
-          field.parentElement.appendChild(error);
-          field.classList.add("error");
-        } else {
-          field.classList.remove("error");
-        }
-      });
-
-      // Clear error on input
-      field.addEventListener("input", () => {
-        const errorDiv = field.parentElement.querySelector(".form-error");
-        if (errorDiv) errorDiv.remove();
+      if (!validation.isValid && value.trim()) {
+        const error = document.createElement("div");
+        error.className = "form-error";
+        error.textContent = validation.errors[name];
+        field.parentElement.appendChild(error);
+        field.classList.add("error");
+      } else {
         field.classList.remove("error");
-      });
+      }
     });
-  }
 
-  // Handle join form
-  if (joinForm) {
-    console.log('✅ Join form found, attaching handler');
-    handleFormSubmit(joinForm, true);
-    console.log('✅ Join form handler attached');
-
-    // Add real-time validation
-    joinForm.querySelectorAll("input, textarea, select").forEach((field) => {
-      field.addEventListener("blur", () => {
-        const value = field.value;
-        const name = field.name;
-        const validation = FormValidator.validateForm({ [name]: value });
-
-        const errorDiv = field.parentElement.querySelector(".form-error");
-        if (errorDiv) errorDiv.remove();
-
-        if (!validation.isValid && value.trim()) {
-          const error = document.createElement("div");
-          error.className = "form-error";
-          error.textContent = validation.errors[name];
-          field.parentElement.appendChild(error);
-          field.classList.add("error");
-        } else {
-          field.classList.remove("error");
-        }
-      });
-
-      // Clear error on input
-      field.addEventListener("input", () => {
-        const errorDiv = field.parentElement.querySelector(".form-error");
-        if (errorDiv) errorDiv.remove();
-        field.classList.remove("error");
-      });
+    // Clear error on input
+    field.addEventListener("input", () => {
+      const errorDiv = field.parentElement.querySelector(".form-error");
+      if (errorDiv) errorDiv.remove();
+      field.classList.remove("error");
     });
-  }
+  });
 
   console.log('✅ initializeFormHandlers() completed');
 }

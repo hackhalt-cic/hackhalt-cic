@@ -1,5 +1,5 @@
 // Quick Vercel Diagnostic - Check what's failing
-// Run locally with: node check-vercel-config.js
+// Run locally with: node tests/check-vercel-config.js
 
 require('dotenv').config();
 
@@ -56,7 +56,7 @@ async function testConnection() {
     console.log('   Database:', conn.connection.name);
     
     // Test Admin collection
-    const Admin = require('./models/Admin');
+    const Admin = require('../models/Admin');
     const adminCount = await Admin.countDocuments();
     console.log('   Admin users found:', adminCount);
     

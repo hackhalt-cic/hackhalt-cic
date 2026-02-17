@@ -1,10 +1,10 @@
 // Seed existing blogs into MongoDB
-// Usage: node seed-blogs.js
+// Usage: node scripts/seed-blogs.js
 
 require('dotenv').config();
 const mongoose = require('mongoose');
-const BlogSubmission = require('./models/BlogSubmission');
-const Admin = require('./models/Admin');
+const BlogSubmission = require('../models/BlogSubmission');
+const Admin = require('../models/Admin');
 
 const MONGODB_URI = process.env.MONGODB_URI || '';
 
@@ -31,7 +31,7 @@ async function seedBlogs() {
     // Find the admin user
     const admin = await Admin.findOne({ username: 'admin' });
     if (!admin) {
-      console.error('❌ Admin user not found. Please create admin first with: node create-admin.js');
+      console.error('❌ Admin user not found. Please create admin first with: node scripts/create-admin.js');
       process.exit(1);
     }
 

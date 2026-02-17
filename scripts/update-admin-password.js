@@ -1,9 +1,9 @@
 // Update admin password
-// Usage: node update-admin-password.js
+// Usage: node scripts/update-admin-password.js
 
 require('dotenv').config();
 const mongoose = require('mongoose');
-const Admin = require('./models/Admin');
+const Admin = require('../models/Admin');
 
 const MONGODB_URI = process.env.MONGODB_URI || '';
 const NEW_PASSWORD = 'Hackhalt@2025'; // Change this to your desired password

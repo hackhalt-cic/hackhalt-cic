@@ -1,7 +1,7 @@
 // Comprehensive diagnostic - check everything
 require('dotenv').config();
 const mongoose = require('mongoose');
-const Admin = require('./models/Admin');
+const Admin = require('../models/Admin');
 const bcrypt = require('bcryptjs');
 
 async function diagnose() {
@@ -73,11 +73,11 @@ async function diagnose() {
         console.log('✅ Everything looks good! Password should work.');
       } else {
         console.log('❌ Password hash exists but does NOT match "HackHalt@2025"');
-        console.log('   → Run: node force-create-admin.js');
+        console.log('   → Run: node scripts/force-create-admin.js');
       }
     } else {
       console.log('❌ Password field is corrupted or empty');
-      console.log('   → Run: node force-create-admin.js');
+      console.log('   → Run: node scripts/force-create-admin.js');
     }
 
   } catch (error) {

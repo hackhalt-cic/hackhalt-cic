@@ -1,5 +1,5 @@
 const fs = require('fs');
-const { DATA_FILE } = require('./db-init');
+const { DATA_FILE } = require('../config/init');
 
 // Read data from file
 function readData() {

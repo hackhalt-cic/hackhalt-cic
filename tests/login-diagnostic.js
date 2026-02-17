@@ -1,5 +1,5 @@
 // Comprehensive login diagnostic script
-// Usage: node login-diagnostic.js
+// Usage: node tests/login-diagnostic.js
 
 require('dotenv').config();
 const mongoose = require('mongoose');
@@ -54,13 +54,13 @@ async function runDiagnostics() {
   console.log('-'.repeat(60));
 
   try {
-    const Admin = require('./models/Admin');
+    const Admin = require('../models/Admin');
     const admin = await Admin.findOne({ username: 'admin' }).select('+password');
 
     if (!admin) {
       console.error('❌ Admin user NOT FOUND in database');
       console.error('\n   Fix: Run this command:');
-      console.error('   node force-create-admin.js\n');
+      console.error('   node scripts/force-create-admin.js\n');
       
       // List all admins if any exist
       const allAdmins = await Admin.find().select('username email');
@@ -99,7 +99,7 @@ async function runDiagnostics() {
       } else {
         console.error(`❌ Password "${testPassword}" does NOT match`);
         console.error('\n   Fix: Recreate admin user:');
-        console.error('   node force-create-admin.js\n');
+        console.error('   node scripts/force-create-admin.js\n');
       }
     } catch (error) {
       console.error('❌ Password verification failed with error:');

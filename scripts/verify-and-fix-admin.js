@@ -1,9 +1,9 @@
 // Verify and fix admin user - Run this to diagnose login issues
-// Usage: node verify-and-fix-admin.js
+// Usage: node scripts/verify-and-fix-admin.js
 
 require('dotenv').config();
 const mongoose = require('mongoose');
-const Admin = require('./models/Admin');
+const Admin = require('../models/Admin');
 
 const MONGODB_URI = process.env.MONGODB_URI || '';
 

@@ -1,9 +1,9 @@
 // Create initial admin user - Run this once only!
-// Usage: node create-admin.js
+// Usage: node scripts/create-admin.js
 
 require('dotenv').config();
 const mongoose = require('mongoose');
-const Admin = require('./models/Admin');
+const Admin = require('../models/Admin');
 
 const MONGODB_URI = process.env.MONGODB_URI || '';
 

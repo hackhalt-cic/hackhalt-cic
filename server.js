@@ -5,7 +5,7 @@ const compression = require("compression");
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
-const connectDB = require("./db-connect");
+const connectDB = require("./config/database");
 
 // Security imports
 const { secureAuthMiddleware, requireRole } = require("./middleware/secureAuthMiddleware");
@@ -491,56 +491,104 @@ app.get("/api/admin/profile", secureAuthMiddleware, async (req, res) => {
   }
 });
 
-// POST /api/contact - Handle contact form submissions
+// POST /api/contact - Handle unified form submissions with purpose classification
 app.post("/api/contact", async (req, res) => {
   console.log("🔵 POST /api/contact received at", new Date().toISOString());
   console.log("📦 Request body:", req.body);
   
   try {
-    const { name, email, message, phone, subject } = req.body;
-    console.log("📋 Extracted fields:", { name, email, message, phone, subject });
+    let { purpose, name, email, phone, subject, message, organization, interests, region, linkedin, experience } = req.body;
+    
+    // Normalize purpose - trim and validate
+    if (purpose) {
+      purpose = (purpose || '').trim();
+      console.log("🔧 Normalized purpose:", purpose);
+    }
+    
+    console.log("📋 Extracted fields:", { purpose, name, email, subject, message, organization, interests, region, linkedin, experience });
 
-    // Validation
-    if (!name || !email || !message) {
-      console.warn("❌ Validation failed - missing required fields");
+    // Validation - Always required
+    if (!purpose || !name || !email) {
+      console.warn("❌ Validation failed - missing required fields (purpose, name, or email)");
       return res.status(400).json({
         success: false,
-        error: "Missing required fields"
+        error: "Please select a purpose and provide name and email"
       });
     }
 
-    // Create new contact submission
+    // Validate purpose
+    const validPurposes = ['Contact Inquiry', 'Join Initiative', 'Ambassador Application'];
+    if (!validPurposes.includes(purpose)) {
+      console.warn("❌ Invalid purpose:", purpose);
+      return res.status(400).json({
+        success: false,
+        error: "Invalid purpose selected"
+      });
+    }
+
+    // Purpose-specific validation
+    if (purpose === 'Contact Inquiry') {
+      if (!subject || !message) {
+        return res.status(400).json({
+          success: false,
+          error: "Please provide subject and message for Contact Inquiry"
+        });
+      }
+    } else if (purpose === 'Join Initiative') {
+      if (!interests) {
+        return res.status(400).json({
+          success: false,
+          error: "Please fill in the areas of interest"
+        });
+      }
+    } else if (purpose === 'Ambassador Application') {
+      if (!region || !experience) {
+        return res.status(400).json({
+          success: false,
+          error: "Please provide region and experience for Ambassador Application"
+        });
+      }
+    }
+
+    // Create new unified contact submission
     const contactSubmission = new ContactSubmission({
-      name,
-      email,
-      phone,
-      subject,
-      message
+      purpose: purpose,
+      name: (name || '').trim(),
+      email: (email || '').trim(),
+      phone: phone ? (phone || '').trim() : undefined,
+      subject: subject ? (subject || '').trim() : undefined,
+      message: message ? (message || '').trim() : undefined,
+      organization: organization ? (organization || '').trim() : undefined,
+      interests: interests ? (interests || '').trim() : undefined,
+      region: region ? (region || '').trim() : undefined,
+      linkedin: linkedin ? (linkedin || '').trim() : undefined,
+      experience: experience ? (experience || '').trim() : undefined
     });
-    console.log("📝 ContactSubmission object created");
+    console.log("📝 ContactSubmission object created with purpose:", purpose);
 
     // Save to MongoDB
     const savedSubmission = await contactSubmission.save();
-    console.log("✅ Contact submission saved with ID:", savedSubmission._id);
+    console.log("✅ Unified submission saved with ID:", savedSubmission._id, "Purpose:", purpose);
 
-    console.log("✉️ Contact submission received:", { name, email, phone, timestamp: new Date() });
+    console.log("✉️ Unified submission received:", { purpose, name, email, timestamp: new Date() });
 
     res.json({
       success: true,
-      message: "Thank you for contacting HackHalt CIC. We'll get back to you soon!",
-      submissionId: savedSubmission._id
+      message: `Thank you for your ${purpose.toLowerCase()}. We'll get back to you soon!`,
+      submissionId: savedSubmission._id,
+      purpose: purpose
     });
     console.log("📤 Response sent successfully");
   } catch (error) {
-    console.error("❌ Error processing contact form:", error);
+    console.error("❌ Error processing unified form:", error);
     res.status(500).json({
       success: false,
-      error: "Failed to process contact form"
+      error: "Failed to process form submission"
     });
   }
 });
 
-// POST /api/join - Handle join form submissions
+// POST /api/join - Handle join form submissions (DEPRECATED - use /api/contact instead)
 app.post("/api/join", async (req, res) => {
   try {
     const { name, email, organization, interests } = req.body;
@@ -553,8 +601,9 @@ app.post("/api/join", async (req, res) => {
       });
     }
 
-    // Create new join submission
-    const joinSubmission = new JoinSubmission({
+    // Create new join submission with purpose set to "Join Initiative" for backward compatibility
+    const joinSubmission = new ContactSubmission({
+      purpose: 'Join Initiative',
       name,
       email,
       organization,
@@ -790,19 +839,45 @@ app.put("/api/blog/:id", secureAuthMiddleware, async (req, res) => {
   }
 });
 
-// GET /api/submissions/contact - Get all contact submissions
+// GET /api/submissions/contact - Get all contact submissions (unified endpoint with optional purpose filtering)
 app.get("/api/submissions/contact", async (req, res) => {
   console.log("🔵 GET /api/submissions/contact requested at", new Date().toISOString());
+  const { purpose } = req.query;
+  
   try {
-    const submissions = await ContactSubmission.find().sort({ createdAt: -1 });
+    let query = {};
+    const validPurposes = ['Contact Inquiry', 'Join Initiative', 'Ambassador Application'];
+    
+    // Filter by purpose if provided
+    if (purpose) {
+      const normalizedInput = (purpose || '').trim();
+      console.log("🔍 Filtering by purpose. Input:", purpose, "Normalized:", normalizedInput);
+      
+      if (validPurposes.includes(normalizedInput)) {
+        query.purpose = normalizedInput;
+        console.log("✅ Valid purpose filter applied:", normalizedInput);
+      } else {
+        console.warn("⚠️ Invalid purpose provided, will return all:", purpose);
+      }
+    }
+    
+    // Fetch from database with exact string matching
+    const submissions = await ContactSubmission.find(query).sort({ createdAt: -1 });
     console.log("📊 Found", submissions.length, "contact submissions");
-    console.log("📋 Submissions data:", submissions);
+    console.log("📋 Query filter:", query);
+    
+    // Log sample of submissions for debugging
+    if (submissions.length > 0) {
+      console.log("📋 Sample submission purposes:", submissions.slice(0, 3).map(s => ({ id: s._id, purpose: s.purpose, name: s.name })));
+    }
     
     const response = {
       success: true,
-      submissions: submissions
+      submissions: submissions,
+      filter: query,
+      count: submissions.length
     };
-    console.log("📤 Sending response:", response);
+    console.log("📤 Sending response with", submissions.length, "submissions");
     res.json(response);
   } catch (error) {
     console.error("❌ Error fetching contact submissions:", error);
@@ -813,10 +888,11 @@ app.get("/api/submissions/contact", async (req, res) => {
   }
 });
 
-// GET /api/submissions/join - Get all join submissions
+// GET /api/submissions/join - Get all join submissions (DEPRECATED - use /api/submissions/contact?purpose=Join%20Initiative)
 app.get("/api/submissions/join", async (req, res) => {
   try {
-    const submissions = await JoinSubmission.find().sort({ createdAt: -1 });
+    // Fetch submissions with purpose set to "Join Initiative" for backward compatibility
+    const submissions = await ContactSubmission.find({ purpose: 'Join Initiative' }).sort({ createdAt: -1 });
     res.json({
       success: true,
       submissions: submissions

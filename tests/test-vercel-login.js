@@ -1,11 +1,11 @@
 // Test API login directly
-// Usage: node test-vercel-login.js https://your-vercel-domain.vercel.app
+// Usage: node tests/test-vercel-login.js https://your-vercel-domain.vercel.app
 
 const domain = process.argv[2];
 
 if (!domain) {
-  console.error('Usage: node test-vercel-login.js <vercel-domain>');
-  console.error('Example: node test-vercel-login.js https://hackhalt-cic.vercel.app');
+  console.error('Usage: node tests/test-vercel-login.js <vercel-domain>');
+  console.error('Example: node tests/test-vercel-login.js https://hackhalt-cic.vercel.app');
   process.exit(1);
 }
 

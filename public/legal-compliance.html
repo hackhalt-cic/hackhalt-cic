@@ -28,82 +28,99 @@
     onload="this.media='all'"
   />
 
-  <!-- Font Awesome Icons -->
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-    integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
-    crossorigin="anonymous"
-    referrerpolicy="no-referrer"
-  />
+  <!-- Font Awesome Icons with Fallback -->
+  <style>
+    @font-face {
+      font-family: 'Font Awesome 6 Free';
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/webfonts/fa-regular-400.woff2') format('woff2'),
+           url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/webfonts/fa-regular-400.woff') format('woff');
+    }
+    @font-face {
+      font-family: 'Font Awesome 6 Free';
+      font-style: normal;
+      font-weight: 900;
+      font-display: swap;
+      src: url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/webfonts/fa-solid-900.woff2') format('woff2'),
+           url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/webfonts/fa-solid-900.woff') format('woff');
+    }
+    @font-face {
+      font-family: 'Font Awesome 6 Brands';
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/webfonts/fa-brands-400.woff2') format('woff2'),
+           url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/webfonts/fa-brands-400.woff') format('woff');
+    }
+    .fa, .fas, .fa-solid { font-family: 'Font Awesome 6 Free'; font-weight: 900; }
+    .fab, .fa-brands { font-family: 'Font Awesome 6 Brands'; font-weight: 400; }
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
   <link rel="stylesheet" href="assets/css/style.css" />
 </head>
 <body>
   <!-- ========== HEADER / NAV ========== -->
   <header class="site-header">
-    <div class="container nav-container">
-      <a href="/" class="logo-wrapper" aria-label="HackHalt CIC Home">
-        <img src="images/logo.png" alt="HackHalt CIC Logo" class="logo" />
-        <div class="logo-text">
-          <span class="logo-title">HackHalt</span>
-          <span class="logo-subtitle">Cyber Intelligence Council</span>
-        </div>
-      </a>
+    <a href="/" class="logo-wrapper" aria-label="HackHalt CIC Home">
+      <img src="images/logo.png" alt="HackHalt CIC Logo" class="logo" />
+      <div class="logo-text">
+        <span class="logo-title">HackHalt</span>
+        <span class="logo-subtitle">Cyber Intelligence Council</span>
+      </div>
+    </a>
 
-      <nav class="nav">
-        <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
-          <span></span><span></span><span></span>
-        </button>
+    <nav class="nav">
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+        <span></span><span></span><span></span>
+      </button>
 
-        <!-- Primary Navigation (Top Row) -->
-        <ul class="nav-links nav-primary" id="navLinks">
-          <li><a href="/">Home</a></li>
-          <li class="nav-item-with-submenu">
-              <a href="/about.html">About Us</a>
-            <ul class="nav-submenu">
-                <li><a href="/about.html#mission">Mission & Vision</a></li>
-                <li><a href="/about.html#pillars">Core Pillars</a></li>
-                <li><a href="/about.html#team">Team</a></li>
-                <li><a href="/about.html">Organization</a></li>
-            </ul>
-          </li>
-          <li class="nav-item-with-submenu">
-              <a href="/community.html">Our Community</a>
-            <ul class="nav-submenu">
-                <li><a href="/community.html">Community Overview</a></li>
-                <li><a href="/events.html">Events & Outreach</a></li>
-                <li><a href="/blogs.html">Knowledge Base</a></li>
-            </ul>
-          </li>
-          <li class="nav-item-with-submenu">
-              <a href="/blogs.html">Resources</a>
-            <ul class="nav-submenu">
-                <li><a href="/blogs.html">Blog</a></li>
-                <li><a href="/blogs.html">News</a></li>
-                <li><a href="/events.html">Events</a></li>
-                <li><a href="/partners.html">Partners</a></li>
-            </ul>
-          </li>
-          <li>
-              <a href="/admin-login.html" target="_blank" rel="noopener noreferrer" class="btn btn-nav-secondary">Admin</a>
-          </li>
-          <li>
-            <a href="/contact" class="btn btn-nav-cta">Contact Us</a>
-          </li>
-        </ul>
+      <!-- Primary Navigation (Top Row) -->
+      <ul class="nav-links nav-primary" id="navLinks">
+        <li><a href="/">Home</a></li>
+        <li class="nav-item-with-submenu">
+            <a href="/about.html">About Us</a>
+          <ul class="nav-submenu">
+              <li><a href="/about.html#mission">Mission & Vision</a></li>
+              <li><a href="/about.html#pillars">Core Pillars</a></li>
+              <li><a href="/about.html#team">Team</a></li>
+              <li><a href="/about.html">Organization</a></li>
+          </ul>
+        </li>
+        <li class="nav-item-with-submenu">
+            <a href="/community.html">Our Community</a>
+          <ul class="nav-submenu">
+              <li><a href="/community.html">Community Overview</a></li>
+              <li><a href="/events.html">Events & Outreach</a></li>
+              <li><a href="/blogs.html">Knowledge Base</a></li>
+          </ul>
+        </li>
+        <li class="nav-item-with-submenu">
+            <a href="/blogs.html">Resources</a>
+          <ul class="nav-submenu">
+              <li><a href="/blogs.html">Blog</a></li>
+              <li><a href="/blogs.html">News</a></li>
+              <li><a href="/events.html">Events</a></li>
+              <li><a href="/partners.html">Partners</a></li>
+          </ul>
+        </li>
+      </ul>
+    </nav>
 
-        <!-- Theme Toggle -->
-        <button
-          id="themeToggle"
-          class="theme-toggle"
-          type="button"
-          aria-label="Toggle theme"
-        >
-          <i class="fa-solid fa-sun"></i>
-        </button>
-      </nav>
-    </div>
+    <a href="/admin-login.html" target="_blank" rel="noopener noreferrer" class="btn btn-nav-secondary">Admin</a>
+    <a href="/contact" class="btn btn-nav-cta">Contact Us</a>
+    
+    <!-- Theme Toggle -->
+    <button
+      id="themeToggle"
+      class="theme-toggle"
+      type="button"
+      aria-label="Toggle theme"
+    >
+      <i class="fa-solid fa-sun"></i>
+    </button>
   </header>
 
   <!-- ========== PAGE TITLE ========== -->

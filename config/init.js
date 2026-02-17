@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const DB_PATH = path.join(__dirname, 'data');
+const DB_PATH = path.join(__dirname, '..', 'data');
 const DATA_FILE = path.join(DB_PATH, 'submissions.json');
 
 // Initialize database and data files

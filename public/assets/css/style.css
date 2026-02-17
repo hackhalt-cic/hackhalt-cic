@@ -1,3 +1,56 @@
+/* === DETERMINISTIC ICON LOADING ============================================ */
+@font-face {
+  font-family: 'Font Awesome 6 Free';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/webfonts/fa-regular-400.woff2') format('woff2'),
+       url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/webfonts/fa-regular-400.woff') format('woff');
+}
+@font-face {
+  font-family: 'Font Awesome 6 Free';
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+  src: url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/webfonts/fa-solid-900.woff2') format('woff2'),
+       url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/webfonts/fa-solid-900.woff') format('woff');
+}
+@font-face {
+  font-family: 'Font Awesome 6 Brands';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/webfonts/fa-brands-400.woff2') format('woff2'),
+       url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/webfonts/fa-brands-400.woff') format('woff');
+}
+
+.fa, .fas, .fa-solid, [class*="fa-"] {
+  font-family: 'Font Awesome 6 Free' !important;
+  font-weight: 900 !important;
+  font-style: normal !important;
+  font-variant: normal !important;
+  text-rendering: auto !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+}
+
+.fab, .fa-brands {
+  font-family: 'Font Awesome 6 Brands' !important;
+  font-weight: 400 !important;
+  font-style: normal !important;
+  font-variant: normal !important;
+  text-rendering: auto !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+}
+
+i[class^="fa-"], i[class*=" fa-"] {
+  font-family: 'Font Awesome 6 Free', 'Font Awesome 6 Brands' !important;
+  font-weight: 900 !important;
+  display: inline-block !important;
+  text-rendering: auto !important;
+}
+
 /* === THEME VARIABLES - PREMIUM DARK CYBERSECURITY THEME ===================================================== */
 :root {
   /* Premium Dark Cybersecurity Palette */
@@ -60,7 +113,7 @@ html {
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
   font-size: 14px;
-  scroll-padding-top: 80px;
+  scroll-padding-top: 70px;
   width: 100%;
   overflow-x: hidden;
   position: static;
@@ -167,6 +220,7 @@ i, .fa, .fas, .fab, .far, .fal, .fad, [class^="fa-"], [class*=" fa-"] {
   vertical-align: middle;
   line-height: 1;
   color: inherit;
+  font-size: 1em;
 }
 
 /* Ensure Font Awesome 6 icons render with correct weights */
@@ -189,6 +243,13 @@ i.fa-sun, i.fa-moon, i.fa-arrow-up, i.fa-bars, i.fa-times {
 
 button i, a i {
   pointer-events: none;
+  position: relative;
+  z-index: 1;
+}
+
+button > *, a > * {
+  position: relative;
+  z-index: 1;
 }
 
 body {
@@ -305,45 +366,34 @@ main {
   left: 0 !important;
   right: 0 !important;
   z-index: 9999 !important;
-  backdrop-filter: blur(10px);
-  background: rgba(10, 14, 39, 0.98);
-  border-bottom: 1px solid rgba(0, 217, 255, 0.2);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(12px);
+  background: linear-gradient(180deg, rgba(10, 14, 39, 0.96) 0%, rgba(10, 14, 39, 0.94) 100%);
+  border-bottom: 1px solid rgba(0, 217, 255, 0.15);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   box-sizing: border-box;
   overflow: visible !important;
   width: 100% !important;
-  height: auto;
-  min-height: 80px;
+  height: 91px;
   will-change: backdrop-filter, box-shadow;
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
-  display: block !important;
+  display: flex !important;
+  align-items: center;
+  padding: 0 14px;
+  gap: 24px;
 }
 
 :root[data-theme="light"] .site-header {
-  background: rgba(249, 250, 251, 0.95);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(71, 85, 105, 0.25);
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
-}
-
-.nav-container {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem 1.5rem;
-  gap: 0.75rem;
-  width: 100%;
-  box-sizing: border-box;
-  overflow: visible !important;
-  position: relative;
-  z-index: 10000;
+  background: linear-gradient(180deg, rgba(249, 250, 251, 0.96) 0%, rgba(249, 250, 251, 0.94) 100%);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(71, 85, 105, 0.15);
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.08);
 }
 
 .logo-wrapper {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 16px;
   text-decoration: none;
   color: inherit;
   transition: opacity 0.3s ease;
@@ -364,10 +414,10 @@ main {
 .logo {
   width: 56px;
   height: 56px;
-  border-radius: 0.9rem;
+  border-radius: 0.6rem;
   object-fit: cover;
-  border: 1px solid rgba(148, 163, 184, 0.45);
-  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.6);
   background: #0f172a;
 }
 
@@ -390,17 +440,18 @@ main {
 }
 
 .logo-subtitle {
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
+  font-weight: 400;
   color: var(--color-text-soft);
+  opacity: 0.65;
 }
 
 /* Nav */
 .nav {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  margin-left: auto;
-  flex-shrink: 0;
+  gap: 32px;
+  flex: 1;
   overflow: visible !important;
 }
 
@@ -408,22 +459,23 @@ main {
   display: flex;
   align-items: center;
   list-style: none;
-  gap: 0.8rem;
+  gap: 32px;
   margin: 0;
   padding: 0;
   flex-shrink: 1;
   min-width: 0;
   overflow: visible;
+  height: 100%;
 }
 
 .nav-links a {
   text-decoration: none;
   color: var(--color-text-soft);
-  font-size: 0.95rem;
-  padding: 0.4rem 0.5rem;
-  border-radius: 999px;
-  transition: color var(--transition-fast), background var(--transition-fast),
-    transform var(--transition-fast);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  transition: all var(--transition-default);
   outline: 2px solid transparent;
   outline-offset: 2px;
   white-space: nowrap;
@@ -435,21 +487,21 @@ main {
   position: absolute;
   bottom: -4px;
   left: 0;
-  width: 0;
+  width: 100%;
   height: 2px;
   background: var(--color-primary);
-  transition: width var(--transition-default);
-  box-shadow: 0 0 10px rgba(0, 217, 255, 0.5);
+  opacity: 0;
+  transition: opacity var(--transition-default);
 }
 
 .nav-links a:hover::after {
-  width: 100%;
+  opacity: 1;
 }
 
 .nav-links a:hover {
   color: var(--color-primary);
-  background: rgba(0, 217, 255, 0.1);
-  transform: translateY(-1px);
+  background: rgba(0, 217, 255, 0.08);
+  transform: translateY(-2px);
 }
 
 .nav-links a:focus-visible {
@@ -468,16 +520,17 @@ main {
     left: 0;
     list-style: none;
     margin: 0;
-    padding: 0.5rem 0;
+    margin-top: 8px;
+    padding: 16px 0;
     background: var(--color-bg-elevated);
     border: 1px solid var(--color-border-subtle);
-    border-radius: var(--radius-lg);
+    border-radius: 10px;
     min-width: 200px;
     opacity: 0;
     visibility: hidden;
     transform: translateY(-10px);
-    transition: opacity var(--transition-default), visibility var(--transition-default), transform var(--transition-default);
-    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.4);
+    transition: opacity 0.2s ease-out, visibility 0.2s ease-out, transform 0.2s ease-out;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
     z-index: 100;
   }
 
@@ -489,10 +542,10 @@ main {
 
   .nav-submenu a {
     display: block;
-    padding: 0.6rem 1rem;
+    padding: 10px 20px;
     color: var(--color-text-muted);
     text-decoration: none;
-    transition: all var(--transition-fast);
+    transition: all 0.15s ease-out;
     outline: 2px solid transparent;
     outline-offset: -2px;
   }
@@ -508,63 +561,90 @@ main {
   outline-color: var(--color-primary);
 }
 
+/* Ensure all button and link content is visible */
+button, a {
+  position: relative;
+}
+
+button i, a i, button span, a span {
+  display: inherit;
+  visibility: visible;
+  opacity: 1;
+  font-size: inherit;
+  color: inherit;
+}
+
 /* Nav CTA button */
 .btn-nav-cta {
-  border: 2px solid var(--color-primary);
   background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
   color: #ffffff !important;
   font-weight: 700;
-  padding: 0.65rem 1rem !important;
-  font-size: 0.95rem !important;
-  box-shadow: 0 6px 18px rgba(0, 217, 255, 0.4), inset 0 1px 2px rgba(255, 255, 255, 0.2);
+  padding: 0 1.75rem !important;
+  height: 48px;
+  font-size: 0.9rem !important;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 12px rgba(0, 217, 255, 0.35);
   white-space: nowrap;
   transition: all var(--transition-default);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  flex-shrink: 0;
 }
 
 .btn-nav-cta:hover {
-  box-shadow: 0 10px 28px rgba(0, 217, 255, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.3);
-  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 8px 20px rgba(0, 217, 255, 0.5);
+  transform: translateY(-2px);
   background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary) 100%);
 }
 
 .btn-nav-cta:active {
-  transform: translateY(-1px) scale(0.98);
-  box-shadow: 0 4px 12px rgba(0, 217, 255, 0.4);
+  transform: translateY(0px);
+  box-shadow: 0 2px 8px rgba(0, 217, 255, 0.3);
 }
 
 .btn-nav-secondary {
-  border: 2px solid var(--color-border-subtle);
   background: rgba(255, 255, 255, 0.05);
   color: var(--color-text-main) !important;
   font-weight: 600;
-  padding: 0.65rem 1rem !important;
-  font-size: 0.95rem !important;
+  padding: 0 1.75rem !important;
+  height: 48px;
+  font-size: 0.9rem !important;
   white-space: nowrap;
   transition: all var(--transition-default);
   backdrop-filter: blur(10px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 0.5rem;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
 }
 
 .btn-nav-secondary:hover {
   background: rgba(0, 217, 255, 0.15);
   border-color: var(--color-primary);
   color: var(--color-primary) !important;
-  box-shadow: 0 6px 16px rgba(0, 217, 255, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 217, 255, 0.2);
   transform: translateY(-2px);
 }
 
 /* Theme toggle */
 .theme-toggle {
-  border-radius: 999px;
-  border: 2px solid #00d9ff;
+  border-radius: 0.5rem;
+  border: none;
   width: 48px;
   height: 48px;
   display: flex !important;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 217, 255, 0.85);
+  background: var(--color-primary);
   color: #ffffff;
   cursor: pointer;
   transition: all var(--transition-default);
@@ -572,17 +652,16 @@ main {
   z-index: 100;
   padding: 0 !important;
   margin: 0 !important;
+  margin-left: auto !important;
   visibility: visible !important;
   opacity: 1 !important;
-  box-shadow: 0 4px 12px rgba(0, 217, 255, 0.4), inset 0 1px 2px rgba(255, 255, 255, 0.2);
-  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(0, 217, 255, 0.3);
 }
 
 .theme-toggle i {
-  font-size: 1.35rem;
+  font-size: 1.125rem;
   font-weight: 900 !important;
   color: #ffffff;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
   display: inline-block !important;
   line-height: 1;
   vertical-align: middle;
@@ -592,16 +671,14 @@ main {
 }
 
 .theme-toggle:hover {
-  border-color: #ffffff;
-  background: rgba(0, 217, 255, 1);
-  box-shadow: 0 8px 20px rgba(0, 217, 255, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.3);
-  transform: translateY(-3px) scale(1.08);
-  filter: brightness(1.2);
+  background: var(--color-primary);
+  box-shadow: 0 6px 16px rgba(0, 217, 255, 0.4);
+  transform: translateY(-2px);
 }
 
 .theme-toggle:active {
-  transform: translateY(-1px) scale(0.98);
-  box-shadow: 0 2px 8px rgba(0, 217, 255, 0.4);
+  transform: translateY(0px);
+  box-shadow: 0 2px 8px rgba(0, 217, 255, 0.25);
 }
 
 /* Nav Toggle (mobile) */
@@ -683,7 +760,7 @@ main {
 
 /* === HERO ================================================================ */
 .hero-section {
-  padding: 8.125rem 0 6.875rem;
+  padding: 8.5rem 0 6.875rem;
   position: relative;
   overflow: hidden;
   margin-bottom: 3rem;
@@ -1494,6 +1571,7 @@ main::before {
   backface-visibility: hidden;
   touch-action: manipulation;
   position: relative;
+  color: inherit;
 }
 
 .btn:not(:disabled) {
@@ -1520,6 +1598,7 @@ main::before {
   pointer-events: none;
   opacity: 0;
   transition: opacity var(--transition-default);
+  z-index: -1;
 }
 
 .btn-primary:hover:not(:disabled) {
@@ -1877,6 +1956,8 @@ main::before {
 
 .icon-circle i {
   font-size: 1rem;
+  position: relative;
+  z-index: 1;
 }
 
 .pillar-card h3 {
@@ -2647,6 +2728,8 @@ button[type="submit"]:disabled {
   position: relative;
   font-weight: 600;
   flex-shrink: 0;
+  overflow: visible;
+  z-index: 1;
 }
 
 .social-links a i {
@@ -2657,9 +2740,13 @@ button[type="submit"]:disabled {
   display: inline-block !important;
   line-height: 1;
   vertical-align: middle;
-  width: auto;
-  height: auto;
+  width: auto !important;
+  height: auto !important;
   font-family: 'Font Awesome 6 Brands', 'Font Awesome 6 Free', sans-serif !important;
+  position: relative;
+  z-index: 2;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 .social-links a::before {
@@ -2671,6 +2758,7 @@ button[type="submit"]:disabled {
   opacity: 0;
   transition: opacity var(--transition-default);
   pointer-events: none;
+  z-index: -1;
 }
 
 .social-links a:hover {
@@ -3064,10 +3152,10 @@ button[type="submit"]:disabled {
     max-width: calc(100vw - 3rem) !important;
     height: auto !important;
     max-height: calc(100vh - 140px) !important;
-    background: linear-gradient(135deg, rgba(10, 15, 35, 0.98), rgba(15, 20, 45, 0.98)) !important;
-    border: 2px solid rgba(0, 217, 255, 0.7) !important;
-    border-radius: 2rem !important;
-    padding: 1.5rem 0 !important;
+    background: linear-gradient(135deg, rgba(10, 15, 35, 0.95), rgba(15, 20, 45, 0.95)) !important;
+    border: none !important;
+    border-radius: 1rem !important;
+    padding: 1rem 0 !important;
     flex-direction: column !important;
     align-items: stretch !important;
     gap: 0 !important;
@@ -3080,8 +3168,8 @@ button[type="submit"]:disabled {
     overflow-x: hidden !important;
     pointer-events: none !important;
     box-sizing: border-box !important;
-    box-shadow: 0 60px 180px rgba(0, 0, 0, 0.97), 0 0 120px rgba(0, 217, 255, 0.3) !important;
-    backdrop-filter: blur(30px) !important;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5) !important;
+    backdrop-filter: blur(10px) !important;
   }
 
   .nav-links.open {
@@ -3099,9 +3187,9 @@ button[type="submit"]:disabled {
     left: 0 !important;
     right: 0 !important;
     bottom: 0 !important;
-    background: radial-gradient(circle at 30% 50%, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.25)) !important;
-    backdrop-filter: blur(4px) !important;
-    -webkit-backdrop-filter: blur(4px) !important;
+    background: rgba(0, 0, 0, 0.3) !important;
+    backdrop-filter: blur(2px) !important;
+    -webkit-backdrop-filter: blur(2px) !important;
     z-index: 9999 !important;
     pointer-events: auto !important;
     animation: fadeIn 0.25s ease-in-out !important;
@@ -3228,7 +3316,7 @@ button[type="submit"]:disabled {
   .nav-submenu a {
     display: flex !important;
     width: 100% !important;
-    padding: 1rem 1.2rem 1rem 2.8rem !important;
+    padding: 1rem 1.2rem 1rem 1.5rem !important;
     font-size: 0.95rem !important;
     margin: 0 !important;
     color: var(--color-text-main) !important;
@@ -3251,18 +3339,14 @@ button[type="submit"]:disabled {
   }
 
   .nav-submenu a::before {
-    content: '─' !important;
-    display: inline-block !important;
-    color: #00ffff !important;
-    margin-right: 0.8rem !important;
-    font-weight: bold !important;
-    font-size: 1rem !important;
+    content: '' !important;
+    display: none !important;
   }
 
   .nav-submenu a:hover {
     background: rgba(0, 217, 255, 0.1) !important;
     color: var(--color-primary) !important;
-    padding-left: 2.8rem !important;
+    padding-left: 1.5rem !important;
   }
 
   /* Light theme nav dropdown */
@@ -3300,7 +3384,8 @@ button[type="submit"]:disabled {
   }
 
   :root[data-theme="light"] .nav-submenu a::before {
-    color: #0066cc !important;
+    content: '' !important;
+    display: none !important;
   }
 
   :root[data-theme="light"] .nav-submenu a:hover {
@@ -3993,11 +4078,9 @@ button[type="submit"]:disabled {
   }
 
   /* Header adjustments */
-  .nav-container {
-    padding: 0.65rem 0.75rem !important;
-    gap: 0.5rem !important;
-    width: 100%;
-    min-height: 60px !important;
+  .site-header {
+    padding: 0 12px !important;
+    height: 76px !important;
   }
 
   .logo-text {
@@ -4124,6 +4207,11 @@ button[type="submit"]:disabled {
 
   .social-links a i {
     font-size: 1.1rem !important;
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    z-index: 2;
+    position: relative;
   }
 
   /* Button sizing */
@@ -8835,8 +8923,8 @@ a:focus-visible {
   }
 
   /* Header/Nav improvements */
-  .nav-container {
-    padding: 0.75rem 1rem;
+  .site-header {
+    padding: 0 1rem;
   }
 
   .logo-wrapper {
@@ -8911,8 +8999,8 @@ a:focus-visible {
     padding: 0 0.75rem;
   }
 
-  .nav-container {
-    padding: 0.5rem 0.75rem;
+  .site-header {
+    padding: 0 0.75rem;
   }
 
   h1 {
@@ -9152,8 +9240,8 @@ a:focus-visible {
     font-size: 0.8rem;
   }
 
-  .nav-container {
-    padding: 0.8rem 0;
+  .site-header {
+    padding: 0 0.5rem;
   }
 }
 
@@ -9171,8 +9259,8 @@ a:focus-visible {
     font-size: 0.7rem;
   }
 
-  .nav-container {
-    padding: 0.6rem 0;
+  .site-header {
+    padding: 0 0.4rem;
     gap: 0.5rem;
   }
 }
@@ -9857,8 +9945,7 @@ main {
   pointer-events: auto !important;
 }
 
-.site-header .container,
-.site-header .nav-container {
+.site-header .container {
   position: relative !important;
   z-index: 100000 !important;
   pointer-events: auto !important;
@@ -9866,7 +9953,7 @@ main {
 
 /* Ensure all pages account for fixed header */
 body {
-  padding-top: 80px !important;
+  padding-top: 91px !important;
 }
 
 /* Ensure icon elements are visible */
@@ -9914,6 +10001,19 @@ body {
   display: inline-block !important;
   visibility: visible !important;
   opacity: 1 !important;
+}
+
+/* Force Font Awesome to render properly */
+.fa-sun::before, .fa-moon::before, .fa-arrow-up::before,
+.fa-linkedin::before, .fa-instagram::before, .fa-x-twitter::before, .fa-facebook::before {
+  display: inline !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Ensure icon container inherits correct properties */
+.theme-toggle, .back-to-top, .social-links a {
+  font-family: 'Font Awesome 6 Free', 'Font Awesome 6 Brands', sans-serif !important;
 }
 
 /* Mobile responsive header */

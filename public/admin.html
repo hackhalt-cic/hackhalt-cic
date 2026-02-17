@@ -527,14 +527,14 @@
           <button class="secondary" onclick="loadData()"><i class="fas fa-sync"></i> Refresh</button>
         </div>
 
-        <!-- Contact Tab -->
+        <!-- Tab Navigation -->
         <div class="tabs">
           <button class="tab-btn active" data-tab="contact"><i class="fas fa-envelope"></i> Contact</button>
           <button class="tab-btn" data-tab="join"><i class="fas fa-handshake"></i> Join</button>
           <button class="tab-btn" data-tab="ambassadors"><i class="fas fa-star"></i> Ambassadors</button>
         </div>
 
-        <!-- Contact Table -->
+        <!-- Contact Tab -->
         <div id="contact-tab" class="tab-content active">
           <div class="table-wrapper">
             <table>
@@ -554,7 +554,7 @@
           </div>
         </div>
 
-        <!-- Join Table -->
+        <!-- Join Tab -->
         <div id="join-tab" class="tab-content">
           <div class="table-wrapper">
             <table>
@@ -574,7 +574,7 @@
           </div>
         </div>
 
-        <!-- Ambassadors Table -->
+        <!-- Ambassadors Tab -->
         <div id="ambassadors-tab" class="tab-content">
           <div class="table-wrapper">
             <table>
@@ -583,7 +583,7 @@
                   <th>Name</th>
                   <th>Email</th>
                   <th>Region</th>
-                  <th>Expertise</th>
+                  <th>Background</th>
                   <th>Date</th>
                   <th>Actions</th>
                 </tr>
@@ -685,62 +685,107 @@
 
     // Load Response Data
     async function loadData() {
-      const endpoints = [
-        { url: '/api/contact', key: 'contact', countId: 'contactCount', bodyId: 'contactBody', render: renderContact },
-        { url: '/api/join', key: 'join', countId: 'joinCount', bodyId: 'joinBody', render: renderJoin },
-        { url: '/api/ambassador', key: 'ambassadors', countId: 'ambassadorCount', bodyId: 'ambassadorsBody', render: renderAmbassadors }
-      ];
-
-      const allData = {};
-      for (const endpoint of endpoints) {
-        try {
-          console.log('📡 Fetching from:', apiBase + endpoint.url);
-          const resp = await fetch(apiBase + endpoint.url, { 
+      try {
+        console.log('📡 Fetching all submissions...');
+        
+        // Fetch with backend filtering for each purpose type
+        const [contactResp, joinResp, ambassadorResp] = await Promise.all([
+          fetch(apiBase + '/api/submissions/contact?purpose=' + encodeURIComponent('Contact Inquiry'), { 
             credentials: 'include',
             method: 'GET',
-            headers: {
-              'Content-Type': 'application/json'
-            }
-          });
-          
-          if (!resp.ok) {
-            const errorData = await resp.text();
-            console.error(`❌ API Error for ${endpoint.key}:`, resp.status, errorData);
-            throw new Error(`API Error (${resp.status})`);
-          }
-          
-          const data = await resp.json();
-          console.log(`✅ ${endpoint.key} data:`, data);
-          
-          if (!data.success) throw new Error(data.error || 'API error');
-          allData[endpoint.key] = data.submissions || [];
-          document.getElementById(endpoint.countId).textContent = allData[endpoint.key].length;
-          endpoint.render(allData[endpoint.key]);
-        } catch (err) {
-          console.error(`Error loading ${endpoint.key}:`, err);
-          document.getElementById(endpoint.bodyId).innerHTML = `<tr><td colspan="6" class="no-data">Error: ${err.message}</td></tr>`;
+            headers: { 'Content-Type': 'application/json' }
+          }),
+          fetch(apiBase + '/api/submissions/contact?purpose=' + encodeURIComponent('Join Initiative'), { 
+            credentials: 'include',
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' }
+          }),
+          fetch(apiBase + '/api/submissions/contact?purpose=' + encodeURIComponent('Ambassador Application'), { 
+            credentials: 'include',
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' }
+          })
+        ]);
+        
+        console.log('✅ All requests completed');
+        
+        // Process Contact Inquiry responses
+        if (!contactResp.ok) {
+          const errorData = await contactResp.text();
+          console.error(`❌ Contact API Error:`, contactResp.status, errorData);
+          throw new Error(`Contact API Error (${contactResp.status})`);
         }
+        const contactData = await contactResp.json();
+        console.log(`✅ Contact submissions data:`, contactData);
+        
+        if (!contactData.success) throw new Error(contactData.error || 'Contact API error');
+        const contact = contactData.submissions || [];
+        console.log(`📊 Contact Inquiry count: ${contact.length}`);
+        
+        // Process Join Initiative responses
+        if (!joinResp.ok) {
+          const errorData = await joinResp.text();
+          console.error(`❌ Join API Error:`, joinResp.status, errorData);
+          throw new Error(`Join API Error (${joinResp.status})`);
+        }
+        const joinData = await joinResp.json();
+        console.log(`✅ Join submissions data:`, joinData);
+        
+        if (!joinData.success) throw new Error(joinData.error || 'Join API error');
+        const join = joinData.submissions || [];
+        console.log(`📊 Join Initiative count: ${join.length}`);
+        
+        // Process Ambassador Application responses
+        if (!ambassadorResp.ok) {
+          const errorData = await ambassadorResp.text();
+          console.error(`❌ Ambassador API Error:`, ambassadorResp.status, errorData);
+          throw new Error(`Ambassador API Error (${ambassadorResp.status})`);
+        }
+        const ambassadorData = await ambassadorResp.json();
+        console.log(`✅ Ambassador submissions data:`, ambassadorData);
+        
+        if (!ambassadorData.success) throw new Error(ambassadorData.error || 'Ambassador API error');
+        const ambassador = ambassadorData.submissions || [];
+        console.log(`📊 Ambassador Application count: ${ambassador.length}`);
+        
+        // Update stats with exact counts from backend
+        document.getElementById('contactCount').textContent = contact.length;
+        document.getElementById('joinCount').textContent = join.length;
+        document.getElementById('ambassadorCount').textContent = ambassador.length;
+        
+        console.log(`📈 Stats updated:`, { contact: contact.length, join: join.length, ambassador: ambassador.length });
+        
+        // Render tables
+        renderContact(contact);
+        renderJoin(join);
+        renderAmbassador(ambassador);
+        
+      } catch (err) {
+        console.error(`❌ Error loading submissions:`, err);
+        document.getElementById('contactBody').innerHTML = `<tr><td colspan="5" class="no-data">Error: ${err.message}</td></tr>`;
+        document.getElementById('joinBody').innerHTML = `<tr><td colspan="5" class="no-data">Error: ${err.message}</td></tr>`;
+        document.getElementById('ambassadorsBody').innerHTML = `<tr><td colspan="6" class="no-data">Error: ${err.message}</td></tr>`;
       }
+      
       attachTableListeners();
-      switchTab('contact');
     }
 
-    // Render Contact
+    // Render Contact Submissions
     function renderContact(data) {
       const tbody = document.getElementById('contactBody');
       if (!data.length) {
-        tbody.innerHTML = '<tr><td colspan="5" class="no-data">No contact messages</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" class="no-data">No contact submissions</td></tr>';
         return;
       }
       tbody.innerHTML = data.map(s => `
         <tr>
           <td style="min-width: 120px;">${s.name}</td>
           <td style="min-width: 150px;">${s.email}</td>
-          <td style="min-width: 120px;">${s.subject || '-'}</td>
+          <td style="min-width: 150px;">${s.subject || '-'}</td>
           <td style="min-width: 100px;">${new Date(s.createdAt).toLocaleDateString()}</td>
-          <td style="min-width: 250px;">
+          <td style="min-width: 200px;">
             <div class="btn-group">
-              <button class="small view-btn" data-type="contact" data-id="${s._id}" data-name="${s.name}" data-email="${s.email}" data-phone="${s.phone || ''}" data-subject="${s.subject || ''}" data-message="${s.message}"><i class="fas fa-eye"></i> View</button>
+              <button class="small view-btn" data-type="contact" data-id="${s._id}" data-name="${s.name}" data-email="${s.email}" data-phone="${s.phone || ''}" data-subject="${s.subject || ''}" data-message="${s.message || ''}"><i class="fas fa-eye"></i> View</button>
               <button class="small danger delete-btn" data-type="contact" data-id="${s._id}"><i class="fas fa-trash"></i> Delete</button>
             </div>
           </td>
@@ -748,20 +793,20 @@
       `).join('');
     }
 
-    // Render Join
+    // Render Join Submissions
     function renderJoin(data) {
       const tbody = document.getElementById('joinBody');
       if (!data.length) {
-        tbody.innerHTML = '<tr><td colspan="5" class="no-data">No join requests</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" class="no-data">No join submissions</td></tr>';
         return;
       }
       tbody.innerHTML = data.map(s => `
         <tr>
           <td style="min-width: 120px;">${s.name}</td>
           <td style="min-width: 150px;">${s.email}</td>
-          <td style="min-width: 140px;">${s.organization || '-'}</td>
+          <td style="min-width: 150px;">${s.organization || '-'}</td>
           <td style="min-width: 100px;">${new Date(s.createdAt).toLocaleDateString()}</td>
-          <td style="min-width: 250px;">
+          <td style="min-width: 200px;">
             <div class="btn-group">
               <button class="small view-btn" data-type="join" data-id="${s._id}" data-name="${s.name}" data-email="${s.email}" data-org="${s.organization || ''}" data-interests="${s.interests || ''}"><i class="fas fa-eye"></i> View</button>
               <button class="small danger delete-btn" data-type="join" data-id="${s._id}"><i class="fas fa-trash"></i> Delete</button>
@@ -771,8 +816,8 @@
       `).join('');
     }
 
-    // Render Ambassadors
-    function renderAmbassadors(data) {
+    // Render Ambassador Submissions
+    function renderAmbassador(data) {
       const tbody = document.getElementById('ambassadorsBody');
       if (!data.length) {
         tbody.innerHTML = '<tr><td colspan="6" class="no-data">No ambassador applications</td></tr>';
@@ -780,15 +825,15 @@
       }
       tbody.innerHTML = data.map(s => `
         <tr>
-          <td style="min-width: 150px;">${s.firstName || s.name || '-'} ${s.lastName || ''}</td>
+          <td style="min-width: 150px;">${s.name}</td>
           <td style="min-width: 150px;">${s.email}</td>
           <td style="min-width: 100px;">${s.region || '-'}</td>
-          <td style="min-width: 120px;">${s.expertise?.substring(0, 30) || '-'}${(s.expertise?.length > 30 ? '...' : '')}</td>
+          <td style="min-width: 150px;">${s.experience?.substring(0, 40) || '-'}${(s.experience?.length > 40 ? '...' : '')}</td>
           <td style="min-width: 100px;">${new Date(s.createdAt).toLocaleDateString()}</td>
-          <td style="min-width: 250px;">
+          <td style="min-width: 200px;">
             <div class="btn-group">
-              <button class="small view-btn" data-type="ambassador" data-id="${s._id}" data-name="${s.firstName || s.name} ${s.lastName || ''}" data-email="${s.email}" data-phone="${s.phone}" data-region="${s.region}" data-expertise="${s.expertise || ''}" data-bio="${s.bio || ''}"><i class="fas fa-eye"></i> View</button>
-              <button class="small danger delete-btn" data-type="ambassadors" data-id="${s._id}"><i class="fas fa-trash"></i> Delete</button>
+              <button class="small view-btn" data-type="ambassador" data-id="${s._id}" data-name="${s.name}" data-email="${s.email}" data-region="${s.region || ''}" data-experience="${s.experience || ''}" data-linkedin="${s.linkedin || ''}"><i class="fas fa-eye"></i> View</button>
+              <button class="small danger delete-btn" data-type="ambassador" data-id="${s._id}"><i class="fas fa-trash"></i> Delete</button>
             </div>
           </td>
         </tr>
@@ -804,7 +849,7 @@
         <p><strong>Phone:</strong> ${phone || 'Not provided'}</p>
         <hr>
         <p><strong>Message:</strong></p>
-        <p style="white-space: pre-wrap; line-height: 1.6;">${message}</p>
+        <p style="white-space: pre-wrap; line-height: 1.6;">${message || 'No message'}</p>
       `);
     }
 
@@ -814,20 +859,58 @@
         <p><strong>Name:</strong> ${name}</p>
         <p><strong>Email:</strong> ${email}</p>
         <p><strong>Organization:</strong> ${org || 'Not provided'}</p>
-        <p><strong>Interests:</strong> ${interests || 'Not specified'}</p>
+        <p><strong>Areas of Interest:</strong></p>
+        <p style="white-space: pre-wrap; line-height: 1.6;">${interests || 'Not specified'}</p>
       `);
     }
 
-    function viewAmbassador(name, email, phone, region, expertise, bio) {
+    function viewAmbassador(name, email, region, experience, linkedin) {
       openModal(`
         <h2>${name}</h2>
         <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Phone:</strong> ${phone}</p>
-        <p><strong>Region:</strong> ${region}</p>
+        <p><strong>Region:</strong> ${region || '-'}</p>
+        ${linkedin ? `<p><strong>LinkedIn:</strong> <a href="${linkedin}" target="_blank">${linkedin}</a></p>` : ''}
         <hr>
-        <p><strong>Expertise:</strong></p>
-        <p style="white-space: pre-wrap; line-height: 1.6;">${expertise || 'Not provided'}</p>
-        ${bio ? `<hr><p><strong>Bio:</strong></p><p style="white-space: pre-wrap; line-height: 1.6;">${bio}</p>` : ''}
+        <p><strong>Experience & Background:</strong></p>
+        <p style="white-space: pre-wrap; line-height: 1.6;">${experience || 'Not provided'}</p>
+      `);
+    }
+
+    // Enhanced View Function for Unified Submissions
+    function viewUnifiedSubmission(submission) {
+      const { purpose, name, email, phone, subject, organization, interests, message } = submission;
+      let detailsHtml = '';
+      
+      if (purpose === 'Contact Inquiry') {
+        detailsHtml = `
+          <p><strong>Phone:</strong> ${phone || 'Not provided'}</p>
+          <p><strong>Subject:</strong> ${subject || 'Not provided'}</p>
+          <hr>
+          <p><strong>Message:</strong></p>
+          <p style="white-space: pre-wrap; line-height: 1.6; background: rgba(0,0,0,0.03); padding: 1rem; border-radius: 0.375rem;">${message || 'No message'}</p>
+        `;
+      } else if (purpose === 'Join Initiative') {
+        detailsHtml = `
+          <p><strong>Organization:</strong> ${organization || 'Not provided'}</p>
+          <hr>
+          <p><strong>Areas of Interest:</strong></p>
+          <p style="white-space: pre-wrap; line-height: 1.6; background: rgba(0,0,0,0.03); padding: 1rem; border-radius: 0.375rem;">${interests || 'Not provided'}</p>
+        `;
+      } else if (purpose === 'Ambassador Application') {
+        detailsHtml = `
+          <p><strong>Phone:</strong> ${phone || 'Not provided'}</p>
+          <p><strong>Subject/Role:</strong> ${subject || 'Not provided'}</p>
+          <hr>
+          <p><strong>Application:</strong></p>
+          <p style="white-space: pre-wrap; line-height: 1.6; background: rgba(0,0,0,0.03); padding: 1rem; border-radius: 0.375rem;">${message || 'Not provided'}</p>
+        `;
+      }
+      
+      openModal(`
+        <h2>${purpose}</h2>
+        <p><strong>Name:</strong> ${name}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        ${detailsHtml}
       `);
     }
 
@@ -858,7 +941,10 @@
         if (viewBtn) {
           e.preventDefault();
           const type = viewBtn.dataset.type;
-          if (type === 'contact') {
+          if (type === 'unified') {
+            const submission = JSON.parse(viewBtn.dataset.submission);
+            viewUnifiedSubmission(submission);
+          } else if (type === 'contact') {
             viewContact(viewBtn.dataset.name, viewBtn.dataset.email, viewBtn.dataset.phone, viewBtn.dataset.subject, viewBtn.dataset.message);
           } else if (type === 'join') {
             viewJoin(viewBtn.dataset.name, viewBtn.dataset.email, viewBtn.dataset.org, viewBtn.dataset.interests);
@@ -1173,22 +1259,45 @@
       if (!confirm('Delete permanently?')) return;
       try {
         const deleteEndpoints = {
-          'contact': `/api/contact/${id}`,
-          'join': `/api/join/${id}`,
+          'contact': `/api/submissions/contact/${id}`,
+          'join': `/api/submissions/contact/${id}`,
           'blogs': `/api/submissions/blogs/${id}`,
-          'ambassadors': `/api/ambassador/${id}`
+          'ambassador': `/api/submissions/contact/${id}`,
+          'ambassadors': `/api/submissions/contact/${id}`
         };
         
-        const resp = await fetch(apiBase + (deleteEndpoints[type] || ''), {
+        const endpoint = deleteEndpoints[type];
+        if (!endpoint) {
+          throw new Error(`Unknown submission type: ${type}`);
+        }
+        
+        console.log(`🗑️  Deleting ${type} submission:`, id);
+        
+        const resp = await fetch(apiBase + endpoint, {
           method: 'DELETE',
           credentials: 'include'
         });
 
         if (!resp.ok) throw new Error(`Delete failed (${resp.status})`);
+        
+        console.log(`✅ Deleted successfully:`, type, id);
+        
         currentSection === 'response' ? loadData() : loadBlogs();
         alert('Deleted successfully');
       } catch (err) {
+        console.error('❌ Delete error:', err);
         alert('Delete failed: ' + err.message);
+      }
+    }
+
+    // Add purpose filter event listener
+    function setupPurposeFilter() {
+      const purposeFilter = document.getElementById('purposeFilter');
+      if (purposeFilter) {
+        purposeFilter.addEventListener('change', function() {
+          console.log('🔍 Purpose filter changed to:', this.value);
+          loadData();
+        });
       }
     }
 
@@ -1196,10 +1305,12 @@
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', () => {
         console.log('📍 Admin panel initializing...');
+        setupPurposeFilter();
         loadData();
       });
     } else {
       console.log('📍 Admin panel initializing...');
+      setupPurposeFilter();
       loadData();
     }
   </script>

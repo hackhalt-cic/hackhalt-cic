@@ -3,7 +3,7 @@
 /**
  * Mobile Pages Verification Script
  * Verifies that all pages and links are working correctly
- * Usage: node mobile-pages-test.js
+ * Usage: node tests/mobile-pages-test.js
  */
 
 const http = require('http');

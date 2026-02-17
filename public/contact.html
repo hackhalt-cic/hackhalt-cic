@@ -21,82 +21,99 @@
     rel="stylesheet"
   />
 
-  <!-- Font Awesome Icons -->
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-    integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
-    crossorigin="anonymous"
-    referrerpolicy="no-referrer"
-  />
+  <!-- Font Awesome Icons with Fallback -->
+  <style>
+    @font-face {
+      font-family: 'Font Awesome 6 Free';
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/webfonts/fa-regular-400.woff2') format('woff2'),
+           url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/webfonts/fa-regular-400.woff') format('woff');
+    }
+    @font-face {
+      font-family: 'Font Awesome 6 Free';
+      font-style: normal;
+      font-weight: 900;
+      font-display: swap;
+      src: url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/webfonts/fa-solid-900.woff2') format('woff2'),
+           url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/webfonts/fa-solid-900.woff') format('woff');
+    }
+    @font-face {
+      font-family: 'Font Awesome 6 Brands';
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/webfonts/fa-brands-400.woff2') format('woff2'),
+           url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/webfonts/fa-brands-400.woff') format('woff');
+    }
+    .fa, .fas, .fa-solid { font-family: 'Font Awesome 6 Free'; font-weight: 900; }
+    .fab, .fa-brands { font-family: 'Font Awesome 6 Brands'; font-weight: 400; }
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
   <link rel="stylesheet" href="assets/css/style.css" />
 </head>
 <body>
   <!-- ========== HEADER / NAV ========== -->
   <header class="site-header">
-    <div class="container nav-container">
-      <a href="/" class="logo-wrapper" aria-label="HackHalt CIC Home">
-        <img src="images/logo.png" alt="HackHalt CIC Logo" class="logo" />
-        <div class="logo-text">
-          <span class="logo-title">HackHalt</span>
-          <span class="logo-subtitle">Cyber Intelligence Council</span>
-        </div>
-      </a>
+    <a href="/" class="logo-wrapper" aria-label="HackHalt CIC Home">
+      <img src="images/logo.png" alt="HackHalt CIC Logo" class="logo" />
+      <div class="logo-text">
+        <span class="logo-title">HackHalt</span>
+        <span class="logo-subtitle">Cyber Intelligence Council</span>
+      </div>
+    </a>
 
-      <nav class="nav">
-        <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
-          <span></span><span></span><span></span>
-        </button>
+    <nav class="nav">
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+        <span></span><span></span><span></span>
+      </button>
 
-        <!-- Primary Navigation (Top Row) -->
-        <ul class="nav-links nav-primary" id="navLinks">
-          <li><a href="/">Home</a></li>
-          <li class="nav-item-with-submenu">
-              <a href="/about.html">About Us</a>
-            <ul class="nav-submenu">
-                <li><a href="/about.html#mission">Mission & Vision</a></li>
-                <li><a href="/about.html#pillars">Core Pillars</a></li>
-                <li><a href="/about.html#team">Team</a></li>
-                <li><a href="/about.html">Organization</a></li>
-            </ul>
-          </li>
-          <li class="nav-item-with-submenu">
-              <a href="/community.html">Our Community</a>
-            <ul class="nav-submenu">
-                <li><a href="/community.html">Community Overview</a></li>
-                <li><a href="/events.html">Events & Outreach</a></li>
-                <li><a href="/blogs.html">Knowledge Base</a></li>
-            </ul>
-          </li>
-          <li class="nav-item-with-submenu">
-              <a href="/blogs.html">Resources</a>
-            <ul class="nav-submenu">
-                <li><a href="/blogs.html">Blog</a></li>
-                <li><a href="/blogs.html">News</a></li>
-                <li><a href="/events.html">Events</a></li>
-                <li><a href="/partners.html">Partners</a></li>
-            </ul>
-          </li>
-          <li>
-              <a href="/admin-login.html" target="_blank" rel="noopener noreferrer" class="btn btn-nav-secondary">Admin</a>
-          </li>
-          <li>
-              <a href="/contact.html" class="btn btn-nav-cta">Contact Us</a>
-          </li>
-        </ul>
+      <!-- Primary Navigation (Top Row) -->
+      <ul class="nav-links nav-primary" id="navLinks">
+        <li><a href="/">Home</a></li>
+        <li class="nav-item-with-submenu">
+            <a href="/about.html">About Us</a>
+          <ul class="nav-submenu">
+              <li><a href="/about.html#mission">Mission & Vision</a></li>
+              <li><a href="/about.html#pillars">Core Pillars</a></li>
+              <li><a href="/about.html#team">Team</a></li>
+              <li><a href="/about.html">Organization</a></li>
+          </ul>
+        </li>
+        <li class="nav-item-with-submenu">
+            <a href="/community.html">Our Community</a>
+          <ul class="nav-submenu">
+              <li><a href="/community.html">Community Overview</a></li>
+              <li><a href="/events.html">Events & Outreach</a></li>
+              <li><a href="/blogs.html">Knowledge Base</a></li>
+          </ul>
+        </li>
+        <li class="nav-item-with-submenu">
+            <a href="/blogs.html">Resources</a>
+          <ul class="nav-submenu">
+              <li><a href="/blogs.html">Blog</a></li>
+              <li><a href="/blogs.html">News</a></li>
+              <li><a href="/events.html">Events</a></li>
+              <li><a href="/partners.html">Partners</a></li>
+          </ul>
+        </li>
+      </ul>
+    </nav>
 
-        <!-- Theme Toggle -->
-        <button
-          id="themeToggle"
-          class="theme-toggle"
-          type="button"
-          aria-label="Toggle theme"
-        >
-          <i class="fa-solid fa-sun"></i>
-        </button>
-      </nav>
-    </div>
+    <a href="/admin-login.html" target="_blank" rel="noopener noreferrer" class="btn btn-nav-secondary">Admin</a>
+    <a href="/contact.html" class="btn btn-nav-cta">Contact Us</a>
+    
+    <!-- Theme Toggle -->
+    <button
+      id="themeToggle"
+      class="theme-toggle"
+      type="button"
+      aria-label="Toggle theme"
+    >
+      <i class="fa-solid fa-sun"></i>
+    </button>
   </header>
 
   <!-- ========== HERO SECTION ========== -->
@@ -178,108 +195,170 @@
 
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 3rem; margin-top: 3rem;">
         <div class="contact-form-wrapper reveal">
-          <h3>Send us a Message</h3>
-          <form id="contactForm" class="form" onsubmit="console.log('🔴 INLINE onsubmit FIRED!'); return false;">
+          <h3>Get in Touch</h3>
+          <form id="contactForm" class="form">
+            <!-- Purpose Selection -->
             <div class="form-group">
-              <label for="nameContact">Name</label>
+              <label for="purpose">Select Your Purpose<span style="color: var(--color-accent);">*</span></label>
+              <select id="purpose" name="purpose" required>
+                <option value="">-- Choose --</option>
+                <option value="Contact Inquiry">Contact Inquiry</option>
+                <option value="Join Initiative">Join Our Initiative</option>
+                <option value="Ambassador Application">Ambassador Application</option>
+              </select>
+            </div>
+
+            <!-- Common Fields (Always Required) -->
+            <div class="form-group">
+              <label for="name">Name<span style="color: var(--color-accent);">*</span></label>
               <input
                 type="text"
-                id="nameContact"
+                id="name"
                 name="name"
                 placeholder="Your name"
                 required
               />
             </div>
             <div class="form-group">
-              <label for="emailContact">Email</label>
+              <label for="email">Email<span style="color: var(--color-accent);">*</span></label>
               <input
                 type="email"
-                id="emailContact"
+                id="email"
                 name="email"
                 placeholder="you@example.com"
                 required
               />
             </div>
-            <div class="form-group">
-              <label for="phoneContact">Phone</label>
-              <input
-                type="tel"
-                id="phoneContact"
-                name="phone"
-                placeholder="Your phone number"
-              />
+
+            <!-- Contact Inquiry Fields -->
+            <div data-field-type="contact" style="display: none;">
+              <div class="form-group">
+                <label for="phone">Phone</label>
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  placeholder="Your phone number"
+                />
+              </div>
+              <div class="form-group">
+                <label for="subject">Subject<span style="color: var(--color-accent);">*</span></label>
+                <input
+                  type="text"
+                  id="subject"
+                  name="subject"
+                  placeholder="What is this about?"
+                  data-required="true"
+                />
+              </div>
+              <div class="form-group">
+                <label for="contactMessage">Message<span style="color: var(--color-accent);">*</span></label>
+                <textarea
+                  id="contactMessage"
+                  name="message"
+                  rows="5"
+                  placeholder="Share your inquiry, proposal, or collaboration idea..."
+                  data-required="true"
+                ></textarea>
+              </div>
             </div>
-            <div class="form-group">
-              <label for="subjectContact">Subject</label>
-              <input
-                type="text"
-                id="subjectContact"
-                name="subject"
-                placeholder="Subject of your message"
-                required
-              />
+
+            <!-- Join Initiative Fields -->
+            <div data-field-type="join" style="display: none;">
+              <div class="form-group">
+                <label for="organization">Organization</label>
+                <input
+                  type="text"
+                  id="organization"
+                  name="organization"
+                  placeholder="Your organization or institution (optional)"
+                />
+              </div>
+              <div class="form-group">
+                <label for="interests">Areas of Interest<span style="color: var(--color-accent);">*</span></label>
+                <textarea
+                  id="interests"
+                  name="interests"
+                  rows="5"
+                  placeholder="Tell us about your interests, skills, expertise, and how you'd like to contribute..."
+                  data-required="true"
+                ></textarea>
+              </div>
+              <div class="form-group">
+                <label for="joinMessage">Additional Message</label>
+                <textarea
+                  id="joinMessage"
+                  name="joinMessage"
+                  rows="3"
+                  placeholder="Anything else you'd like us to know? (optional)"
+                ></textarea>
+              </div>
             </div>
-            <div class="form-group">
-              <label for="messageContact">Message</label>
-              <textarea
-                id="messageContact"
-                name="message"
-                rows="4"
-                placeholder="Your message..."
-                required
-              ></textarea>
+
+            <!-- Ambassador Application Fields -->
+            <div data-field-type="ambassador" style="display: none;">
+              <div class="form-group">
+                <label for="region">Region<span style="color: var(--color-accent);">*</span></label>
+                <input
+                  type="text"
+                  id="region"
+                  name="region"
+                  placeholder="Your region or city"
+                  data-required="true"
+                />
+              </div>
+              <div class="form-group">
+                <label for="linkedin">LinkedIn/Profile Link</label>
+                <input
+                  type="url"
+                  id="linkedin"
+                  name="linkedin"
+                  placeholder="https://linkedin.com/in/yourprofile (optional)"
+                />
+              </div>
+              <div class="form-group">
+                <label for="experience">Experience & Background<span style="color: var(--color-accent);">*</span></label>
+                <textarea
+                  id="experience"
+                  name="experience"
+                  rows="5"
+                  placeholder="Tell us about your cybersecurity background, expertise, and why you want to be an ambassador..."
+                  data-required="true"
+                ></textarea>
+              </div>
+              <div class="form-group">
+                <label for="ambassadorMessage">Additional Information</label>
+                <textarea
+                  id="ambassadorMessage"
+                  name="ambassadorMessage"
+                  rows="3"
+                  placeholder="Any additional information you'd like to share? (optional)"
+                ></textarea>
+              </div>
             </div>
+
             <button type="submit" class="btn btn-outline btn-full">
-              Send Message
+              Submit Application
             </button>
           </form>
         </div>
 
-        <div class="contact-form-wrapper reveal">
-          <h3>Join Our Initiative</h3>
-          <form id="joinForm" class="form" onsubmit="console.log('🔴 INLINE onsubmit FIRED!'); return false;">
-            <div class="form-group">
-              <label for="nameJoin">Name</label>
-              <input
-                type="text"
-                id="nameJoin"
-                name="name"
-                placeholder="Your name"
-                required
-              />
-            </div>
-            <div class="form-group">
-              <label for="emailJoin">Email</label>
-              <input
-                type="email"
-                id="emailJoin"
-                name="email"
-                placeholder="you@example.com"
-                required
-              />
-            </div>
-            <div class="form-group">
-              <label for="organizationJoin">Organization</label>
-              <input
-                type="text"
-                id="organizationJoin"
-                name="organization"
-                placeholder="Your organization (optional)"
-              />
-            </div>
-            <div class="form-group">
-              <label for="interestsJoin">Areas of Interest</label>
-              <textarea
-                id="interestsJoin"
-                name="interests"
-                rows="4"
-                placeholder="Tell us about your interests, skills, or how you'd like to contribute..."
-              ></textarea>
-            </div>
-            <button type="submit" class="btn btn-outline btn-full">
-              Join Us
-            </button>
-          </form>
+        <!-- Info Box -->
+        <div class="reveal" style="display: flex; flex-direction: column; justify-content: center;">
+          <div style="padding: 2rem; border-left: 4px solid var(--color-accent); background: rgba(37, 99, 235, 0.05); border-radius: 0.5rem;">
+            <h3 style="margin-top: 0;">How We Process Your Request</h3>
+            <ul style="margin: 1rem 0; padding-left: 1.5rem; font-size: 0.95rem;">
+              <li style="margin: 0.75rem 0;"><strong>Contact Inquiry:</strong> For partnerships, collaborations, event proposals, and general questions. We respond within 2-3 business days.</li>
+              <li style="margin: 0.75rem 0;"><strong>Join Initiative:</strong> To become an active member and contributor to HackHalt - CIC. We'll review and reach out to discuss membership details.</li>
+              <li style="margin: 0.75rem 0;"><strong>Ambassador Application:</strong> To represent HackHalt in your region. Qualified candidates will be scheduled for a discussion.</li>
+            </ul>
+            <p style="color: var(--color-text-muted); margin-top: 1.5rem; font-size: 0.9rem;">
+              💡 All fields marked with <span style="color: var(--color-accent);">*</span> are required. We value your time and ensure thorough review of all submissions.
+            </p>
+            <p style="color: var(--color-text-muted); font-size: 0.9rem;">
+              For urgent matters, email us directly at <a href="mailto:management@hackhalt.org" style="color: var(--color-primary); text-decoration: none; font-weight: 500;">management@hackhalt.org</a>
+            </p>
+          </div>
         </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
 // Force create/reset admin user - use this if verify-and-fix-admin.js doesn't work
-// Usage: node force-create-admin.js
+// Usage: node scripts/force-create-admin.js
 
 require('dotenv').config();
 const mongoose = require('mongoose');
@@ -21,7 +21,7 @@ async function forceCreateAdmin() {
     });
     console.log('✅ Connected to MongoDB\n');
 
-    const Admin = require('./models/Admin');
+    const Admin = require('../models/Admin');
 
     // Delete existing admin user
     console.log('🗑️  Removing old admin user...');

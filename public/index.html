@@ -39,24 +39,70 @@
 <body>
   <!-- ========== HEADER / NAV ========== -->
   <header class="site-header">
-    <a href="/" class="logo-wrapper" aria-label="HackHalt CIC Home">
-      <img src="images/logo.png" alt="HackHalt CIC Logo" class="logo" />
-      <div class="logo-text">
-        <span class="logo-title">HackHalt</span>
-        <span class="logo-subtitle">Cyber Intelligence Council</span>
+    <div class="header-inner">
+      <a href="/" aria-label="HackHalt CIC Home" class="brand">
+        <img src="images/logo.png" alt="HackHalt Logo" />
+        <div class="brand-text">
+          <span class="brand-title">HACKHALT</span>
+          <span class="brand-subtitle">Cyber Intelligence Council</span>
+        </div>
+      </a>
+
+      <nav class="nav">
+        <ul class="nav-links nav-primary" id="navLinks">
+          <li><a href="/">Home</a></li>
+          <li class="nav-item-with-submenu">
+            <a href="/about.html">About Us</a>
+            <ul class="nav-submenu">
+              <li><a href="/about.html#mission">Mission & Vision</a></li>
+              <li><a href="/about.html#pillars">Core Pillars</a></li>
+              <li><a href="/about.html#team">Team</a></li>
+              <li><a href="/about.html">Organization</a></li>
+              <li><a href="/legal-compliance.html">Legal & Compliance</a></li>
+            </ul>
+          </li>
+          <li class="nav-item-with-submenu">
+            <a href="/community.html">Our Community</a>
+            <ul class="nav-submenu">
+              <li><a href="/community.html">Community Overview</a></li>
+              <li><a href="/events.html">Events & Outreach</a></li>
+              <li><a href="/blogs.html">Knowledge Base</a></li>
+            </ul>
+          </li>
+          <li class="nav-item-with-submenu">
+            <a href="/blogs.html">Resources</a>
+            <ul class="nav-submenu">
+              <li><a href="/blogs.html">Blog</a></li>
+              <li><a href="/blogs.html">News</a></li>
+              <li><a href="/events.html">Events</a></li>
+              <li><a href="/partners.html">Partners</a></li>
+            </ul>
+          </li>
+          <li class="mobile-only-admin"><a href="/admin-login.html" target="_blank" rel="noopener noreferrer">Admin</a></li>
+          <li class="mobile-only-contact"><a href="/contact.html">Contact Us</a></li>
+        </ul>
+      </nav>
+
+      <div class="header-actions">
+        <a href="/admin-login.html" target="_blank" rel="noopener noreferrer" class="btn btn-nav-secondary">Admin</a>
+        <a href="/contact.html" class="btn btn-nav-cta">Contact Us</a>
+        <div class="mobile-actions">
+          <button id="nav-toggle" class="nav-toggle" aria-label="Toggle Menu">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme">
+            <i class="fa-solid fa-moon"></i>
+          </button>
+        </div>
       </div>
-    </a>
+    </div>
 
-    <nav class="nav">
-      <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
-        <span></span><span></span><span></span>
-      </button>
-
-      <ul class="nav-links nav-primary" id="navLinks">
+    <nav class="mobile-nav" id="mobileNav">
+      <ul>
         <li><a href="/">Home</a></li>
-        <li class="nav-item-with-submenu">
-          <a href="/about.html">About Us</a>
-          <ul class="nav-submenu">
+        <li class="mobile-submenu-item">
+          <a href="/about.html" class="mobile-submenu-toggle">About Us <i class="fa-solid fa-chevron-down"></i></a>
+          <ul class="mobile-submenu">
             <li><a href="/about.html#mission">Mission & Vision</a></li>
             <li><a href="/about.html#pillars">Core Pillars</a></li>
             <li><a href="/about.html#team">Team</a></li>
@@ -64,32 +110,28 @@
             <li><a href="/legal-compliance.html">Legal & Compliance</a></li>
           </ul>
         </li>
-        <li class="nav-item-with-submenu">
-          <a href="/community.html">Our Community</a>
-          <ul class="nav-submenu">
+        <li class="mobile-submenu-item">
+          <a href="/community.html" class="mobile-submenu-toggle">Our Community <i class="fa-solid fa-chevron-down"></i></a>
+          <ul class="mobile-submenu">
             <li><a href="/community.html">Community Overview</a></li>
             <li><a href="/events.html">Events & Outreach</a></li>
             <li><a href="/blogs.html">Knowledge Base</a></li>
           </ul>
         </li>
-        <li class="nav-item-with-submenu">
-          <a href="/blogs.html">Resources</a>
-          <ul class="nav-submenu">
+        <li class="mobile-submenu-item">
+          <a href="/blogs.html" class="mobile-submenu-toggle">Resources <i class="fa-solid fa-chevron-down"></i></a>
+          <ul class="mobile-submenu">
             <li><a href="/blogs.html">Blog</a></li>
             <li><a href="/blogs.html">News</a></li>
             <li><a href="/events.html">Events</a></li>
             <li><a href="/partners.html">Partners</a></li>
           </ul>
         </li>
+        <li class="mobile-nav-divider"></li>
+        <li><a href="/admin-login.html" target="_blank" rel="noopener noreferrer">Admin</a></li>
+        <li><a href="/contact.html">Contact Us</a></li>
       </ul>
     </nav>
-
-    <a href="/admin-login.html" target="_blank" rel="noopener noreferrer" class="btn btn-nav-secondary">Admin</a>
-    <a href="/contact.html" class="btn btn-nav-cta">Contact Us</a>
-
-    <button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle theme">
-      <i class="fa-solid fa-sun"></i>
-    </button>
   </header>
 
   <!-- ========== HERO ========== -->
@@ -127,7 +169,7 @@
       </div>
 
       <div class="hero-visual reveal">
-        <div class="hero-card professional-hero">
+        <div class="hero-wrapper">
           <img
             src="images/home section img.jpg"
             alt="Cyber Intelligence Illustration - Network Security"
@@ -135,7 +177,7 @@
             loading="lazy"
             decoding="async"
           />
-          <div class="hero-stats stats-overlay">
+          <div class="hero-stats">
             <div class="stat">
               <span class="stat-label">Threats Analyzed</span>
               <span class="stat-value">25K+</span>

@@ -37,8 +37,8 @@ if (themeToggleBtn) {
 // --- DOM references --------------------------------------------------------
 const backToTopBtn = document.getElementById("backToTop");
 const yearSpan = document.getElementById("year");
-const navToggle = document.getElementById("navToggle");
-const navLinks = document.getElementById("navLinks");
+const toggle = document.getElementById("nav-toggle");
+const mobileNav = document.querySelector(".mobile-nav");
 
 // --- Utilities -------------------------------------------------------------
 if (yearSpan) {
@@ -95,106 +95,87 @@ document.addEventListener("scroll", () => {
   }
 }, { passive: true });
 
+// Desktop submenu hover delay to prevent flicker
+const navItems = document.querySelectorAll(".nav-item-with-submenu");
+let hoverTimeout;
+navItems.forEach((item) => {
+  item.addEventListener("mouseenter", () => {
+    clearTimeout(hoverTimeout);
+  });
+  item.addEventListener("mouseleave", () => {
+    hoverTimeout = setTimeout(() => {
+      // Submenu naturally hides on mouse leave due to CSS
+    }, 150);
+  });
+});
+
 // Mobile nav toggle
-if (navToggle && navLinks) {
-  // Function to toggle nav menu
-  function toggleNav(e) {
-    if (e) {
+if (toggle && mobileNav) {
+  toggle.addEventListener("click", (e) => {
+    e.stopPropagation();
+    mobileNav.classList.toggle("open");
+    document.body.classList.toggle("nav-open");
+  });
+
+  // Mobile submenu toggle functionality with accordion behavior
+  const submenuToggles = mobileNav.querySelectorAll(".mobile-submenu-toggle");
+  submenuToggles.forEach((toggle) => {
+    toggle.addEventListener("click", (e) => {
       e.preventDefault();
       e.stopPropagation();
-    }
-    
-    const isOpen = navLinks.classList.contains("open");
-    
-    if (!isOpen) {
-      // Open menu
-      navLinks.classList.add("open");
-      navToggle.classList.add("active");
-      document.body.classList.add("nav-open");
-    } else {
-      // Close menu
-      navLinks.classList.remove("open");
-      navToggle.classList.remove("active");
-      document.body.classList.remove("nav-open");
-    }
-  }
-  
-  // Handle both click and touch events for better mobile support
-  navToggle.addEventListener("click", toggleNav, false);
-  navToggle.addEventListener("touchend", toggleNav, false);
-
-  // Handle submenu toggle on mobile
-  const submenuParents = navLinks.querySelectorAll(".nav-item-with-submenu > a");
-  submenuParents.forEach((parentLink) => {
-    parentLink.addEventListener("click", function(e) {
-      const parentItem = this.closest(".nav-item-with-submenu");
-      const isOpen = parentItem.classList.contains("open");
+      const parent = toggle.closest(".mobile-submenu-item");
       
-      // Close all other submenus
-      document.querySelectorAll(".nav-item-with-submenu.open").forEach((item) => {
-        if (item !== parentItem) {
+      // Close all other open submenus (accordion behavior)
+      const allSubmenuItems = mobileNav.querySelectorAll(".mobile-submenu-item.open");
+      allSubmenuItems.forEach((item) => {
+        if (item !== parent) {
           item.classList.remove("open");
         }
       });
       
       // Toggle current submenu
-      if (isOpen) {
-        parentItem.classList.remove("open");
-      } else {
-        e.preventDefault();
-        e.stopPropagation();
-        parentItem.classList.add("open");
-      }
+      parent.classList.toggle("open");
     });
   });
 
-  // Close menu when clicking actual nav links (not submenu parents or buttons)
-  navLinks.querySelectorAll("a").forEach((link) => {
-    link.addEventListener("click", function(e) {
-      const isSubmenuParent = this.closest(".nav-item-with-submenu > a");
-      const isButton = this.classList.contains("btn");
-      const isSubmenuItem = this.closest(".nav-submenu a") && !isSubmenuParent;
-      
-      // Only close if it's a regular link or submenu item (not parent, not button)
-      if (!isSubmenuParent && !isButton && isSubmenuItem) {
-        navLinks.classList.remove("open");
-        navToggle.classList.remove("active");
-        document.body.classList.remove("nav-open");
-      }
+  // Close nav when a regular link is clicked (excluding submenu toggles)
+  const navLinks = mobileNav.querySelectorAll("a:not(.mobile-submenu-toggle)");
+  navLinks.forEach((link) => {
+    link.addEventListener("click", () => {
+      mobileNav.classList.remove("open");
+      document.body.classList.remove("nav-open");
     });
   });
 
-  // Handle button clicks - keep nav open
-  navLinks.querySelectorAll(".btn").forEach((btn) => {
-    btn.addEventListener("click", function(e) {
-      e.stopPropagation();
-      // Let the button handle its own navigation
-    });
-  });
-
-  // Close menu when clicking outside nav
-  function closeNavOnClickOutside(e) {
-    const isClickedInNav = e.target.closest(".nav");
-    const isClickedOnToggle = e.target.closest(".nav-toggle");
+  // Close nav when clicking outside with better event handling
+  function closeNav(e) {
+    // Check if click is outside both nav and toggle button
+    const isClickOutside = 
+      e.target !== mobileNav && 
+      !mobileNav.contains(e.target) && 
+      e.target !== toggle && 
+      !toggle.contains(e.target);
     
-    if (!isClickedInNav && !isClickedOnToggle && navLinks.classList.contains("open")) {
-      navLinks.classList.remove("open");
-      navToggle.classList.remove("active");
+    if (isClickOutside && mobileNav.classList.contains("open")) {
+      mobileNav.classList.remove("open");
       document.body.classList.remove("nav-open");
     }
   }
   
-  // Listen for both click and touchend events
-  document.addEventListener("click", closeNavOnClickOutside, false);
-  document.addEventListener("touchend", closeNavOnClickOutside, false);
+  document.addEventListener("click", closeNav, true); // Use capture phase
+  document.addEventListener("touchstart", closeNav, true);
+
+  // Close nav on escape key
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && mobileNav.classList.contains("open")) {
+      mobileNav.classList.remove("open");
+      document.body.classList.remove("nav-open");
+      toggle.focus();
+    }
+  });
 }
 
-// Mobile submenu touch support
-const navItems = document.querySelectorAll(".nav-item-with-submenu");
-// Submenus now display as simple lists on mobile via CSS
-// No JavaScript toggle needed - CSS hover handles the expansion
-
-// Smooth scroll with offset
+  // Smooth scroll with offset
 function smoothScroll(target, offset = 70) {
   const element = document.querySelector(target);
   if (!element) return;

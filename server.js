@@ -105,6 +105,23 @@ app.use(async (req, res, next) => {
 // Serve static files from public folder BEFORE API routes
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Route handlers for admin pages (without .html extension)
+app.get('/admin-login', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'admin-login.html'));
+});
+
+app.get('/admin', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
+
+app.get('/blog-admin', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'blog-admin.html'));
+});
+
+app.get('/add-blog', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'add-blog.html'));
+});
+
 // Auth routes
 app.use('/api/auth', secureAdminAuth);
 

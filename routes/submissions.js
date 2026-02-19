@@ -62,6 +62,7 @@ router.get('/blogs', async (req, res) => {
 
     res.json({
       success: true,
+      submissions: blogs,
       blogs: blogs,
       data: blogs,
       count: blogs.length

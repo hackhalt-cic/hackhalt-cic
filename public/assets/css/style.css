@@ -706,7 +706,7 @@ main {
     left: 0;
     list-style: none;
     margin: 0;
-    margin-top: 8px;
+    margin-top: 0;
     padding: 10px 0;
     background: #0d1528;
     border-radius: 10px;
@@ -725,6 +725,10 @@ main {
     visibility: visible;
     transform: translateY(0);
     pointer-events: auto;
+  }
+
+  .nav-item-with-submenu {
+    padding-bottom: 0;
   }
 
   .nav-submenu li {

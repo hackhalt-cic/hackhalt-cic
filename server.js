@@ -29,30 +29,13 @@ const PORT = process.env.PORT || 5000;
 
 // CORS configuration - MUST be first middleware
 const corsOptions = {
-  origin: [
-    'http://localhost:3000',
-    'http://localhost:5000',
-    'http://localhost',
-    'http://127.0.0.1:5000',
-    'http://127.0.0.1',
-    'https://hackhalt.org',
-    'https://www.hackhalt.org',
-    'https://hackhalt-cic.vercel.app'
-  ],
+  origin: 'https://hackhalt.org',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   credentials: true,
   maxAge: 86400,
   optionsSuccessStatus: 200
 };
-
-if (process.env.VERCEL_URL) {
-  corsOptions.origin.push(`https://${process.env.VERCEL_URL}`);
-}
-
-if (process.env.FRONTEND_URL) {
-  corsOptions.origin.push(process.env.FRONTEND_URL);
-}
 
 // Handle preflight requests IMMEDIATELY - BEFORE all other middleware
 app.options('*', cors(corsOptions));

@@ -213,7 +213,7 @@ router.post('/login', loginLimiter, async (req, res) => {
       path: '/'
     });
 
-    // 11. Return success response
+    // 11. Return success response - JSON only
     return res.status(200).json({
       success: true,
       message: 'Login successful',

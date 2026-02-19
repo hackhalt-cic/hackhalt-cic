@@ -27,7 +27,7 @@ const authMiddleware = require("./middleware/authMiddleware");
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// CORS configuration - MUST be first
+// CORS configuration - MUST be first middleware
 const corsOptions = {
   origin: [
     'http://localhost:3000',
@@ -52,7 +52,9 @@ if (process.env.FRONTEND_URL) {
   corsOptions.origin.push(process.env.FRONTEND_URL);
 }
 
+// Apply CORS middleware GLOBALLY - before all routes
 app.use(cors(corsOptions));
+// Handle preflight requests explicitly
 app.options('*', cors(corsOptions));
 
 // Security headers

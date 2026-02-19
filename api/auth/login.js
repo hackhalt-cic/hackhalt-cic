@@ -3,6 +3,10 @@ const jwt = require('jsonwebtoken');
 const Admin = require('../../models/Admin');
 
 module.exports = async function handler(req, res) {
+  // CRITICAL: Set JSON content type FIRST to prevent HTML responses
+  res.setHeader("Content-Type", "application/json; charset=utf-8");
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  
   // CORS headers
   res.setHeader("Access-Control-Allow-Origin", "https://hackhalt.org");
   res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");

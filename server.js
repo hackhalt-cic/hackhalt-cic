@@ -37,11 +37,13 @@ const corsOptions = {
     'http://127.0.0.1',
     'https://hackhalt.org',
     'https://www.hackhalt.org',
+    'https://hackhalt-cic.vercel.app'
   ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   credentials: true,
-  maxAge: 86400
+  maxAge: 86400,
+  optionsSuccessStatus: 200
 };
 
 if (process.env.VERCEL_URL) {
@@ -52,10 +54,11 @@ if (process.env.FRONTEND_URL) {
   corsOptions.origin.push(process.env.FRONTEND_URL);
 }
 
+// Handle preflight requests IMMEDIATELY - BEFORE all other middleware
+app.options('*', cors(corsOptions));
+
 // Apply CORS middleware GLOBALLY - before all routes
 app.use(cors(corsOptions));
-// Handle preflight requests explicitly
-app.options('*', cors(corsOptions));
 
 // Security headers
 app.use(securityHeaders);

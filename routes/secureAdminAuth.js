@@ -10,13 +10,14 @@
  */
 
 const express = require('express');
-const router = express.Router();
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const { loginLimiter, passwordResetLimiter } = require('../middleware/rateLimiter');
 const { secureAuthMiddleware, requireRole } = require('../middleware/secureAuthMiddleware');
 const { validatePassword } = require('../utils/passwordPolicy');
 const Admin = require('../models/Admin');
+
+const router = express.Router();
 
 // ============================================
 // POST /api/auth/login - Secure login endpoint

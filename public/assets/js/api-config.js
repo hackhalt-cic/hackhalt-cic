@@ -1,14 +1,21 @@
 /**
  * API Configuration
  * Central point for managing backend API URL across all frontend pages
- * Update BACKEND_API_URL based on deployment environment
+ * Automatically detects environment based on current origin
  */
 
-// PRODUCTION: Change this to your Vercel backend URL
-const BACKEND_API_URL = 'https://hackhalt-cic.vercel.app';
-
-// DEVELOPMENT: Uncomment for local testing
-// const BACKEND_API_URL = 'http://localhost:5000';
+// Detect environment automatically
+const BACKEND_API_URL = (() => {
+  const origin = window.location.origin;
+  
+  // Local development
+  if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+    return 'http://localhost:5000';
+  }
+  
+  // Production
+  return 'https://hackhalt-cic.vercel.app';
+})();
 
 // Helper function to build full API URLs
 function getApiUrl(endpoint) {
@@ -24,3 +31,4 @@ if (typeof module !== 'undefined' && module.exports) {
 }
 
 console.log('[API CONFIG] Backend URL:', BACKEND_API_URL);
+console.log('[API CONFIG] Frontend origin:', window.location.origin);

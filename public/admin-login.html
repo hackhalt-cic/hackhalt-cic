@@ -467,21 +467,27 @@
     loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      const username = document.getElementById('username').value;
+      const username = document.getElementById('username').value.trim();
       const password = document.getElementById('password').value;
 
       // Clear messages
       errorMessage.classList.remove('show');
       successMessage.classList.remove('show');
 
+      // Validate
+      if (!username || !password) {
+        errorMessage.innerHTML = '<i class="fa-solid fa-exclamation-circle"></i><span>Please enter both username and password</span>';
+        errorMessage.classList.add('show');
+        return;
+      }
+
       // Disable button
       loginBtn.disabled = true;
       loginBtn.innerHTML = '<div class="loading"><div class="spinner"></div></div> Signing in...';
 
       try {
-        // FIXED: Correct API endpoint
+        // Correct API endpoint
         const apiUrl = '/api/auth/login';
-        const requestBody = JSON.stringify({ username, password });
         
         console.log('[DEBUG] Sending login request to:', apiUrl);
         
@@ -491,56 +497,56 @@
             'Content-Type': 'application/json'
           },
           credentials: 'include',
-          body: requestBody
+          body: JSON.stringify({ username, password })
         });
 
         console.log('[DEBUG] Response status:', response.status);
-        console.log('[DEBUG] Response headers (content-type):', response.headers.get('content-type'));
+        console.log('[DEBUG] Response content-type:', response.headers.get('content-type'));
 
-        // FIXED: Get raw response as text first to handle both JSON and HTML errors
+        // Get raw response to handle both JSON and HTML errors
         const responseText = await response.text();
         console.log('[DEBUG] Raw response length:', responseText.length);
-        console.log('[DEBUG] Raw response first 300 chars:', responseText.substring(0, 300));
 
-        // FIXED: Safe JSON parsing with detailed error reporting
+        // Safe JSON parsing
         let data;
         try {
           if (!responseText) {
             throw new Error('Empty response from server');
           }
           data = JSON.parse(responseText);
-          console.log('[DEBUG] Parsed JSON successfully');
         } catch (parseError) {
-          console.error('[ERROR] Failed to parse response as JSON');
-          console.error('[ERROR] Parse error:', parseError.message);
-          console.error('[ERROR] Response was HTML or invalid:', responseText.substring(0, 200));
-          
-          // Better error message for debugging
-          throw new Error(`Server returned invalid response (${response.status}). Expected JSON but got: ${responseText.substring(0, 100)}${responseText.length > 100 ? '...' : ''}`);
+          console.error('[ERROR] Failed to parse JSON response');
+          console.error('[ERROR] Response content:', responseText.substring(0, 200));
+          throw new Error(`Server error: Expected JSON but got ${responseText.substring(0, 50)}`);
         }
 
+        // Check response status
         if (!response.ok) {
-          const errorMsg = data.error || data.message || `Login failed with status ${response.status}`;
+          const errorMsg = data.error || data.message || `Error: ${response.status}`;
           throw new Error(errorMsg);
         }
 
+        // Check success flag
         if (!data.success) {
           throw new Error(data.error || data.message || 'Authentication failed');
         }
 
+        // Verify admin data
         if (!data.admin) {
-          throw new Error('Invalid response structure from server');
+          throw new Error('Invalid server response');
         }
 
+        // Success
         successMessage.innerHTML = '<i class="fa-solid fa-check-circle"></i><span>Login successful! Redirecting...</span>';
         successMessage.classList.add('show');
 
         setTimeout(() => {
           window.location.href = '/admin';
         }, 1500);
+
       } catch (error) {
-        console.error('[ERROR] Login error:', error);
-        const errorMsg = error.message || 'Failed to fetch. Please ensure the server is running and accessible.';
+        console.error('[ERROR] Login failed:', error);
+        const errorMsg = error.message || 'Login failed. Please try again.';
         errorMessage.innerHTML = `<i class="fa-solid fa-exclamation-circle"></i><span>${errorMsg}</span>`;
         errorMessage.classList.add('show');
 

@@ -24,11 +24,13 @@ const Admin = require('../models/Admin');
 router.post('/login', loginLimiter, async (req, res) => {
   const startTime = Date.now();
   
+  // CRITICAL: Force JSON headers BEFORE try block
+  res.set('Content-Type', 'application/json; charset=utf-8');
+  res.set('X-Content-Type-Options', 'nosniff');
+  res.set('X-Frame-Options', 'DENY');
+  res.removeHeader('X-Powered-By');
+  
   try {
-    // Force JSON response headers - CRITICAL for fixing 404 JSON issue
-    res.set('Content-Type', 'application/json; charset=utf-8');
-    res.set('X-Content-Type-Options', 'nosniff');
-    
     const { username, password } = req.body;
 
     // 1. Input validation
@@ -36,16 +38,17 @@ router.post('/login', loginLimiter, async (req, res) => {
       console.warn(`[SECURITY] Login attempt with missing credentials from ${req.ip}`);
       return res.status(400).json({
         success: false,
-        error: 'Username and password are required'
+        error: 'Username and password are required',
+        message: 'Missing credentials'
       });
     }
 
     // 2. Sanitize input (prevent NoSQL injection)
     if (typeof username !== 'string' || username.length > 100) {
-      res.set('Content-Type', 'application/json');
       return res.status(400).json({
         success: false,
-        error: 'Invalid input format'
+        error: 'Invalid input format',
+        message: 'Username must be a string'
       });
     }
 
@@ -55,10 +58,10 @@ router.post('/login', loginLimiter, async (req, res) => {
       admin = await Admin.findOne({ username: username.trim() }).select('+password');
     } catch (dbError) {
       console.error('[ERROR] Database error finding admin:', dbError.message);
-      res.set('Content-Type', 'application/json');
       return res.status(500).json({
         success: false,
-        error: 'Database error. Please try again.'
+        error: 'Database error. Please try again.',
+        message: 'Server error'
       });
     }
 
@@ -72,20 +75,20 @@ router.post('/login', loginLimiter, async (req, res) => {
       }
       
       console.warn(`[SECURITY] Login attempt with non-existent user: ${username} from ${req.ip}`);
-      res.set('Content-Type', 'application/json');
       return res.status(401).json({
         success: false,
-        error: 'Invalid credentials'
+        error: 'Invalid credentials',
+        message: 'Authentication failed'
       });
     }
 
     // 4. Verify admin is active
     if (!admin.isActive) {
       console.warn(`[SECURITY] Login attempt on inactive account: ${username} from ${req.ip}`);
-      res.set('Content-Type', 'application/json');
       return res.status(401).json({
         success: false,
-        error: 'Account is inactive'
+        error: 'Account is inactive',
+        message: 'Account disabled'
       });
     }
 
@@ -95,10 +98,10 @@ router.post('/login', loginLimiter, async (req, res) => {
       isPasswordValid = await admin.comparePassword(password);
     } catch (compareError) {
       console.error('[ERROR] Password comparison error:', compareError.message);
-      res.set('Content-Type', 'application/json');
       return res.status(500).json({
         success: false,
-        error: 'Authentication service error'
+        error: 'Authentication service error',
+        message: 'Server error'
       });
     }
 
@@ -116,10 +119,10 @@ router.post('/login', loginLimiter, async (req, res) => {
           console.error('[ERROR] Failed to save admin on lockout:', saveError.message);
         }
         console.warn(`[SECURITY] Account locked due to failed attempts: ${username} from ${req.ip}`);
-        res.set('Content-Type', 'application/json');
         return res.status(401).json({
           success: false,
-          error: 'Too many failed attempts. Account locked. Contact administrator.'
+          error: 'Too many failed attempts. Account locked. Contact administrator.',
+          message: 'Account locked'
         });
       }
 
@@ -130,10 +133,10 @@ router.post('/login', loginLimiter, async (req, res) => {
       }
       console.warn(`[SECURITY] Failed login attempt for ${username} from ${req.ip} (attempt ${admin.failedLoginAttempts})`);
       
-      res.set('Content-Type', 'application/json');
       return res.status(401).json({
         success: false,
-        error: 'Invalid credentials'
+        error: 'Invalid credentials',
+        message: 'Authentication failed'
       });
     }
 
@@ -145,10 +148,10 @@ router.post('/login', loginLimiter, async (req, res) => {
       await admin.save();
     } catch (saveError) {
       console.error('[ERROR] Failed to save admin on successful login:', saveError.message);
-      res.set('Content-Type', 'application/json');
       return res.status(500).json({
         success: false,
-        error: 'Failed to update login status'
+        error: 'Failed to update login status',
+        message: 'Server error'
       });
     }
 
@@ -167,10 +170,10 @@ router.post('/login', loginLimiter, async (req, res) => {
       );
     } catch (tokenError) {
       console.error('[ERROR] Failed to generate access token:', tokenError.message);
-      res.set('Content-Type', 'application/json');
       return res.status(500).json({
         success: false,
-        error: 'Token generation failed'
+        error: 'Token generation failed',
+        message: 'Server error'
       });
     }
 
@@ -184,10 +187,10 @@ router.post('/login', loginLimiter, async (req, res) => {
       );
     } catch (tokenError) {
       console.error('[ERROR] Failed to generate refresh token:', tokenError.message);
-      res.set('Content-Type', 'application/json');
       return res.status(500).json({
         success: false,
-        error: 'Token generation failed'
+        error: 'Token generation failed',
+        message: 'Server error'
       });
     }
 
@@ -210,12 +213,7 @@ router.post('/login', loginLimiter, async (req, res) => {
       path: '/'
     });
 
-    // 10. Audit log
-    const duration = Date.now() - startTime;
-    console.log(`[AUDIT] Successful login: ${username} from ${req.ip} (${duration}ms)`);
-
-    // 11. Return success response with explicit JSON header
-    res.set('Content-Type', 'application/json');
+    // 11. Return success response
     return res.status(200).json({
       success: true,
       message: 'Login successful',
@@ -225,15 +223,14 @@ router.post('/login', loginLimiter, async (req, res) => {
         email: admin.email,
         role: admin.role
       }
-      // Note: Token is already in httpOnly cookie, not exposed to client
     });
 
   } catch (error) {
     console.error('[ERROR] Login endpoint error:', error.message);
-    res.set('Content-Type', 'application/json');
     return res.status(500).json({
       success: false,
-      error: 'Authentication service error'
+      error: error.message || 'Authentication service error',
+      message: 'Server error'
     });
   }
 });

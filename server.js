@@ -254,6 +254,7 @@ app.use('/api/', (req, res, next) => {
   // Force JSON for all API responses - prevent HTML output
   res.set('Content-Type', 'application/json; charset=utf-8');
   res.set('X-Content-Type-Options', 'nosniff');
+  res.set('X-Frame-Options', 'DENY');
   next();
 });
 
@@ -1309,10 +1310,12 @@ app.use((req, res) => {
   if (req.path.startsWith('/api/')) {
     res.set('Content-Type', 'application/json; charset=utf-8');
     res.set('X-Content-Type-Options', 'nosniff');
+    res.removeHeader('X-Powered-By');
     console.warn(`[404] API route not found: ${req.method} ${req.path}`);
     return res.status(404).json({ 
       success: false, 
-      error: 'API endpoint not found',
+      message: 'API endpoint not found',
+      error: 'Route not found',
       path: req.path,
       method: req.method
     });

@@ -25,8 +25,9 @@ router.post('/login', loginLimiter, async (req, res) => {
   const startTime = Date.now();
   
   try {
-    // Force JSON response headers
-    res.set('Content-Type', 'application/json');
+    // Force JSON response headers - CRITICAL for fixing 404 JSON issue
+    res.set('Content-Type', 'application/json; charset=utf-8');
+    res.set('X-Content-Type-Options', 'nosniff');
     
     const { username, password } = req.body;
 
@@ -289,7 +290,7 @@ router.post('/refresh', async (req, res) => {
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
       maxAge: 15 * 60 * 1000,
-      path: '/api'
+      path: '/'
     });
 
     return res.json({
@@ -310,9 +311,9 @@ router.post('/refresh', async (req, res) => {
 // POST /api/auth/logout - Secure logout
 // ============================================
 router.post('/logout', secureAuthMiddleware, (req, res) => {
-  // Clear authentication cookies
-  res.clearCookie('adminToken', { path: '/api' });
-  res.clearCookie('refreshToken', { path: '/api/auth' });
+  // Clear authentication cookies with correct paths
+  res.clearCookie('adminToken', { path: '/' });
+  res.clearCookie('refreshToken', { path: '/' });
 
   console.log(`[AUDIT] Logout: ${req.admin.username}`);
 

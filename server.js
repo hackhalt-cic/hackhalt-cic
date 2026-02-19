@@ -251,13 +251,15 @@ app.use('/api/', apiLimiter);
 
 // ========== API RESPONSE HEADERS MIDDLEWARE ==========
 app.use('/api/', (req, res, next) => {
-  // Ensure all API responses are JSON
-  res.set('Content-Type', 'application/json');
+  // Force JSON for all API responses - prevent HTML output
+  res.set('Content-Type', 'application/json; charset=utf-8');
+  res.set('X-Content-Type-Options', 'nosniff');
   next();
 });
 
 // ========== AUTHENTICATION ROUTES ==========
 app.use('/api/auth', secureAdminAuthRoutes);
+console.log('✅ Registered route: /api/auth');
 
 // ========== PROTECTED ADMIN ROUTES ==========
 app.get("/admin", (req, res) => {
@@ -1285,12 +1287,13 @@ app.delete("/api/ambassador/:id", async (req, res) => {
   }
 });
 
-// Catch-all for unmatched routes
-// Global error handler
+// ========== GLOBAL ERROR HANDLER ==========
 app.use((err, req, res, next) => {
   console.error('[ERROR]', err);
   
+  // Always return JSON for API routes
   if (req.path.startsWith('/api/')) {
+    res.set('Content-Type', 'application/json; charset=utf-8');
     return res.status(err.status || 500).json({
       success: false,
       error: err.message || 'Internal server error'
@@ -1300,14 +1303,22 @@ app.use((err, req, res, next) => {
   res.status(err.status || 500).send(err.message || 'Internal server error');
 });
 
-// 404 handler
+// ========== 404 HANDLER - ALWAYS JSON FOR API ==========
 app.use((req, res) => {
-  // Don't return 404 for API calls that failed to match
+  // CRITICAL: Always return JSON for API routes - NEVER return HTML
   if (req.path.startsWith('/api/')) {
-    return res.status(404).json({ success: false, error: 'API endpoint not found' });
+    res.set('Content-Type', 'application/json; charset=utf-8');
+    res.set('X-Content-Type-Options', 'nosniff');
+    console.warn(`[404] API route not found: ${req.method} ${req.path}`);
+    return res.status(404).json({ 
+      success: false, 
+      error: 'API endpoint not found',
+      path: req.path,
+      method: req.method
+    });
   }
   
-  // For any other unmatched route, return 404 page
+  // For non-API routes, return HTML 404 page
   res.status(404).sendFile(path.join(__dirname, "public", "404.html"), (err) => {
     if (err) {
       res.status(404).send('Page not found');

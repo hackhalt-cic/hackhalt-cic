@@ -479,8 +479,11 @@
       loginBtn.innerHTML = '<div class="loading"><div class="spinner"></div></div> Signing in...';
 
       try {
+        // FIXED: Correct API endpoint
         const apiUrl = '/api/auth/login';
         const requestBody = JSON.stringify({ username, password });
+        
+        console.log('[DEBUG] Sending login request to:', apiUrl);
         
         const response = await fetch(apiUrl, {
           method: 'POST',
@@ -491,27 +494,34 @@
           body: requestBody
         });
 
-        // Log raw response for debugging
-        const responseText = await response.text();
         console.log('[DEBUG] Response status:', response.status);
-        console.log('[DEBUG] Response headers:', response.headers.get('content-type'));
-        console.log('[DEBUG] Raw response text:', responseText.substring(0, 200));
+        console.log('[DEBUG] Response headers (content-type):', response.headers.get('content-type'));
 
-        // Parse JSON from text
+        // FIXED: Get raw response as text first to handle both JSON and HTML errors
+        const responseText = await response.text();
+        console.log('[DEBUG] Raw response length:', responseText.length);
+        console.log('[DEBUG] Raw response first 300 chars:', responseText.substring(0, 300));
+
+        // FIXED: Safe JSON parsing with detailed error reporting
         let data;
         try {
           if (!responseText) {
             throw new Error('Empty response from server');
           }
           data = JSON.parse(responseText);
+          console.log('[DEBUG] Parsed JSON successfully');
         } catch (parseError) {
-          console.error('[ERROR] Failed to parse JSON:', parseError);
-          console.error('[ERROR] Response was:', responseText.substring(0, 500));
-          throw new Error(`Server returned invalid JSON (${response.status}): ${responseText.substring(0, 100)}`);
+          console.error('[ERROR] Failed to parse response as JSON');
+          console.error('[ERROR] Parse error:', parseError.message);
+          console.error('[ERROR] Response was HTML or invalid:', responseText.substring(0, 200));
+          
+          // Better error message for debugging
+          throw new Error(`Server returned invalid response (${response.status}). Expected JSON but got: ${responseText.substring(0, 100)}${responseText.length > 100 ? '...' : ''}`);
         }
 
         if (!response.ok) {
-          throw new Error(data.error || data.message || `Login failed with status ${response.status}`);
+          const errorMsg = data.error || data.message || `Login failed with status ${response.status}`;
+          throw new Error(errorMsg);
         }
 
         if (!data.success) {

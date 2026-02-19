@@ -13,7 +13,11 @@ const BACKEND_API_URL = (() => {
   }
   // Hostinger (static frontend) should use Vercel backend
   if (origin.includes('hackhalt.org') || origin.includes('hostinger')) {
-    return 'https://hackhalt-cic.vercel.app'; // <-- Replace with your actual Vercel backend URL
+    return 'https://hackhalt-7r1o55kjo-hackhalts-projects.vercel.app'; // Vercel backend URL
+  }
+  // If accessing from Vercel frontend, use the API path
+  if (origin.includes('vercel.app')) {
+    return origin;
   }
   // Default: use same domain as frontend
   return origin;

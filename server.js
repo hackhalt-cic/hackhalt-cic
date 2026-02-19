@@ -56,6 +56,7 @@ const corsOptions = {
       'https://hackhalt.org',
       'https://www.hackhalt.org',
       'https://hackhalt-cic.vercel.app',
+      'https://hackhalt-7r1o55kjo-hackhalts-projects.vercel.app',
       /vercel\.app$/,
       /hostinger\.com$/,
       'http://localhost:5000',

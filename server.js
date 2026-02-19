@@ -1,9 +1,50 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
+const mongoose = require('mongoose');
 const secureAdminAuth = require('./routes/secureAdminAuth');
 
 const app = express();
+
+// Database connection function
+const connectDB = async (retries = 5) => {
+  try {
+    const mongoURI = process.env.MONGODB_URI;
+    
+    if (!mongoURI) {
+      throw new Error('MONGODB_URI is not defined in environment variables.');
+    }
+
+    console.log('🔄 Connecting to MongoDB...');
+    
+    const conn = await mongoose.connect(mongoURI, {
+      serverSelectionTimeoutMS: 10000,
+      socketTimeoutMS: 60000,
+      connectTimeoutMS: 15000,
+      family: 4,
+      retryWrites: true,
+      w: 'majority',
+      maxPoolSize: 10,
+      minPoolSize: 5,
+      maxIdleTimeMS: 45000
+    });
+
+    console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
+    return conn;
+  } catch (error) {
+    console.error('❌ MongoDB Connection Error:', error.message);
+    
+    if (retries > 0) {
+      const delayMs = (6 - retries) * 3000;
+      console.log(`⏳ Retrying connection (${retries} attempts left) in ${delayMs}ms...`);
+      await new Promise(resolve => setTimeout(resolve, delayMs));
+      return connectDB(retries - 1);
+    }
+    
+    throw error;
+  }
+};
 
 // CORS MUST be first - before all other middleware
 const corsOptions = {
@@ -43,7 +84,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Serve static files from public folder BEFORE API routes
-const path = require('path');
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Auth routes
@@ -54,4 +94,27 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'OK' });
 });
 
+// Export app for Vercel and module usage
 module.exports = app;
+
+// Start server locally if this file is executed directly
+if (require.main === module) {
+  const startServer = async () => {
+    try {
+      // Connect to database
+      await connectDB();
+      
+      // Start listening
+      const PORT = process.env.PORT || 5000;
+      app.listen(PORT, () => {
+        console.log(`\n🚀 Server running on port ${PORT}`);
+        console.log(`📝 Admin Login: http://localhost:${PORT}/admin-login.html`);
+      });
+    } catch (error) {
+      console.error('🚨 Failed to start server:', error.message);
+      process.exit(1);
+    }
+  };
+
+  startServer();
+}

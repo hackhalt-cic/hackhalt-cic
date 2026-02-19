@@ -83,6 +83,25 @@ app.options('*', cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Database connection state
+let mongodbConnected = false;
+
+// Middleware to ensure database is connected on first request
+app.use(async (req, res, next) => {
+  if (!mongodbConnected) {
+    try {
+      console.log('[MIDDLEWARE] First request - connecting to MongoDB...');
+      await connectDB(1); // Only 1 retry to avoid Vercel timeout
+      mongodbConnected = true;
+      console.log('[MIDDLEWARE] Database connected successfully');
+    } catch (error) {
+      console.error('[MIDDLEWARE] Database connection failed:', error.message);
+      // Continue anyway - Auth endpoint will handle the error
+    }
+  }
+  next();
+});
+
 // Serve static files from public folder BEFORE API routes
 app.use(express.static(path.join(__dirname, 'public')));
 

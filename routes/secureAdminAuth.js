@@ -25,11 +25,39 @@ const router = express.Router();
 router.post('/login', loginLimiter, async (req, res) => {
   const startTime = Date.now();
   
-  // CRITICAL: Force JSON headers BEFORE try block
+  // CRITICAL: Force JSON response BEFORE try block
+  // Set all required headers to prevent content-type negotiation
   res.set('Content-Type', 'application/json; charset=utf-8');
   res.set('X-Content-Type-Options', 'nosniff');
   res.set('X-Frame-Options', 'DENY');
+  res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
   res.removeHeader('X-Powered-By');
+  
+  // Ensure response is JSON-only
+  const originalSend = res.send;
+  const originalJson = res.json;
+  
+  let responseSent = false;
+  
+  const sendJsonResponse = (statusCode, data) => {
+    if (responseSent) {
+      console.warn('[WARNING] Attempted to send response twice');
+      return;
+    }
+    responseSent = true;
+    res.status(statusCode);
+    return originalJson.call(res, data);
+  };
+  
+  // Override send to prevent accidental HTML response
+  res.send = function(data) {
+    console.error('[CRITICAL] res.send() called on /api/auth/login - preventing HTML response');
+    console.error('[Data attempted to send]', data?.toString().substring(0, 100));
+    return sendJsonResponse(500, {
+      success: false,
+      error: 'Internal server error - incorrect response handler'
+    });
+  };
   
   try {
     const { username, password } = req.body;
@@ -37,7 +65,7 @@ router.post('/login', loginLimiter, async (req, res) => {
     // 1. Input validation
     if (!username || !password) {
       console.warn(`[SECURITY] Login attempt with missing credentials from ${req.ip}`);
-      return res.status(400).json({
+      return sendJsonResponse(400, {
         success: false,
         error: 'Username and password are required',
         message: 'Missing credentials'
@@ -46,7 +74,7 @@ router.post('/login', loginLimiter, async (req, res) => {
 
     // 2. Sanitize input (prevent NoSQL injection)
     if (typeof username !== 'string' || username.length > 100) {
-      return res.status(400).json({
+      return sendJsonResponse(400, {
         success: false,
         error: 'Invalid input format',
         message: 'Username must be a string'
@@ -59,7 +87,7 @@ router.post('/login', loginLimiter, async (req, res) => {
       admin = await Admin.findOne({ username: username.trim() }).select('+password');
     } catch (dbError) {
       console.error('[ERROR] Database error finding admin:', dbError.message);
-      return res.status(500).json({
+      return sendJsonResponse(500, {
         success: false,
         error: 'Database error. Please try again.',
         message: 'Server error'
@@ -76,7 +104,7 @@ router.post('/login', loginLimiter, async (req, res) => {
       }
       
       console.warn(`[SECURITY] Login attempt with non-existent user: ${username} from ${req.ip}`);
-      return res.status(401).json({
+      return sendJsonResponse(401, {
         success: false,
         error: 'Invalid credentials',
         message: 'Authentication failed'
@@ -86,7 +114,7 @@ router.post('/login', loginLimiter, async (req, res) => {
     // 4. Verify admin is active
     if (!admin.isActive) {
       console.warn(`[SECURITY] Login attempt on inactive account: ${username} from ${req.ip}`);
-      return res.status(401).json({
+      return sendJsonResponse(401, {
         success: false,
         error: 'Account is inactive',
         message: 'Account disabled'
@@ -99,7 +127,7 @@ router.post('/login', loginLimiter, async (req, res) => {
       isPasswordValid = await admin.comparePassword(password);
     } catch (compareError) {
       console.error('[ERROR] Password comparison error:', compareError.message);
-      return res.status(500).json({
+      return sendJsonResponse(500, {
         success: false,
         error: 'Authentication service error',
         message: 'Server error'
@@ -120,7 +148,7 @@ router.post('/login', loginLimiter, async (req, res) => {
           console.error('[ERROR] Failed to save admin on lockout:', saveError.message);
         }
         console.warn(`[SECURITY] Account locked due to failed attempts: ${username} from ${req.ip}`);
-        return res.status(401).json({
+        return sendJsonResponse(401, {
           success: false,
           error: 'Too many failed attempts. Account locked. Contact administrator.',
           message: 'Account locked'
@@ -134,7 +162,7 @@ router.post('/login', loginLimiter, async (req, res) => {
       }
       console.warn(`[SECURITY] Failed login attempt for ${username} from ${req.ip} (attempt ${admin.failedLoginAttempts})`);
       
-      return res.status(401).json({
+      return sendJsonResponse(401, {
         success: false,
         error: 'Invalid credentials',
         message: 'Authentication failed'

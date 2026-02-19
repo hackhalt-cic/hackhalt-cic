@@ -105,40 +105,50 @@ app.use(async (req, res, next) => {
   next();
 });
 
-// API Request logging and validation middleware - ENSURES API ROUTES GET JSON RESPONSES
+// CRITICAL: Protect all API routes to ensure JSON responses BEFORE any static middleware
 app.use((req, res, next) => {
   if (req.path.startsWith('/api/')) {
-    console.log(`[API REQUEST] ${req.method} ${req.path}`);
+    console.log(`[API] ${req.method} ${req.path} from ${req.ip}`);
     
-    // Override res.sendFile for API routes to prevent HTML files from being sent
+    // Ensure JSON response type
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    
+    // Override sendFile to prevent HTML from being returned on API routes
     const originalSendFile = res.sendFile;
     res.sendFile = function(filepath, options, callback) {
-      console.error(`[API ERROR] Attempted to sendFile for API endpoint: ${filepath}`);
+      console.error(`[API ERROR] Attempted sendFile on API route: ${filepath}`);
       return res.status(500).json({
         success: false,
-        error: 'Internal server error - invalid response type'
+        error: 'Internal server error - invalid response handling'
       });
     };
-    
-    // Set JSON content type for all API responses
-    res.set('Content-Type', 'application/json; charset=utf-8');
   }
   next();
 });
 
+// Health check endpoint - MUST be before router mounts
+app.get('/api/health', (req, res) => {
+  res.set('Content-Type', 'application/json');
+  return res.json({ 
+    status: 'OK',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
+
 // Auth routes MUST come before static file serving
+console.log('[INIT] Mounting /api/auth routes...');
 app.use('/api/auth', secureAdminAuth);
 
 // Submissions routes for admin dashboard
+console.log('[INIT] Mounting /api/submissions routes...');
 app.use('/api/submissions', submissionsRouter);
 
 // Blog routes for admin dashboard
+console.log('[INIT] Mounting /api/blog routes...');
 app.use('/api/blog', blogRouter);
-
-// Health check endpoint
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK' });
-});
 
 // Serve static files from public folder AFTER API routes
 app.use(express.static(path.join(__dirname, 'public')));
@@ -160,24 +170,25 @@ app.get('/add-blog', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'add-blog.html'));
 });
 
-// 404 Handler - must be after all routes but before error handler
+// 404 Handler - MUST be after all routes but before error handler
 app.use((req, res, next) => {
-  // For API requests, ALWAYS return JSON
+  // For API requests, ALWAYS return JSON - NEVER send HTML
   if (req.path.startsWith('/api/')) {
-    console.warn(`[404] API route not found: ${req.method} ${req.path}`);
+    console.warn(`[404 API] Route not found: ${req.method} ${req.path}`);
     res.status(404);
     res.set('Content-Type', 'application/json; charset=utf-8');
     return res.json({
       success: false,
       error: 'API endpoint not found',
       path: req.path,
-      method: req.method
+      method: req.method,
+      timestamp: new Date().toISOString()
     });
   }
   
   // For web pages, try to serve 404.html
   const notFoundPath = path.join(__dirname, 'public', '404.html');
-  if (require('fs').existsSync(notFoundPath)) {
+  if (fs.existsSync(notFoundPath)) {
     return res.status(404).sendFile(notFoundPath);
   }
   
@@ -187,26 +198,30 @@ app.use((req, res, next) => {
 
 // Error handler - MUST be last and handle all errors
 app.use((err, req, res, next) => {
-  console.error('[SERVER ERROR]', err.message, err.stack);
+  console.error('[SERVER ERROR]', err.message);
+  console.error('[ERROR STACK]', err.stack);
   
   // For API requests, ALWAYS return JSON with proper headers
   if (req.path.startsWith('/api/')) {
-    res.status(err.status || 500);
+    res.status(err.status || err.statusCode || 500);
     res.set('Content-Type', 'application/json; charset=utf-8');
     res.set('X-Content-Type-Options', 'nosniff');
     
     return res.json({
       success: false,
       error: process.env.NODE_ENV === 'production' ? 'Internal server error' : err.message,
-      message: 'Server error'
+      message: 'Server error',
+      timestamp: new Date().toISOString()
     });
   }
   
   // For web pages, return error page
-  res.status(err.status || 500).set('Content-Type', 'text/html').send(`
+  res.status(err.status || err.statusCode || 500);
+  res.set('Content-Type', 'text/html');
+  res.send(`
     <html>
       <head><title>Error - HackHalt</title></head>
-      <body><h1>${err.status || 500} - ${err.message || 'Error'}</h1></body>
+      <body><h1>${err.status || err.statusCode || 500} - ${err.message || 'Error'}</h1></body>
     </html>
   `);
 });

@@ -7,13 +7,15 @@
 // Detect environment automatically
 const BACKEND_API_URL = (() => {
   const origin = window.location.origin;
-  
   // Local development
   if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
     return 'http://localhost:5000';
   }
-  
-  // Production - use same domain as frontend
+  // Hostinger (static frontend) should use Vercel backend
+  if (origin.includes('hackhalt.org') || origin.includes('hostinger')) {
+    return 'https://hackhalt-cic.vercel.app'; // <-- Replace with your actual Vercel backend URL
+  }
+  // Default: use same domain as frontend
   return origin;
 })();
 

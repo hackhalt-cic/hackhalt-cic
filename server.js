@@ -104,7 +104,21 @@ app.use(async (req, res, next) => {
   next();
 });
 
-// Serve static files from public folder BEFORE API routes
+// Auth routes MUST come before static file serving
+app.use('/api/auth', secureAdminAuth);
+
+// Submissions routes for admin dashboard
+app.use('/api/submissions', submissionsRouter);
+
+// Blog routes for admin dashboard
+app.use('/api/blog', blogRouter);
+
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'OK' });
+});
+
+// Serve static files from public folder AFTER API routes
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Route handlers for admin pages (without .html extension)
@@ -122,20 +136,6 @@ app.get('/blog-admin', (req, res) => {
 
 app.get('/add-blog', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'add-blog.html'));
-});
-
-// Auth routes
-app.use('/api/auth', secureAdminAuth);
-
-// Submissions routes for admin dashboard
-app.use('/api/submissions', submissionsRouter);
-
-// Blog routes for admin dashboard
-app.use('/api/blog', blogRouter);
-
-// Health check endpoint
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK' });
 });
 
 // 404 Handler - must be after all routes but before error handler

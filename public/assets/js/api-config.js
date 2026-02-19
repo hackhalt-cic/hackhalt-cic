@@ -13,8 +13,8 @@ const BACKEND_API_URL = (() => {
     return 'http://localhost:5000';
   }
   
-  // Production
-  return 'https://hackhalt-cic.vercel.app';
+  // Production - use same domain as frontend
+  return origin;
 })();
 
 // Helper function to build full API URLs

@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 const mongoose = require('mongoose');
 const secureAdminAuth = require('./routes/secureAdminAuth');
 const submissionsRouter = require('./routes/submissions');
@@ -104,6 +105,27 @@ app.use(async (req, res, next) => {
   next();
 });
 
+// API Request logging and validation middleware - ENSURES API ROUTES GET JSON RESPONSES
+app.use((req, res, next) => {
+  if (req.path.startsWith('/api/')) {
+    console.log(`[API REQUEST] ${req.method} ${req.path}`);
+    
+    // Override res.sendFile for API routes to prevent HTML files from being sent
+    const originalSendFile = res.sendFile;
+    res.sendFile = function(filepath, options, callback) {
+      console.error(`[API ERROR] Attempted to sendFile for API endpoint: ${filepath}`);
+      return res.status(500).json({
+        success: false,
+        error: 'Internal server error - invalid response type'
+      });
+    };
+    
+    // Set JSON content type for all API responses
+    res.set('Content-Type', 'application/json; charset=utf-8');
+  }
+  next();
+});
+
 // Auth routes MUST come before static file serving
 app.use('/api/auth', secureAdminAuth);
 
@@ -139,11 +161,13 @@ app.get('/add-blog', (req, res) => {
 });
 
 // 404 Handler - must be after all routes but before error handler
-app.use((req, res) => {
-  // For API requests, return JSON 404
+app.use((req, res, next) => {
+  // For API requests, ALWAYS return JSON
   if (req.path.startsWith('/api/')) {
     console.warn(`[404] API route not found: ${req.method} ${req.path}`);
-    return res.status(404).json({
+    res.status(404);
+    res.set('Content-Type', 'application/json; charset=utf-8');
+    return res.json({
       success: false,
       error: 'API endpoint not found',
       path: req.path,
@@ -151,24 +175,40 @@ app.use((req, res) => {
     });
   }
   
-  // For web pages, serve 404.html
-  res.status(404).sendFile(path.join(__dirname, 'public', '404.html'));
+  // For web pages, try to serve 404.html
+  const notFoundPath = path.join(__dirname, 'public', '404.html');
+  if (require('fs').existsSync(notFoundPath)) {
+    return res.status(404).sendFile(notFoundPath);
+  }
+  
+  // Fallback if 404.html doesn't exist
+  res.status(404).send('<h1>404 - Page Not Found</h1>');
 });
 
-// Error handler - must be last
+// Error handler - MUST be last and handle all errors
 app.use((err, req, res, next) => {
-  console.error('[SERVER ERROR]', err);
+  console.error('[SERVER ERROR]', err.message, err.stack);
   
-  // For API requests, return JSON error
+  // For API requests, ALWAYS return JSON with proper headers
   if (req.path.startsWith('/api/')) {
-    return res.status(err.status || 500).json({
+    res.status(err.status || 500);
+    res.set('Content-Type', 'application/json; charset=utf-8');
+    res.set('X-Content-Type-Options', 'nosniff');
+    
+    return res.json({
       success: false,
-      error: process.env.NODE_ENV === 'production' ? 'Internal server error' : err.message
+      error: process.env.NODE_ENV === 'production' ? 'Internal server error' : err.message,
+      message: 'Server error'
     });
   }
   
-  // For web pages, return error
-  res.status(err.status || 500).send('<h1>500 - Internal Server Error</h1>');
+  // For web pages, return error page
+  res.status(err.status || 500).set('Content-Type', 'text/html').send(`
+    <html>
+      <head><title>Error - HackHalt</title></head>
+      <body><h1>${err.status || 500} - ${err.message || 'Error'}</h1></body>
+    </html>
+  `);
 });
 
 // Export app for Vercel and module usage

@@ -76,7 +76,7 @@ module.exports = async function handler(req, res) {
         success: true,
         message: "Login successful",
         accessToken: accessToken,
-        user: {
+        admin: {
           id: admin._id,
           username: admin.username,
           email: admin.email,

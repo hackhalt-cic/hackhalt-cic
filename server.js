@@ -138,6 +138,39 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'OK' });
 });
 
+// 404 Handler - must be after all routes but before error handler
+app.use((req, res) => {
+  // For API requests, return JSON 404
+  if (req.path.startsWith('/api/')) {
+    console.warn(`[404] API route not found: ${req.method} ${req.path}`);
+    return res.status(404).json({
+      success: false,
+      error: 'API endpoint not found',
+      path: req.path,
+      method: req.method
+    });
+  }
+  
+  // For web pages, serve 404.html
+  res.status(404).sendFile(path.join(__dirname, 'public', '404.html'));
+});
+
+// Error handler - must be last
+app.use((err, req, res, next) => {
+  console.error('[SERVER ERROR]', err);
+  
+  // For API requests, return JSON error
+  if (req.path.startsWith('/api/')) {
+    return res.status(err.status || 500).json({
+      success: false,
+      error: process.env.NODE_ENV === 'production' ? 'Internal server error' : err.message
+    });
+  }
+  
+  // For web pages, return error
+  res.status(err.status || 500).send('<h1>500 - Internal Server Error</h1>');
+});
+
 // Export app for Vercel and module usage
 module.exports = app;
 

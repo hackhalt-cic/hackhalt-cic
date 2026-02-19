@@ -28,8 +28,12 @@ router.post('/login', loginLimiter, async (req, res) => {
   res.set('X-Content-Type-Options', 'nosniff');
   res.set('X-Frame-Options', 'DENY');
   res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.set('Access-Control-Allow-Origin', '*');
+  res.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.set('Access-Control-Allow-Headers', 'Content-Type');
   
   let responseSent = false;
+  const startTime = Date.now();
   
   // Override dangerous methods
   const originalSend = res.send;
@@ -64,14 +68,37 @@ router.post('/login', loginLimiter, async (req, res) => {
       return;
     }
     responseSent = true;
+    const duration = Date.now() - startTime;
+    console.log(`[LoginAPI] Sending response (${statusCode}) after ${duration}ms`);
     res.status(statusCode);
     return originalJson.call(res, data);
   };
   
-  const startTime = Date.now();
-  
   try {
     const { username, password } = req.body;
+    console.log(`[LoginAPI] Login attempt for user: ${username}`);
+    console.log(`[LoginAPI] Request received at ${new Date().toISOString()}`);
+
+    // Set timeout for the entire request to prevent hanging on Vercel
+    const requestTimeout = setTimeout(() => {
+      if (!responseSent) {
+        console.error('[LoginAPI] Request timeout - sending error response');
+        responseSent = true;
+        res.status(504);
+        res.json({
+          success: false,
+          error: 'Request timeout. Please try again.',
+          message: 'Server timeout'
+        });
+      }
+    }, 25000); // 25 second timeout for Vercel's 30 second limit
+
+    // Clear timeout when response is sent
+    const originalEnd = res.end;
+    res.end = function(...args) {
+      clearTimeout(requestTimeout);
+      return originalEnd.apply(res, args);
+    };
 
     // 1. Input validation
     if (!username || !password) {

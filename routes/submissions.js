@@ -28,6 +28,7 @@ router.get('/contact', async (req, res) => {
 
     res.json({
       success: true,
+      submissions: submissions,
       data: submissions,
       count: submissions.length
     });
@@ -61,6 +62,7 @@ router.get('/blogs', async (req, res) => {
 
     res.json({
       success: true,
+      blogs: blogs,
       data: blogs,
       count: blogs.length
     });

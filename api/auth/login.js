@@ -71,10 +71,9 @@ module.exports = async function handler(req, res) {
         { expiresIn: '7d' }
       );
 
-      res.setHeader('Set-Cookie', [
-        `adminToken=${accessToken}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=900`,
-        `refreshToken=${refreshToken}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=604800`
-      ]);
+      // Set cookies individually for proper serverless handling
+      res.setHeader('Set-Cookie', `adminToken=${accessToken}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=900`);
+      res.appendHeader('Set-Cookie', `refreshToken=${refreshToken}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=604800`);
 
       return res.status(200).json({
         success: true,

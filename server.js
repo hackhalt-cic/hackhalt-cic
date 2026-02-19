@@ -228,25 +228,3 @@ app.use((err, req, res, next) => {
 
 // Export app for Vercel and module usage
 module.exports = app;
-
-// Start server locally if this file is executed directly
-if (require.main === module) {
-  const startServer = async () => {
-    try {
-      // Connect to database
-      await connectDB();
-      
-      // Start listening
-      const PORT = process.env.PORT || 5000;
-      app.listen(PORT, () => {
-        console.log(`\n🚀 Server running on port ${PORT}`);
-        console.log(`📝 Admin Login: http://localhost:${PORT}/admin-login.html`);
-      });
-    } catch (error) {
-      console.error('🚨 Failed to start server:', error.message);
-      process.exit(1);
-    }
-  };
-
-  startServer();
-}

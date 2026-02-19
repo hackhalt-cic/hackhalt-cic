@@ -1,6 +1,6 @@
-// Vercel serverless function wrapper for Express app
+// Vercel serverless entry for Express app
+const serverless = require('serverless-http');
 require('dotenv').config();
 const app = require('../server.js');
 
-// The app will handle database connection via middleware on first request
-module.exports = app;
+module.exports = serverless(app);

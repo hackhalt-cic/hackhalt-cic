@@ -509,6 +509,14 @@
         // Get raw response to handle both JSON and HTML errors
         const responseText = await response.text();
         console.log('[DEBUG] Raw response length:', responseText.length);
+        console.log('[DEBUG] Raw response first 300 chars:', responseText.substring(0, 300));
+
+        // Check if response is HTML (error case)
+        if (responseText.trim().startsWith('<')) {
+          console.error('[ERROR] API returned HTML instead of JSON');
+          console.error('[ERROR] Full HTML response:', responseText);
+          throw new Error('Server error: API endpoint not responding correctly. Received HTML instead of JSON. Check server logs.');
+        }
 
         // Safe JSON parsing
         let data;
@@ -520,7 +528,8 @@
         } catch (parseError) {
           console.error('[ERROR] Failed to parse JSON response');
           console.error('[ERROR] Response content:', responseText.substring(0, 200));
-          throw new Error(`Server error: Expected JSON but got ${responseText.substring(0, 50)}`);
+          console.error('[ERROR] Parse error:', parseError.message);
+          throw new Error(`Server error: Invalid JSON response. Check logs for details.`);
         }
 
         // Check response status

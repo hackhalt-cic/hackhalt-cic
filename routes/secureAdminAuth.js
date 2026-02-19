@@ -23,25 +23,44 @@ const router = express.Router();
 // POST /api/auth/login - Secure login endpoint
 // ============================================
 router.post('/login', loginLimiter, async (req, res) => {
-  const startTime = Date.now();
-  
-  // CRITICAL: Force JSON response BEFORE try block
-  // Set all required headers to prevent content-type negotiation
+  // CRITICAL: Set JSON headers FIRST before anything else
   res.set('Content-Type', 'application/json; charset=utf-8');
   res.set('X-Content-Type-Options', 'nosniff');
   res.set('X-Frame-Options', 'DENY');
   res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
-  res.removeHeader('X-Powered-By');
-  
-  // Ensure response is JSON-only
-  const originalSend = res.send;
-  const originalJson = res.json;
   
   let responseSent = false;
   
+  // Override dangerous methods
+  const originalSend = res.send;
+  const originalSendFile = res.sendFile;
+  const originalJson = res.json;
+  
+  res.send = function(data) {
+    console.error('[LoginAPI] res.send() was called - preventing non-JSON response');
+    if (responseSent) return;
+    responseSent = true;
+    res.status(500);
+    return originalJson.call(res, {
+      success: false,
+      error: 'Internal server error'
+    });
+  };
+  
+  res.sendFile = function(filepath, options, callback) {
+    console.error('[LoginAPI] res.sendFile() was called - preventing HTML response');
+    if (responseSent) return;
+    responseSent = true;
+    res.status(500);
+    return originalJson.call(res, {
+      success: false,
+      error: 'Internal server error'
+    });
+  };
+  
   const sendJsonResponse = (statusCode, data) => {
     if (responseSent) {
-      console.warn('[WARNING] Attempted to send response twice');
+      console.warn('[LoginAPI] Attempted to send response twice');
       return;
     }
     responseSent = true;
@@ -49,15 +68,7 @@ router.post('/login', loginLimiter, async (req, res) => {
     return originalJson.call(res, data);
   };
   
-  // Override send to prevent accidental HTML response
-  res.send = function(data) {
-    console.error('[CRITICAL] res.send() called on /api/auth/login - preventing HTML response');
-    console.error('[Data attempted to send]', data?.toString().substring(0, 100));
-    return sendJsonResponse(500, {
-      success: false,
-      error: 'Internal server error - incorrect response handler'
-    });
-  };
+  const startTime = Date.now();
   
   try {
     const { username, password } = req.body;

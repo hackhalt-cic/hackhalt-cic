@@ -115,19 +115,48 @@ app.use((req, res, next) => {
   if (req.path.startsWith('/api/')) {
     console.log(`[API] ${req.method} ${req.path} from ${req.ip}`);
     
-    // Ensure JSON response type
+    // MUST be set FIRST to prevent content negotiation
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('X-Frame-Options', 'DENY');
+    res.setHeader('X-XSS-Protection', '1; mode=block');
+    
+    // Prevent Express from trying to serve files for API routes
+    const originalSend = res.send;
+    const originalJson = res.json;
+    
+    // Override send to prevent any non-JSON output
+    res.send = function(data) {
+      console.error(`[API ERROR] res.send() called on API route - data:`, typeof data, data?.toString?.().substring?.(0, 100));
+      if (responseSent) return;
+      responseSent = true;
+      res.status(500);
+      return originalJson.call(res, {
+        success: false,
+        error: 'Internal server error - invalid response handler'
+      });
+    };
     
     // Override sendFile to prevent HTML from being returned on API routes
     const originalSendFile = res.sendFile;
     res.sendFile = function(filepath, options, callback) {
       console.error(`[API ERROR] Attempted sendFile on API route: ${filepath}`);
-      return res.status(500).json({
+      if (responseSent) return;
+      responseSent = true;
+      res.status(500);
+      return originalJson.call(res, {
         success: false,
         error: 'Internal server error - invalid response handling'
       });
+    };
+    
+    let responseSent = false;
+    const originalEnd = res.end;
+    res.end = function(...args) {
+      if (responseSent) return;
+      responseSent = true;
+      return originalEnd.apply(res, args);
     };
   }
   next();
@@ -155,8 +184,15 @@ app.use('/api/submissions', submissionsRouter);
 console.log('[INIT] Mounting /api/blog routes...');
 app.use('/api/blog', blogRouter);
 
-// Serve static files from public folder AFTER API routes
-app.use(express.static(path.join(__dirname, 'public')));
+// Serve static files from public folder AFTER API routes but BEFORE catch-all handlers
+// Prevent static file serving for API paths
+app.use((req, res, next) => {
+  // Skip static file serving for API routes
+  if (req.path.startsWith('/api/')) {
+    return next();
+  }
+  express.static(path.join(__dirname, 'public'))(req, res, next);
+});
 
 // Route handlers for admin pages (without .html extension)
 app.get('/admin-login', (req, res) => {

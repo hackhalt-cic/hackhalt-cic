@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require("express");
+const cors = require("cors");
 const path = require("path");
 const compression = require("compression");
 const jwt = require('jsonwebtoken');
@@ -26,6 +27,34 @@ const authMiddleware = require("./middleware/authMiddleware");
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// CORS configuration - MUST be first
+const corsOptions = {
+  origin: [
+    'http://localhost:3000',
+    'http://localhost:5000',
+    'http://localhost',
+    'http://127.0.0.1:5000',
+    'http://127.0.0.1',
+    'https://hackhalt.org',
+    'https://www.hackhalt.org',
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+  maxAge: 86400
+};
+
+if (process.env.VERCEL_URL) {
+  corsOptions.origin.push(`https://${process.env.VERCEL_URL}`);
+}
+
+if (process.env.FRONTEND_URL) {
+  corsOptions.origin.push(process.env.FRONTEND_URL);
+}
+
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
+
 // Security headers
 app.use(securityHeaders);
 
@@ -45,44 +74,6 @@ app.use(compression({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser(process.env.SESSION_SECRET));
-
-// CORS configuration
-app.use((req, res, next) => {
-  const origin = req.headers.origin || '';
-  
-  const allowedOrigins = [
-    'http://localhost:3000',
-    'http://localhost:5000',
-    'http://localhost',
-    'http://127.0.0.1:5000',
-    'http://127.0.0.1',
-    'https://hackhalt.org',
-    'https://www.hackhalt.org',
-  ];
-  
-  if (process.env.VERCEL_URL) {
-    allowedOrigins.push(`https://${process.env.VERCEL_URL}`);
-  }
-  
-  if (process.env.FRONTEND_URL) {
-    allowedOrigins.push(process.env.FRONTEND_URL);
-  }
-  
-  // Set CORS headers if origin is in allowedOrigins
-  if (allowedOrigins.includes(origin)) {
-    res.header('Access-Control-Allow-Origin', origin);
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    res.header('Access-Control-Allow-Credentials', 'true');
-    res.header('Access-Control-Max-Age', '86400');
-  }
-
-  // Handle preflight requests
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(200);
-  }
-  next();
-});
 
 // Configure Express to handle font MIME types correctly for production
 app.set('view cache', true);

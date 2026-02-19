@@ -10,7 +10,7 @@ const blogRouter = require('./routes/blog');
 
 const app = express();
 
-// Database connection function
+// Database connection function with faster Vercel optimization
 const connectDB = async (retries = 5) => {
   try {
     const mongoURI = process.env.MONGODB_URI;
@@ -22,15 +22,16 @@ const connectDB = async (retries = 5) => {
     console.log('🔄 Connecting to MongoDB...');
     
     const conn = await mongoose.connect(mongoURI, {
-      serverSelectionTimeoutMS: 10000,
-      socketTimeoutMS: 60000,
-      connectTimeoutMS: 15000,
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 30000,
+      connectTimeoutMS: 10000,
       family: 4,
       retryWrites: true,
       w: 'majority',
-      maxPoolSize: 10,
-      minPoolSize: 5,
-      maxIdleTimeMS: 45000
+      maxPoolSize: 5,
+      minPoolSize: 1,
+      maxIdleTimeMS: 30000,
+      waitQueueTimeoutMS: 5000
     });
 
     console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
@@ -39,7 +40,7 @@ const connectDB = async (retries = 5) => {
     console.error('❌ MongoDB Connection Error:', error.message);
     
     if (retries > 0) {
-      const delayMs = (6 - retries) * 3000;
+      const delayMs = (6 - retries) * 2000;
       console.log(`⏳ Retrying connection (${retries} attempts left) in ${delayMs}ms...`);
       await new Promise(resolve => setTimeout(resolve, delayMs));
       return connectDB(retries - 1);
@@ -90,17 +91,20 @@ app.use(express.urlencoded({ extended: true }));
 // Database connection state
 let mongodbConnected = false;
 
-// Middleware to ensure database is connected on first request
+// Middleware to ensure database is connected on first request (non-blocking)
 app.use(async (req, res, next) => {
-  if (!mongodbConnected) {
+  if (!mongodbConnected && req.path.startsWith('/api/')) {
     try {
-      console.log('[MIDDLEWARE] First request - connecting to MongoDB...');
-      await connectDB(1); // Only 1 retry to avoid Vercel timeout
+      console.log('[MIDDLEWARE] First API request - attempting MongoDB connection...');
+      await connectDB(1); // Only 1 rapid retry on Vercel
       mongodbConnected = true;
       console.log('[MIDDLEWARE] Database connected successfully');
     } catch (error) {
       console.error('[MIDDLEWARE] Database connection failed:', error.message);
-      // Continue anyway - Auth endpoint will handle the error
+      // For API requests, continue to let the route handle the error
+      if (req.path.startsWith('/api/')) {
+        console.warn('[MIDDLEWARE] Proceeding with API request despite DB connection failure');
+      }
     }
   }
   next();

@@ -7,19 +7,31 @@
 // Detect environment automatically
 const BACKEND_API_URL = (() => {
   const origin = window.location.origin;
+  const hostname = window.location.hostname;
+  
+  console.log('[API CONFIG DEBUG] Origin:', origin);
+  console.log('[API CONFIG DEBUG] Hostname:', hostname);
+  
   // Local development
-  if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+  if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    console.log('[API CONFIG] Using local backend');
     return 'http://localhost:5000';
   }
-  // Hostinger (static frontend) should use Vercel backend
-  if (origin.includes('hackhalt.org') || origin.includes('hostinger')) {
-    return 'https://hackhalt-7r1o55kjo-hackhalts-projects.vercel.app'; // Vercel backend URL
+  
+  // Hostinger frontend (hackhalt.org or *.hostinger domain)
+  if (hostname.includes('hackhalt.org') || hostname.includes('hostinger.com')) {
+    console.log('[API CONFIG] Detected Hostinger - using Vercel backend');
+    return 'https://hackhalt-7r1o55kjo-hackhalts-projects.vercel.app';
   }
-  // If accessing from Vercel frontend, use the API path
-  if (origin.includes('vercel.app')) {
+  
+  // Vercel frontend - use same origin for API
+  if (hostname.includes('vercel.app')) {
+    console.log('[API CONFIG] Detected Vercel - using same origin');
     return origin;
   }
+  
   // Default: use same domain as frontend
+  console.log('[API CONFIG] Using same origin as frontend');
   return origin;
 })();
 
@@ -28,7 +40,9 @@ function getApiUrl(endpoint) {
   if (!endpoint.startsWith('/')) {
     endpoint = '/' + endpoint;
   }
-  return `${BACKEND_API_URL}${endpoint}`;
+  const fullUrl = `${BACKEND_API_URL}${endpoint}`;
+  console.log('[API URL] Endpoint:', endpoint, '-> Full URL:', fullUrl);
+  return fullUrl;
 }
 
 // Export for module systems (if needed)
@@ -36,5 +50,5 @@ if (typeof module !== 'undefined' && module.exports) {
   module.exports = { BACKEND_API_URL, getApiUrl };
 }
 
-console.log('[API CONFIG] Backend URL:', BACKEND_API_URL);
-console.log('[API CONFIG] Frontend origin:', window.location.origin);
+console.log('[API CONFIG] ✅ Backend URL:', BACKEND_API_URL);
+console.log('[API CONFIG] ✅ Frontend origin:', window.location.origin);

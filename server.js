@@ -249,6 +249,13 @@ app.get("/add-blog", (req, res) => {
 // ========== SECURITY & RATE LIMITING ==========
 app.use('/api/', apiLimiter);
 
+// ========== API RESPONSE HEADERS MIDDLEWARE ==========
+app.use('/api/', (req, res, next) => {
+  // Ensure all API responses are JSON
+  res.set('Content-Type', 'application/json');
+  next();
+});
+
 // ========== AUTHENTICATION ROUTES ==========
 app.use('/api/auth', secureAdminAuthRoutes);
 

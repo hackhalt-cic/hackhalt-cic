@@ -25,6 +25,9 @@ router.post('/login', loginLimiter, async (req, res) => {
   const startTime = Date.now();
   
   try {
+    // Force JSON response headers
+    res.set('Content-Type', 'application/json');
+    
     const { username, password } = req.body;
 
     // 1. Input validation
@@ -38,6 +41,7 @@ router.post('/login', loginLimiter, async (req, res) => {
 
     // 2. Sanitize input (prevent NoSQL injection)
     if (typeof username !== 'string' || username.length > 100) {
+      res.set('Content-Type', 'application/json');
       return res.status(400).json({
         success: false,
         error: 'Invalid input format'
@@ -45,14 +49,29 @@ router.post('/login', loginLimiter, async (req, res) => {
     }
 
     // 3. Find admin by username
-    const admin = await Admin.findOne({ username: username.trim() }).select('+password');
+    let admin;
+    try {
+      admin = await Admin.findOne({ username: username.trim() }).select('+password');
+    } catch (dbError) {
+      console.error('[ERROR] Database error finding admin:', dbError.message);
+      res.set('Content-Type', 'application/json');
+      return res.status(500).json({
+        success: false,
+        error: 'Database error. Please try again.'
+      });
+    }
 
     if (!admin) {
       // Timing attack mitigation: always perform password hash comparison
       // This prevents attackers from knowing if username exists
-      await bcrypt.compare(password, '$2a$10$dummy');
+      try {
+        await bcrypt.compare(password, '$2a$10$dummy');
+      } catch (e) {
+        // Ignore bcrypt errors during timing attack mitigation
+      }
       
       console.warn(`[SECURITY] Login attempt with non-existent user: ${username} from ${req.ip}`);
+      res.set('Content-Type', 'application/json');
       return res.status(401).json({
         success: false,
         error: 'Invalid credentials'
@@ -62,6 +81,7 @@ router.post('/login', loginLimiter, async (req, res) => {
     // 4. Verify admin is active
     if (!admin.isActive) {
       console.warn(`[SECURITY] Login attempt on inactive account: ${username} from ${req.ip}`);
+      res.set('Content-Type', 'application/json');
       return res.status(401).json({
         success: false,
         error: 'Account is inactive'
@@ -69,7 +89,17 @@ router.post('/login', loginLimiter, async (req, res) => {
     }
 
     // 5. Compare password (timing-safe comparison)
-    const isPasswordValid = await admin.comparePassword(password);
+    let isPasswordValid = false;
+    try {
+      isPasswordValid = await admin.comparePassword(password);
+    } catch (compareError) {
+      console.error('[ERROR] Password comparison error:', compareError.message);
+      res.set('Content-Type', 'application/json');
+      return res.status(500).json({
+        success: false,
+        error: 'Authentication service error'
+      });
+    }
 
     if (!isPasswordValid) {
       // Log failed attempt for security monitoring
@@ -79,17 +109,27 @@ router.post('/login', loginLimiter, async (req, res) => {
       // Lock account after 5 failed attempts
       if (admin.failedLoginAttempts >= 5) {
         admin.isActive = false;
-        await admin.save();
+        try {
+          await admin.save();
+        } catch (saveError) {
+          console.error('[ERROR] Failed to save admin on lockout:', saveError.message);
+        }
         console.warn(`[SECURITY] Account locked due to failed attempts: ${username} from ${req.ip}`);
+        res.set('Content-Type', 'application/json');
         return res.status(401).json({
           success: false,
           error: 'Too many failed attempts. Account locked. Contact administrator.'
         });
       }
 
-      await admin.save();
+      try {
+        await admin.save();
+      } catch (saveError) {
+        console.error('[ERROR] Failed to save failed login attempt:', saveError.message);
+      }
       console.warn(`[SECURITY] Failed login attempt for ${username} from ${req.ip} (attempt ${admin.failedLoginAttempts})`);
       
+      res.set('Content-Type', 'application/json');
       return res.status(401).json({
         success: false,
         error: 'Invalid credentials'
@@ -100,26 +140,55 @@ router.post('/login', loginLimiter, async (req, res) => {
     admin.failedLoginAttempts = 0;
     admin.lastLogin = new Date();
     admin.lastLoginIP = req.ip;
-    await admin.save();
+    try {
+      await admin.save();
+    } catch (saveError) {
+      console.error('[ERROR] Failed to save admin on successful login:', saveError.message);
+      res.set('Content-Type', 'application/json');
+      return res.status(500).json({
+        success: false,
+        error: 'Failed to update login status'
+      });
+    }
 
     // 7. Generate JWT token (short-lived)
-    const accessToken = jwt.sign(
-      {
-        id: admin._id,
-        username: admin.username,
-        email: admin.email,
-        role: admin.role
-      },
-      process.env.JWT_SECRET || 'your-secure-secret-key-change-in-production',
-      { expiresIn: '15m' } // Short expiration for security
-    );
+    let accessToken;
+    try {
+      accessToken = jwt.sign(
+        {
+          id: admin._id,
+          username: admin.username,
+          email: admin.email,
+          role: admin.role
+        },
+        process.env.JWT_SECRET || 'your-secure-secret-key-change-in-production',
+        { expiresIn: '15m' } // Short expiration for security
+      );
+    } catch (tokenError) {
+      console.error('[ERROR] Failed to generate access token:', tokenError.message);
+      res.set('Content-Type', 'application/json');
+      return res.status(500).json({
+        success: false,
+        error: 'Token generation failed'
+      });
+    }
 
     // 8. Generate refresh token (long-lived, stored in secure cookie)
-    const refreshToken = jwt.sign(
-      { id: admin._id, type: 'refresh' },
-      process.env.JWT_REFRESH_SECRET || 'your-secure-refresh-secret-key',
-      { expiresIn: '7d' }
-    );
+    let refreshToken;
+    try {
+      refreshToken = jwt.sign(
+        { id: admin._id, type: 'refresh' },
+        process.env.JWT_REFRESH_SECRET || 'your-secure-refresh-secret-key',
+        { expiresIn: '7d' }
+      );
+    } catch (tokenError) {
+      console.error('[ERROR] Failed to generate refresh token:', tokenError.message);
+      res.set('Content-Type', 'application/json');
+      return res.status(500).json({
+        success: false,
+        error: 'Token generation failed'
+      });
+    }
 
     // 9. Set HTTP-only secure cookie (prevents XSS attacks)
     res.cookie('adminToken', accessToken, {
@@ -144,8 +213,9 @@ router.post('/login', loginLimiter, async (req, res) => {
     const duration = Date.now() - startTime;
     console.log(`[AUDIT] Successful login: ${username} from ${req.ip} (${duration}ms)`);
 
-    // 11. Return success response
-    return res.json({
+    // 11. Return success response with explicit JSON header
+    res.set('Content-Type', 'application/json');
+    return res.status(200).json({
       success: true,
       message: 'Login successful',
       admin: {
@@ -159,6 +229,7 @@ router.post('/login', loginLimiter, async (req, res) => {
 
   } catch (error) {
     console.error('[ERROR] Login endpoint error:', error.message);
+    res.set('Content-Type', 'application/json');
     return res.status(500).json({
       success: false,
       error: 'Authentication service error'

@@ -491,20 +491,31 @@
           body: requestBody
         });
 
+        // Log raw response for debugging
+        const responseText = await response.text();
+        console.log('[DEBUG] Response status:', response.status);
+        console.log('[DEBUG] Response headers:', response.headers.get('content-type'));
+        console.log('[DEBUG] Raw response text:', responseText.substring(0, 200));
+
+        // Parse JSON from text
         let data;
         try {
-          data = await response.json();
+          if (!responseText) {
+            throw new Error('Empty response from server');
+          }
+          data = JSON.parse(responseText);
         } catch (parseError) {
-          console.error('Failed to parse response:', parseError);
-          throw new Error(`Server returned invalid JSON: ${response.statusText}`);
+          console.error('[ERROR] Failed to parse JSON:', parseError);
+          console.error('[ERROR] Response was:', responseText.substring(0, 500));
+          throw new Error(`Server returned invalid JSON (${response.status}): ${responseText.substring(0, 100)}`);
         }
 
         if (!response.ok) {
-          throw new Error(data.error || `Login failed with status ${response.status}`);
+          throw new Error(data.error || data.message || `Login failed with status ${response.status}`);
         }
 
         if (!data.success) {
-          throw new Error(data.error || 'Authentication failed');
+          throw new Error(data.error || data.message || 'Authentication failed');
         }
 
         if (!data.admin) {
@@ -518,7 +529,7 @@
           window.location.href = '/admin';
         }, 1500);
       } catch (error) {
-        console.error('Login error:', error);
+        console.error('[ERROR] Login error:', error);
         const errorMsg = error.message || 'Failed to fetch. Please ensure the server is running and accessible.';
         errorMessage.innerHTML = `<i class="fa-solid fa-exclamation-circle"></i><span>${errorMsg}</span>`;
         errorMessage.classList.add('show');

@@ -254,7 +254,8 @@
       
       try {
         console.log('🚀 Sending POST to Vercel API');
-        const response = await fetch('https://hackhalt-cic-szfr.vercel.app/api/book-session', {
+        const BACKEND_API_URL = 'https://hackhalt-cic.vercel.app'; // Change to your backend URL
+        const response = await fetch(`${BACKEND_API_URL}/api/book-session`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data)

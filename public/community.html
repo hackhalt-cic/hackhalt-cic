@@ -781,6 +781,7 @@
     <i class="fa-solid fa-arrow-up"></i>
   </button>
 
+  <script src="assets/js/api-config.js"></script>
   <script src="assets/js/utils.js"></script>
   <script src="assets/js/main.js" defer></script>
   <script>
@@ -812,7 +813,9 @@
         };
 
         try {
-          const response = await fetch('/api/submissions/membership', {
+          const apiUrl = getApiUrl('/api/submissions/membership');
+          console.log('📍 API URL:', apiUrl);
+          const response = await fetch(apiUrl, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'

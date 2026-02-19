@@ -1119,18 +1119,17 @@
   </div>
 
   <script>
-    // API Base URL Configuration
-    let apiBase = window.location.origin;
-    if (window.location.hostname !== 'localhost' && !window.location.hostname.includes('vercel')) {
-      apiBase = 'https://hackhalt-cic-lemon.vercel.app';
-    }
-    console.log('API Base:', apiBase);
+    // API Base URL Configuration - UPDATE THIS TO YOUR VERCEL BACKEND
+    const BACKEND_API_URL = 'https://hackhalt-cic.vercel.app'; // Change to your deployed backend
     
     // Helper function to get full API URL
     function getApiUrl(endpoint) {
       if (endpoint.startsWith('http')) return endpoint;
-      return apiBase + endpoint;
+      if (!endpoint.startsWith('/')) endpoint = '/' + endpoint;
+      return BACKEND_API_URL + endpoint;
     }
+
+    console.log('API Base:', BACKEND_API_URL);
 
     const token = localStorage.getItem('adminToken');
     let currentSubmissionType = 'contact';

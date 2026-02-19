@@ -457,6 +457,7 @@
     </div>
   </div>
 
+  <script src="assets/js/api-config.js"></script>
   <script src="assets/js/utils.js" defer></script>
   <script defer>
     const loginForm = document.getElementById('loginForm');
@@ -486,10 +487,12 @@
       loginBtn.innerHTML = '<div class="loading"><div class="spinner"></div></div> Signing in...';
 
       try {
-        // Correct API endpoint
-        const apiUrl = '/api/auth/login';
+        // Backend API URL from config
+        const apiUrl = getApiUrl('/api/auth/login');
         
         console.log('[DEBUG] Sending login request to:', apiUrl);
+        console.log('[DEBUG] Frontend domain:', window.location.origin);
+        console.log('[DEBUG] Backend API:', BACKEND_API_URL);
         
         const response = await fetch(apiUrl, {
           method: 'POST',

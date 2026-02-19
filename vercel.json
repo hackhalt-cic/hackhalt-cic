@@ -3,10 +3,6 @@
   "buildCommand": "npm install",
   "rewrites": [
     {
-      "source": "/api/(.*)",
-      "destination": "/server.js"
-    },
-    {
       "source": "/((?!api|assets|images|public).*)\\.html",
       "destination": "/server.js"
     },
@@ -52,6 +48,10 @@
     }
   ],
   "functions": {
+    "api/auth/login.js": {
+      "memory": 512,
+      "maxDuration": 30
+    },
     "server.js": {
       "memory": 1024,
       "maxDuration": 60

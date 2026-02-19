@@ -49,9 +49,7 @@ app.use(cookieParser(process.env.SESSION_SECRET));
 // CORS configuration
 app.use((req, res, next) => {
   const origin = req.headers.origin || '';
-  const isProduction = process.env.NODE_ENV === 'production';
   
-  // Always allow same-origin and localhost for development
   const allowedOrigins = [
     'http://localhost:3000',
     'http://localhost:5000',
@@ -70,9 +68,9 @@ app.use((req, res, next) => {
     allowedOrigins.push(process.env.FRONTEND_URL);
   }
   
-  // Allow requests from allowed origins or same-origin (when no origin header) or production
-  if (allowedOrigins.includes(origin) || !origin || isProduction) {
-    res.header('Access-Control-Allow-Origin', origin || '*');
+  // Set CORS headers if origin is in allowedOrigins
+  if (allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     res.header('Access-Control-Allow-Credentials', 'true');

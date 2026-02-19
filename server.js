@@ -4,6 +4,8 @@ const cors = require('cors');
 const path = require('path');
 const mongoose = require('mongoose');
 const secureAdminAuth = require('./routes/secureAdminAuth');
+const submissionsRouter = require('./routes/submissions');
+const blogRouter = require('./routes/blog');
 
 const app = express();
 
@@ -124,6 +126,12 @@ app.get('/add-blog', (req, res) => {
 
 // Auth routes
 app.use('/api/auth', secureAdminAuth);
+
+// Submissions routes for admin dashboard
+app.use('/api/submissions', submissionsRouter);
+
+// Blog routes for admin dashboard
+app.use('/api/blog', blogRouter);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

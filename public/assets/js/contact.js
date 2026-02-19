@@ -134,7 +134,9 @@ function initializeFormHandlers() {
       console.log('📤 Sending payload:', payload);
 
       // Send to backend API
-      const response = await fetch('/api/contact', {
+      const apiUrl = getApiUrl('/api/contact');
+      console.log('📍 API URL:', apiUrl);
+      const response = await fetch(apiUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"

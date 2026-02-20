@@ -47,7 +47,14 @@ module.exports = async (req, res) => {
   }
   
   try {
-    const urlPath = url.split('?')[0];
+    // Parse URL path (strip query params)
+    let urlPath = url.split('?')[0];
+    // Ensure path starts with /
+    if (!urlPath.startsWith('/')) {
+      urlPath = '/' + urlPath;
+    }
+    
+    console.log('[API] URL Path:', urlPath, '| Full URL:', url);
     
     // Health check
     if (urlPath === '/api/health') {
@@ -248,22 +255,27 @@ module.exports = async (req, res) => {
       }));
     }
     
-    // 404
+    // 404 - No route matched
+    console.log('[API] ⚠️ No matching route found for:', method, urlPath);
     res.statusCode = 404;
     return res.end(JSON.stringify({ 
       success: false, 
-      message: 'Not found',
-      path: urlPath
+      message: 'API endpoint not found',
+      method: method,
+      path: urlPath,
+      fullUrl: url
     }));
     
   } catch (error) {
-    console.error('[API] ERROR:', error.message);
+    console.error('[API] ❌ UNCAUGHT ERROR:', error.message);
+    console.error('[API] Stack:', error.stack);
     
     res.statusCode = 500;
     return res.end(JSON.stringify({ 
       success: false, 
       message: 'Server error',
-      error: error.message 
+      error: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
     }));
   }
 };

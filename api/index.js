@@ -1,14 +1,12 @@
-console.log('[API Init] Starting...');
-
-const serverless = require('serverless-http');
-const app = require('../server-minimal');
-
-console.log('[API Init] App loaded, wrapping with serverless-http');
-
-// Create serverless handler
-const handler = serverless(app);
-
-console.log('[API Init] Handler ready');
-
-// Export handler
-module.exports = handler;
+// Minimal handler without Express - for Vercel
+module.exports = async (req, res) => {
+  console.log('[Handler] Request received');
+  
+  // Simple JSON response for health check
+  res.setHeader('Content-Type', 'application/json');
+  res.status(200).end(JSON.stringify({
+    status: 'OK',
+    timestamp: new Date().toISOString(),
+    environment: 'production'
+  }));
+};

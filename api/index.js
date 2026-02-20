@@ -28,6 +28,15 @@ module.exports = async (req, res) => {
   const method = req.method;
   const url = req.url;
   
+  console.log('');
+  console.log('═════════════════════════════════════════════════════');
+  console.log('[API] 🎯 RECEIVED REQUEST');
+  console.log('[API] Method:', method);
+  console.log('[API] URL:', url);
+  console.log('[API] Origin:', origin || 'NONE');
+  console.log('[API] Headers:', Object.keys(req.headers).join(', '));
+  console.log('═════════════════════════════════════════════════════');
+  
   // CRITICAL: Set CORS headers FIRST, BEFORE anything else
   // This must happen for every single response
   res.setHeader('Access-Control-Allow-Origin', origin || '*');
@@ -36,8 +45,6 @@ module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept');
   res.setHeader('Access-Control-Max-Age', '86400');
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
-  
-  console.log(`[API] ${method} ${url} | Origin: ${origin || 'NONE'}`);
   
   // Handle OPTIONS immediately with headers set
   if (method === 'OPTIONS') {
@@ -95,15 +102,22 @@ module.exports = async (req, res) => {
     
     // Submissions endpoints - Direct handling
     if (urlPath.startsWith('/api/submissions')) {
-      console.log('[API] → Handling submissions endpoint');
+      console.log('[API] ✅ MATCHED: submissions endpoint');
+      console.log('[API] URL Path:', urlPath);
+      console.log('[API] Method:', method);
+      console.log('[API] Full URL:', url);
       
       // Initialize database if needed
       if (mongoose.connections[0].readyState === 0) {
-        console.log('[API] Connecting to MongoDB');
+        console.log('[API] 🔌 Connecting to MongoDB');
         try {
-          await mongoose.connect(process.env.MONGODB_URI);
+          await mongoose.connect(process.env.MONGODB_URI, {
+            serverSelectionTimeoutMS: 5000,
+            socketTimeoutMS: 5000
+          });
+          console.log('[API] ✅ MongoDB connected');
         } catch (dbError) {
-          console.error('[API] Database connection failed:', dbError.message);
+          console.error('[API] ❌ Database connection failed:', dbError.message);
           res.statusCode = 503;
           return res.end(JSON.stringify({
             success: false,
@@ -111,24 +125,29 @@ module.exports = async (req, res) => {
             message: dbError.message
           }));
         }
+      } else {
+        console.log('[API] ✅ MongoDB already connected (state:', mongoose.connections[0].readyState, ')');
       }
       
       // GET /api/submissions/contact
       if (urlPath === '/api/submissions/contact' && method === 'GET') {
+        console.log('[API] 📋 GET /api/submissions/contact');
         try {
           const { purpose } = Object.fromEntries(new URL(`http://dummy${url}`).searchParams);
+          console.log('[API] Purpose filter:', purpose);
           
           const query = {};
           if (purpose) {
             query.purpose = purpose;
           }
           
-          console.log('[API] Fetching contact submissions with query:', query);
+          console.log('[API] 🔍 Querying ContactSubmission with:', query);
           const submissions = await ContactSubmission.find(query)
             .sort({ createdAt: -1 })
             .limit(1000)
             .lean();
           
+          console.log('[API] ✅ Found', submissions.length, 'submissions');
           res.statusCode = 200;
           return res.end(JSON.stringify({
             success: true,
@@ -137,7 +156,8 @@ module.exports = async (req, res) => {
             count: submissions.length
           }));
         } catch (error) {
-          console.error('[API] Contact submissions error:', error.message);
+          console.error('[API] ❌ Contact submissions error:', error.message);
+          console.error('[API] Stack:', error.stack);
           res.statusCode = 500;
           return res.end(JSON.stringify({
             success: false,

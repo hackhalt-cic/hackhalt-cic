@@ -417,7 +417,7 @@
       <div id="errorMessage" class="error-message"></div>
       <div id="successMessage" class="success-message"></div>
 
-      <form id="loginForm">
+      <form id="loginForm" method="POST" action="javascript:void(0)">
         <div class="form-group">
           <label for="username">
             <i class="fa-solid fa-user"></i> Username
@@ -462,20 +462,25 @@
   
   <script>
     // Robust fallback if api-config.js fails to load
-    if (typeof BACKEND_API_URL === 'undefined') {
-      const _hostname = window.location.hostname;
-      window.BACKEND_API_URL = (_hostname === 'localhost' || _hostname === '127.0.0.1') 
-        ? 'http://localhost:5000' 
+    // Use try-catch to avoid any redeclaration issues
+    try {
+      if (typeof BACKEND_API_URL === 'undefined' || !BACKEND_API_URL) {
+        throw new Error('not defined');
+      }
+      console.log('[LOGIN] BACKEND_API_URL from api-config.js:', BACKEND_API_URL);
+    } catch(e) {
+      // api-config.js didn't load or BACKEND_API_URL not set
+      BACKEND_API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+        ? 'http://localhost:5000'
         : 'https://hackhalt-cic-lemon.vercel.app';
-      console.warn('[LOGIN] api-config.js not loaded, using fallback BACKEND_API_URL:', window.BACKEND_API_URL);
+      console.warn('[LOGIN] Using fallback BACKEND_API_URL:', BACKEND_API_URL);
     }
     if (typeof getApiUrl !== 'function') {
       console.warn('[LOGIN] getApiUrl not available, defining fallback');
       window.getApiUrl = function(endpoint) {
-        const base = (typeof BACKEND_API_URL !== 'undefined') ? BACKEND_API_URL : window.BACKEND_API_URL;
         if (!endpoint.startsWith('/')) endpoint = '/' + endpoint;
         const separator = endpoint.includes('?') ? '&' : '?';
-        return base + endpoint + separator + '_t=' + Date.now();
+        return BACKEND_API_URL + endpoint + separator + '_t=' + Date.now();
       };
     }
     

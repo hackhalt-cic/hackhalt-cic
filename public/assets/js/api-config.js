@@ -9,7 +9,8 @@ const isDevelopment = window.location.hostname === 'localhost' || window.locatio
 const isHostinger = window.location.hostname.includes('hostinger') || window.location.origin.includes('hackhalt.org');
 
 // Determine backend API URL based on environment
-let BACKEND_API_URL;
+// IMPORTANT: Use var (not let/const) so it's on window object and avoidable by other scripts
+var BACKEND_API_URL;
 
 if (isDevelopment) {
   // Local development

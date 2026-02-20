@@ -1,59 +1,37 @@
 const serverless = require('serverless-http');
 
-// Create a simple health check app first
-const express = require('express');
-const basicApp = express();
-
-// Basic health check without any dependencies
-basicApp.get('/api/health', (req, res) => {
-  res.json({
-    status: 'OK',
-    timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'development'
-  });
-});
-
-// Try to load the full app, fallback to basic app if it fails
+// Try to load minimal app (doesn't require problematic imports)
 let app;
 try {
-  console.log('[API] Loading main app...');
-  app = require('../server');
-  console.log('[API] Main app loaded successfully');
+  console.log('[API] Loading minimal app...');
+  app = require('../server-minimal');
+  console.log('[API] Minimal app loaded');
 } catch (error) {
-  console.error('[API] Error loading main app:', error.message);
-  console.error('[API] Stack:', error.stack);
-  // Fallback to basic app
-  app = basicApp;
+  console.error('[API] Failed to load app:', error.message, error.stack);
+  // Create absolute minimal app
+  const express = require('express');
+  app = express();
+  app.get('/api/health', (req, res) => {
+    res.json({ status: 'OK', error: 'App failed to initialize' });
+  });
 }
 
-// Wrap with error handling
-const handler = serverless(app, {
-  request: (request, event, context) => {
-    try {
-      console.log('[Serverless] Request:', request.method, request.url);
-    } catch (e) {
-      console.error('[Serverless] Request logging error:', e.message);
-    }
-  }
-});
+// Wrap with serverless-http
+const handler = serverless(app);
 
-// Main handler
+// Main export
 module.exports = async (req, event, context) => {
-  console.log('[API Handler] Invoked');
   try {
+    console.log('[Handler] Invoked:', req.method, req.url);
     const result = await handler(req, event, context);
-    console.log('[API Handler] Success');
+    console.log('[Handler] Success');
     return result;
   } catch (error) {
-    console.error('[API Handler] Error:', error.message);
-    console.error('[API Handler] Stack:', error.stack);
+    console.error('[Handler] Error:', error.message);
     return {
       statusCode: 500,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        error: 'Internal server error',
-        message: error.message
-      })
+      body: JSON.stringify({ error: error.message })
     };
   }
 };

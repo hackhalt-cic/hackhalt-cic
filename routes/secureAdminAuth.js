@@ -23,14 +23,22 @@ const router = express.Router();
 // POST /api/auth/login - Secure login endpoint
 // ============================================
 router.post('/login', loginLimiter, async (req, res) => {
-  // CRITICAL: Set JSON headers FIRST before anything else
+  // CRITICAL: Set JSON response headers FIRST and FOREMOST
   res.set('Content-Type', 'application/json; charset=utf-8');
   res.set('X-Content-Type-Options', 'nosniff');
   res.set('X-Frame-Options', 'DENY');
   res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
-  res.set('Access-Control-Allow-Origin', '*');
+  
+  // Handle CORS for cross-origin requests
+  // NOTE: CORS headers are set in server.js middleware, but we reinforce here
+  // The Express CORS middleware handles allowing origins properly
+  const origin = req.get('Origin');
+  if (origin) {
+    res.set('Access-Control-Allow-Origin', origin);
+    res.set('Access-Control-Allow-Credentials', 'true');
+  }
   res.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.set('Access-Control-Allow-Headers', 'Content-Type');
+  res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   
   let responseSent = false;
   const startTime = Date.now();

@@ -471,9 +471,19 @@
     const loginBtn = document.getElementById('loginBtn');
     const errorMessage = document.getElementById('errorMessage');
     const successMessage = document.getElementById('successMessage');
+    
+    // Track request state
+    let requestInProgress = false;
+    let timeoutId = null;
 
     loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
+
+      // Prevent multiple submissions
+      if (requestInProgress) {
+        console.warn('[LOGIN] Request already in progress, ignoring duplicate submit');
+        return;
+      }
 
       const username = document.getElementById('username').value.trim();
       const password = document.getElementById('password').value;
@@ -489,7 +499,10 @@
         return;
       }
 
-      // Disable button
+      // Mark request in progress
+      requestInProgress = true;
+
+      // Disable button and show loading state
       loginBtn.disabled = true;
       loginBtn.innerHTML = '<div class="loading"><div class="spinner"></div></div> Signing in...';
 
@@ -497,18 +510,18 @@
         // Backend API URL from config
         const apiUrl = getApiUrl('/api/auth/login');
         
-        console.log('[DEBUG] Sending login request to:', apiUrl);
-        console.log('[DEBUG] Frontend domain:', window.location.origin);
-        console.log('[DEBUG] Backend API:', BACKEND_API_URL);
-        console.log('[DEBUG] Username:', username);
+        console.log('[LOGIN] Sending login request to:', apiUrl);
+        console.log('[LOGIN] Frontend domain:', window.location.origin);
+        console.log('[LOGIN] Backend API:', BACKEND_API_URL);
+        console.log('[LOGIN] Username:', username);
         
         const requestBody = JSON.stringify({ username, password });
-        console.log('[DEBUG] Request payload size:', requestBody.length, 'bytes');
+        console.log('[LOGIN] Request payload size:', requestBody.length, 'bytes');
         
         // Create abort controller with 30 second timeout
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => {
-          console.error('[ERROR] Request timeout - aborting');
+        timeoutId = setTimeout(() => {
+          console.error('[LOGIN] Request timeout - aborting after 30 seconds');
           controller.abort();
         }, 30000); // 30 second timeout
         
@@ -523,24 +536,27 @@
           signal: controller.signal
         });
 
-        console.log('[DEBUG] Response received');
-        console.log('[DEBUG] Response status:', response.status);
-        console.log('[DEBUG] Response content-type:', response.headers.get('content-type'));
-        console.log('[DEBUG] Response headers:', Array.from(response.headers.entries()).map(([k, v]) => `${k}: ${v}`).join(', '));
+        console.log('[LOGIN] Response received');
+        console.log('[LOGIN] Response status:', response.status);
+        console.log('[LOGIN] Response content-type:', response.headers.get('content-type'));
+        console.log('[LOGIN] Response headers:', Array.from(response.headers.entries()).map(([k, v]) => `${k}: ${v}`).join(', '));
 
         // Clear timeout since response received
-        clearTimeout(timeoutId);
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+          timeoutId = null;
+        }
 
         // Get raw response to handle both JSON and HTML errors
         const responseText = await response.text();
-        console.log('[DEBUG] Raw response length:', responseText.length);
-        console.log('[DEBUG] Response first 500 chars:', responseText.substring(0, 500));
+        console.log('[LOGIN] Raw response length:', responseText.length);
+        console.log('[LOGIN] Response first 500 chars:', responseText.substring(0, 500));
 
         // Check if response is HTML (error case)
         if (responseText.trim().startsWith('<')) {
-          console.error('[ERROR] API returned HTML instead of JSON');
-          console.error('[ERROR] Full HTML response:', responseText.substring(0, 1000));
-          throw new Error('Server error: API endpoint not responding correctly. Received HTML instead of JSON. Check server logs.');
+          console.error('[LOGIN] API returned HTML instead of JSON');
+          console.error('[LOGIN] Full HTML response:', responseText.substring(0, 1000));
+          throw new Error('API returned HTML. Backend unreachable or misconfigured. Check that backend URL is correct.');
         }
 
         // Safe JSON parsing
@@ -550,60 +566,66 @@
             throw new Error('Empty response from server');
           }
           data = JSON.parse(responseText);
-          console.log('[DEBUG] Parsed JSON response:', data);
+          console.log('[LOGIN] Parsed JSON response:', data);
         } catch (parseError) {
-          console.error('[ERROR] Failed to parse JSON response');
-          console.error('[ERROR] Response content:', responseText.substring(0, 200));
-          console.error('[ERROR] Parse error:', parseError.message);
-          throw new Error(`Server error: Invalid JSON response. Check logs for details.`);
+          console.error('[LOGIN] Failed to parse JSON response');
+          console.error('[LOGIN] Response content:', responseText.substring(0, 200));
+          console.error('[LOGIN] Parse error:', parseError.message);
+          throw new Error(`Server returned invalid JSON: ${parseError.message}`);
         }
 
         // Check response status
-        if (!response.ok) {
-          const errorMsg = data.error || data.message || `Error: ${response.status}`;
-          console.warn('[WARN] Response not OK:', errorMsg);
-          throw new Error(errorMsg);
-        }
-
-        // Check success flag
-        if (!data.success) {
-          const errorMsg = data.error || data.message || 'Authentication failed';
-          console.warn('[WARN] Success flag false:', errorMsg);
+        if (!response.ok || (data && !data.success)) {
+          const errorMsg = data?.error || data?.message || `HTTP ${response.status}`;
+          console.warn('[LOGIN] Authentication failed:', errorMsg);
           throw new Error(errorMsg);
         }
 
         // Verify admin data
-        if (!data.admin) {
-          console.error('[ERROR] Missing admin data in response:', data);
-          throw new Error('Invalid server response');
+        if (!data || !data.admin) {
+          console.error('[LOGIN] Missing admin data in response:', data);
+          throw new Error('Invalid server response - missing admin data');
         }
 
         // Success
-        console.log('[SUCCESS] Login successful for user:', data.admin.username);
-        successMessage.innerHTML = '<i class="fa-solid fa-check-circle"></i><span>Login successful! Redirecting...</span>';
+        console.log('[LOGIN] Login successful for user:', data.admin.username);
+        successMessage.innerHTML = '<i class="fa-solid fa-check-circle"></i><span>Login successful! Redirecting to dashboard...</span>';
         successMessage.classList.add('show');
 
+        // Redirect after showing success message
         setTimeout(() => {
           window.location.href = '/admin';
         }, 1500);
 
       } catch (error) {
-        console.error('[ERROR] Login failed:', error);
-        clearTimeout(timeoutId);
+        console.error('[LOGIN] Error during login process:', error);
+        
+        // Clear timeout if still set
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+          timeoutId = null;
+        }
         
         let errorMsg = 'Login failed. Please try again.';
         
         if (error.name === 'AbortError') {
-          errorMsg = 'Request timeout. The server took too long to respond. Please try again.';
+          errorMsg = 'Request timeout (30s). Backend not responding. Check your Vercel deployment.';
+        } else if (error.message.includes('HTML')) {
+          errorMsg = 'Backend not responding with JSON. Verify your Vercel backend URL in api-config.js.';
         } else {
           errorMsg = error.message || errorMsg;
         }
         
+        console.error('[LOGIN] Final error message:', errorMsg);
         errorMessage.innerHTML = `<i class="fa-solid fa-exclamation-circle"></i><span>${errorMsg}</span>`;
         errorMessage.classList.add('show');
 
+      } finally {
+        // CRITICAL: Always clear loading state in all cases
+        requestInProgress = false;
         loginBtn.disabled = false;
         loginBtn.innerHTML = '<span>Sign In</span>';
+        console.log('[LOGIN] Form reset - ready for next attempt');
       }
     });
 

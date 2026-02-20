@@ -20,16 +20,14 @@ const BACKEND_API_URL = (() => {
     return 'http://localhost:5000';
   }
   
-  // Vercel frontend - use same origin for API
-  if (hostname.includes('vercel.app')) {
-    console.log('[API CONFIG] Detected Vercel - using same origin');
-    return origin;
+ const BACKEND_API_URL = 'https://hackhalt-cic-lemon.vercel.app';
+
+function getApiUrl(endpoint) {
+  if (!endpoint.startsWith('/')) {
+    endpoint = '/' + endpoint;
   }
-  
-  // Any other deployment (Hostinger, custom domain, etc) - use Vercel backend
-  // This handles: hackhalt.org, *.hostinger.com, custom domains, etc.
-  console.log('[API CONFIG] Detected external frontend - using Vercel backend as universal API');
-  return 'https://hackhalt-7r1o55kjo-hackhalts-projects.vercel.app';
+  return BACKEND_API_URL + endpoint;
+}
 })();
 
 // Helper function to build full API URLs

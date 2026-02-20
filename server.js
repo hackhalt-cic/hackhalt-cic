@@ -10,6 +10,8 @@ const blogRouter = require('./routes/blog');
 
 const app = express();
 
+
+
 // Database connection function with faster Vercel optimization
 const connectDB = async (retries = 5) => {
   try {
@@ -54,30 +56,48 @@ const connectDB = async (retries = 5) => {
 // CORS MUST be first - before all other middleware
 const corsOptions = {
   origin: function(origin, callback) {
+    // List of allowed origins - includes all production domains
     const allowedOrigins = [
+      // Production domains
       'https://hackhalt.org',
       'https://www.hackhalt.org',
+      'https://hackhalt-cic-lemon.vercel.app',
       'https://hackhalt-cic.vercel.app',
-      'https://hackhalt-7r1o55kjo-hackhalts-projects.vercel.app',
-      /vercel\.app$/,
-      /hostinger\.com$/,
+      // Any Vercel deployment
+      /https:\/\/.*\.vercel\.app$/,
+      // Hostinger domains
+      /https:\/\/.*\.hostinger\.com$/,
+      // Local development
       'http://localhost:5000',
       'http://localhost:3000',
-      'http://127.0.0.1:5000'
+      'http://127.0.0.1:5000',
+      'http://127.0.0.1:3000'
     ];
     
-    if (!origin || allowedOrigins.some(o => {
+    // Check if origin is in whitelist
+    const isAllowed = !origin || allowedOrigins.some(o => {
       if (o instanceof RegExp) return o.test(origin);
       return o === origin;
-    })) {
+    });
+    
+    if (isAllowed) {
       callback(null, true);
     } else {
-      callback(null, true); // Allow in production - browsers will enforce
+      // For development, allow all origins. For production, restrict.
+      if (process.env.NODE_ENV === 'production') {
+        console.warn(`[CORS] Rejected origin: ${origin}`);
+        callback(new Error('CORS policy violation'));
+      } else {
+        console.log(`[CORS] Allowing origin in development: ${origin}`);
+        callback(null, true);
+      }
     }
   },
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+  credentials: true,
+  optionsSuccessStatus: 200,
+  maxAge: 86400
 };
 
 app.use(cors(corsOptions));
@@ -116,43 +136,45 @@ app.use((req, res, next) => {
   if (req.path.startsWith('/api/')) {
     console.log(`[API] ${req.method} ${req.path} from ${req.ip}`);
     
-    // MUST be set FIRST to prevent content negotiation
+    // MUST be set FIRST to prevent content negotiation issues
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
-    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Content-Type-Options', 'nosniff'); // Prevent MIME sniffing
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     res.setHeader('X-Frame-Options', 'DENY');
     res.setHeader('X-XSS-Protection', '1; mode=block');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
     
-    // Prevent Express from trying to serve files for API routes
-    const originalSend = res.send;
-    const originalJson = res.json;
+    // Track if response has been sent
+    let responseSent = false;
     
     // Override send to prevent any non-JSON output
+    const originalSend = res.send;
     res.send = function(data) {
-      console.error(`[API ERROR] res.send() called on API route - data:`, typeof data, data?.toString?.().substring?.(0, 100));
       if (responseSent) return;
       responseSent = true;
-      res.status(500);
-      return originalJson.call(res, {
+      console.error(`[API ERROR] Attempted to use res.send() on API route - converting to JSON`);
+      res.status(res.statusCode || 500);
+      return res.json({
         success: false,
-        error: 'Internal server error - invalid response handler'
+        error: 'Internal server error'
       });
     };
     
     // Override sendFile to prevent HTML from being returned on API routes
     const originalSendFile = res.sendFile;
     res.sendFile = function(filepath, options, callback) {
-      console.error(`[API ERROR] Attempted sendFile on API route: ${filepath}`);
       if (responseSent) return;
       responseSent = true;
+      console.error(`[API ERROR] Attempted sendFile on API route: ${filepath}`);
       res.status(500);
-      return originalJson.call(res, {
+      return res.json({
         success: false,
-        error: 'Internal server error - invalid response handling'
+        error: 'Internal server error'
       });
     };
     
-    let responseSent = false;
+    // Track original end method
     const originalEnd = res.end;
     res.end = function(...args) {
       if (responseSent) return;
@@ -243,22 +265,35 @@ app.use((err, req, res, next) => {
   console.error('[SERVER ERROR]', err.message);
   console.error('[ERROR STACK]', err.stack);
   
-  // For API requests, ALWAYS return JSON with proper headers
+  // For API requests, ALWAYS return JSON with proper headers - NEVER return HTML
   if (req.path.startsWith('/api/')) {
     res.status(err.status || err.statusCode || 500);
     res.set('Content-Type', 'application/json; charset=utf-8');
     res.set('X-Content-Type-Options', 'nosniff');
     
-    return res.json({
+    const errorResponse = {
       success: false,
       error: process.env.NODE_ENV === 'production' ? 'Internal server error' : err.message,
       message: 'Server error',
       timestamp: new Date().toISOString()
+    };
+    
+    console.log('[API ERROR RESPONSE]', errorResponse);
+    return res.json(errorResponse);
+  }
+  
+  // For web pages, return error page - but check content negotiation
+  res.status(err.status || err.statusCode || 500);
+  
+  // Check if client wants JSON
+  if (req.accepts(['json', 'html']) === 'json' || req.get('Accept')?.includes('application/json')) {
+    res.set('Content-Type', 'application/json; charset=utf-8');
+    return res.json({
+      success: false,
+      error: err.message || 'Error'
     });
   }
   
-  // For web pages, return error page
-  res.status(err.status || err.statusCode || 500);
   res.set('Content-Type', 'text/html');
   res.send(`
     <html>

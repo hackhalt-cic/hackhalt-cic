@@ -40,26 +40,29 @@ function setCORSHeaders(req, res) {
   const origin = req.headers.origin || req.headers.Origin;
   
   console.log(`[CORS] Incoming origin: ${origin}`);
-  console.log(`[CORS] All headers:`, Object.keys(req.headers));
+  console.log(`[CORS] Request method: ${req.method}`);
   
-  // For preflight, be permissive to allow the browser to proceed
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept');
+  // Set standard CORS methods and headers that apply to all responses
+  res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, POST, PUT, DELETE, PATCH, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept, X-Requested-With');
   res.setHeader('Access-Control-Max-Age', '86400');
+  
+  // Always include credentials support
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
   
   // Set the origin - if it's in our whitelist, echo it back; otherwise use wildcard
   if (isOriginAllowed(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin);
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
     console.log(`[CORS] ✅ Allowed origin: ${origin}`);
   } else if (origin) {
-    // Non-whitelisted origin - still allow but without credentials
+    // For any origin, still allow it to see if it's a legitimate request
+    // The browser will handle the decision based on Access-Control-Allow-Origin
     res.setHeader('Access-Control-Allow-Origin', origin);
-    console.log(`[CORS] ⚠️ Non-whitelisted origin: ${origin} - allowing without credentials`);
+    console.log(`[CORS] ℹ️ Origin ${origin} allowed to test`);
   } else {
-    // No origin header - allow without credentials
+    // No origin header - this is a same-origin or non-browser request
     res.setHeader('Access-Control-Allow-Origin', '*');
-    console.log(`[CORS] ℹ️ No origin header provided`);
+    console.log(`[CORS] ℹ️ No origin header provided, using *`);
   }
   
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
@@ -102,30 +105,33 @@ async function handleLogin(req, res) {
   } catch (error) {
     console.error('[Login] Error:', error.message);
     res.setHeader('Content-Type', 'application/json');
-    return res.status(500).json({
+    res.statusCode = 500;
+    return res.end(JSON.stringify({
       success: false,
       message: 'Server error',
       error: error.message
-    });
+    }));
   }
 }
 
 function handleHealth(req, res) {
   res.setHeader('Content-Type', 'application/json');
-  return res.status(200).json({
+  res.statusCode = 200;
+  return res.end(JSON.stringify({
     status: 'OK',
     timestamp: new Date().toISOString(),
     environment: 'production',
     database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
-  });
+  }));
 }
 
 function handleNotFound(req, res) {
-  res.setHeader('Content-Type', 'application/json');
-  return res.status(404).json({
+  res.statusCode = 404;
+  return res.end(JSON.stringify({
     success: false,
     message: 'Not found',
     path: req.url
+  }) path: req.url
   });
 }
 
@@ -150,8 +156,8 @@ async function handler(req, res) {
     
     // Handle preflight OPTIONS requests immediately
     if (req.method === 'OPTIONS') {
-      console.log('[API] ✅ Handling OPTIONS preflight - sending CORS response');
-      return res.status(200).end();
+      cos.statusCode = 200;
+      return res.end();
     }
     
     // Parse URL and route appropriately
@@ -171,10 +177,12 @@ async function handler(req, res) {
   } catch (error) {
     console.error('[API] Unhandled error:', error);
     res.setHeader('Content-Type', 'application/json');
-    return res.status(500).json({
+    res.statusCode = 500;
+    return res.end(JSON.stringify({
       success: false,
       message: 'Internal server error',
       error: error.message
+    }) error: error.message
     });
   }
 }

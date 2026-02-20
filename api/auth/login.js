@@ -57,8 +57,7 @@ function setCORSHeaders(req, res) {
 }
 
 module.exports = async function handler(req, res) {
-  // Set CORS headers FIRST
-  setCORSHeaders(req, res);
+  // CORS headers are already set by the main API handler, don't set them again
   
   // Set JSON content type (if not already set)
   if (!res.getHeader('Content-Type')) {
@@ -70,8 +69,7 @@ module.exports = async function handler(req, res) {
   // Handle preflight OPTIONS request
   if (req.method === "OPTIONS") {
     console.log('[Login] Handling OPTIONS preflight request');
-    res.setHeader("Content-Type", "application/json; charset=utf-8");
-    res.writeHead(200);
+    res.statusCode = 200;
     return res.end();
   }
 
@@ -87,19 +85,22 @@ module.exports = async function handler(req, res) {
       console.log('[Login] Attempt for user:', username);
 
       if (!username || !password) {
-        return res.status(400).json({ success: false, message: "Username and password are required" });
+        res.statusCode = 400;
+        return res.end(JSON.stringify({ success: false, message: "Username and password are required" }));
       }
 
       const admin = await Admin.findOne({ username: username.trim() }).select('+password');
 
       if (!admin) {
         console.log('[Login] User not found:', username);
-        return res.status(401).json({ success: false, message: "Invalid credentials" });
+        res.statusCode = 401;
+        return res.end(JSON.stringify({ success: false, message: "Invalid credentials" }));
       }
 
       if (!admin.isActive) {
         console.log('[Login] Account inactive:', username);
-        return res.status(401).json({ success: false, message: "Account is inactive" });
+        res.statusCode = 401;
+        return res.end(JSON.stringify({ success: false, message: "Account is inactive" }));
       }
 
       const isPasswordValid = await admin.comparePassword(password);
@@ -109,7 +110,8 @@ module.exports = async function handler(req, res) {
         admin.failedLoginAttempts = (admin.failedLoginAttempts || 0) + 1;
         admin.lastFailedLogin = new Date();
         await admin.save();
-        return res.status(401).json({ success: false, message: "Invalid credentials" });
+        res.statusCode = 401;
+        return res.end(JSON.stringify({ success: false, message: "Invalid credentials" }));
       }
 
       console.log('[Login] Valid password for user:', username);
@@ -139,7 +141,8 @@ module.exports = async function handler(req, res) {
       res.appendHeader('Set-Cookie', `refreshToken=${refreshToken}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=604800`);
 
       console.log('[Login] Success for user:', username);
-      return res.status(200).json({
+      res.statusCode = 200;
+      return res.end(JSON.stringify({
         success: true,
         message: "Login successful",
         accessToken: accessToken,
@@ -149,12 +152,14 @@ module.exports = async function handler(req, res) {
           email: admin.email,
           role: admin.role
         }
-      });
+      }));
     } catch (error) {
       console.error('[Login] Error:', error.message);
-      return res.status(500).json({ success: false, message: "Server error", error: error.message });
+      res.statusCode = 500;
+      return res.end(JSON.stringify({ success: false, message: "Server error", error: error.message }));
     }
   }
 
-  return res.status(405).json({ success: false, message: "Method not allowed" });
+  res.statusCode = 405;
+  return res.end(JSON.stringify({ success: false, message: "Method not allowed" }));
 };

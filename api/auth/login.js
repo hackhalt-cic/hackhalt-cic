@@ -7,12 +7,19 @@ module.exports = async function handler(req, res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
   res.setHeader("X-Content-Type-Options", "nosniff");
   
-  // CORS headers - Allow all origins for public login endpoint
-  // The origin check happens in server.js for full CORS control
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  res.setHeader("Access-Control-Allow-Credentials", "true");
+  // Note: CORS headers are now handled by Express middleware in api/index.js
+  // Only set these as fallback if CORS middleware hasn't already set them
+  if (!res.getHeader("Access-Control-Allow-Origin")) {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+  }
+  
+  if (!res.getHeader("Access-Control-Allow-Methods")) {
+    res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+  }
+  
+  if (!res.getHeader("Access-Control-Allow-Headers")) {
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  }
 
   // Handle preflight
   if (req.method === "OPTIONS") {

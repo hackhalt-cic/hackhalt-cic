@@ -1,10 +1,11 @@
 /**
- * Ultra-Minimal CORS-First Handler with Submissions Routes
+ * CORS-First Handler with Direct Submissions Routes
  * Handles login, submissions, and other API endpoints
  */
 
-const express = require('express');
 const mongoose = require('mongoose');
+const ContactSubmission = require('../models/ContactSubmission');
+const BlogSubmission = require('../models/BlogSubmission');
 
 // Simple synchronous body parser for small payloads
 function parseBodySync(req) {
@@ -85,9 +86,9 @@ module.exports = async (req, res) => {
       return await loginHandler(req, res);
     }
     
-    // Submissions endpoints
+    // Submissions endpoints - Direct handling
     if (urlPath.startsWith('/api/submissions')) {
-      console.log('[API] → Delegating to submissions handler');
+      console.log('[API] → Handling submissions endpoint');
       
       // Initialize database if needed
       if (mongoose.connections[0].readyState === 0) {
@@ -99,45 +100,152 @@ module.exports = async (req, res) => {
           res.statusCode = 503;
           return res.end(JSON.stringify({
             success: false,
-            error: 'Database unavailable'
+            error: 'Database unavailable',
+            message: dbError.message
           }));
         }
       }
       
-      // Parse body if needed
-      if (!req.body) {
-        req.body = await parseBodySync(req);
+      // GET /api/submissions/contact
+      if (urlPath === '/api/submissions/contact' && method === 'GET') {
+        try {
+          const { purpose } = Object.fromEntries(new URL(`http://dummy${url}`).searchParams);
+          
+          const query = {};
+          if (purpose) {
+            query.purpose = purpose;
+          }
+          
+          console.log('[API] Fetching contact submissions with query:', query);
+          const submissions = await ContactSubmission.find(query)
+            .sort({ createdAt: -1 })
+            .limit(1000)
+            .lean();
+          
+          res.statusCode = 200;
+          return res.end(JSON.stringify({
+            success: true,
+            submissions: submissions,
+            data: submissions,
+            count: submissions.length
+          }));
+        } catch (error) {
+          console.error('[API] Contact submissions error:', error.message);
+          res.statusCode = 500;
+          return res.end(JSON.stringify({
+            success: false,
+            error: 'Failed to fetch contact submissions',
+            message: error.message
+          }));
+        }
       }
       
-      // Create mock Express app to use router
-      const app = express();
-      app.use(express.json());
-      
-      const submissionsRouter = require('../routes/submissions');
-      app.use('/api/submissions', submissionsRouter);
-      
-      // Create a mock response to capture Express output
-      const oldEnd = res.end;
-      const oldJson = res.json;
-      let finished = false;
-      
-      res.json = function(data) {
-        if (!finished) {
-          finished = true;
-          res.setHeader('Content-Type', 'application/json; charset=utf-8');
-          oldEnd.call(res, JSON.stringify(data));
+      // GET /api/submissions/contact/:id
+      if (urlPath.match(/^\/api\/submissions\/contact\/[^/]+$/) && method === 'GET') {
+        try {
+          const id = urlPath.split('/').pop();
+          console.log('[API] Fetching single contact submission:', id);
+          
+          const submission = await ContactSubmission.findById(id).lean();
+          
+          if (!submission) {
+            res.statusCode = 404;
+            return res.end(JSON.stringify({
+              success: false,
+              error: 'Contact submission not found'
+            }));
+          }
+          
+          res.statusCode = 200;
+          return res.end(JSON.stringify({
+            success: true,
+            data: submission
+          }));
+        } catch (error) {
+          console.error('[API] Contact submission error:', error.message);
+          res.statusCode = 500;
+          return res.end(JSON.stringify({
+            success: false,
+            error: 'Failed to fetch contact submission',
+            message: error.message
+          }));
         }
-      };
+      }
       
-      res.end = function(data) {
-        if (!finished) {
-          finished = true;
-          oldEnd.call(res, data);
+      // GET /api/submissions/blogs
+      if (urlPath === '/api/submissions/blogs' && method === 'GET') {
+        try {
+          const { status } = Object.fromEntries(new URL(`http://dummy${url}`).searchParams);
+          
+          const query = {};
+          if (status) {
+            query.status = status;
+          }
+          
+          console.log('[API] Fetching blog submissions with query:', query);
+          const blogs = await BlogSubmission.find(query)
+            .sort({ createdAt: -1 })
+            .limit(1000)
+            .lean();
+          
+          res.statusCode = 200;
+          return res.end(JSON.stringify({
+            success: true,
+            submissions: blogs,
+            blogs: blogs,
+            data: blogs,
+            count: blogs.length
+          }));
+        } catch (error) {
+          console.error('[API] Blog submissions error:', error.message);
+          res.statusCode = 500;
+          return res.end(JSON.stringify({
+            success: false,
+            error: 'Failed to fetch blog submissions',
+            message: error.message
+          }));
         }
-      };
+      }
       
-      // Route through Express app
-      return app(req, res);
+      // GET /api/submissions/blogs/:id
+      if (urlPath.match(/^\/api\/submissions\/blogs\/[^/]+$/) && method === 'GET') {
+        try {
+          const id = urlPath.split('/').pop();
+          console.log('[API] Fetching single blog submission:', id);
+          
+          const blog = await BlogSubmission.findById(id).lean();
+          
+          if (!blog) {
+            res.statusCode = 404;
+            return res.end(JSON.stringify({
+              success: false,
+              error: 'Blog submission not found'
+            }));
+          }
+          
+          res.statusCode = 200;
+          return res.end(JSON.stringify({
+            success: true,
+            data: blog
+          }));
+        } catch (error) {
+          console.error('[API] Blog submission error:', error.message);
+          res.statusCode = 500;
+          return res.end(JSON.stringify({
+            success: false,
+            error: 'Failed to fetch blog submission',
+            message: error.message
+          }));
+        }
+      }
+      
+      // Unknown submissions route
+      res.statusCode = 404;
+      return res.end(JSON.stringify({
+        success: false,
+        message: 'Submissions endpoint not found',
+        path: urlPath
+      }));
     }
     
     // 404

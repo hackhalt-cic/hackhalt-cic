@@ -536,16 +536,22 @@
           controller.abort();
         }, 30000); // 30 second timeout
         
+        // Detect cross-origin (Hostinger frontend -> Vercel backend)
+        const isCrossOrigin = apiUrl.startsWith('http') && !apiUrl.startsWith(window.location.origin);
+        
         const response = await fetch(apiUrl, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
           },
-          credentials: 'include',
+          mode: isCrossOrigin ? 'cors' : 'same-origin',
+          credentials: isCrossOrigin ? 'omit' : 'include', // Don't send cookies cross-origin, use Bearer token
           body: requestBody,
           signal: controller.signal
         });
+        
+        console.log('[LOGIN] Cross-origin:', isCrossOrigin);
 
         console.log('[LOGIN] Response received');
         console.log('[LOGIN] Response status:', response.status);

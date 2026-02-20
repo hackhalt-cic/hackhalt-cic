@@ -6,8 +6,19 @@ const Admin = require('../../models/Admin');
 const DB_TIMEOUT = 5000; // 5 seconds
 
 module.exports = async function handler(req, res) {
-  // CORS headers are already set by the main API handler
-  // DO NOT set them again here - they're already in the response
+  // Set CORS headers (safe to set even if already set by catch-all handler)
+  const origin = (req.headers.origin || req.headers.Origin || '').trim();
+  res.setHeader('Access-Control-Allow-Origin', origin || '*');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, POST, PUT, DELETE, PATCH, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept');
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
+  
+  // Handle OPTIONS preflight
+  if (req.method === 'OPTIONS') {
+    res.statusCode = 200;
+    return res.end();
+  }
   
   console.log('[Login] Starting login handler...');
   
@@ -18,7 +29,20 @@ module.exports = async function handler(req, res) {
   }
 
   try {
+    // Parse body if not already parsed (when called directly by Vercel, not via catch-all)
     if (!req.body) {
+      req.body = await new Promise((resolve, reject) => {
+        let body = '';
+        req.on('data', chunk => { body += chunk.toString(); });
+        req.on('end', () => {
+          try { resolve(body ? JSON.parse(body) : {}); }
+          catch (e) { resolve({}); }
+        });
+        req.on('error', reject);
+      });
+    }
+
+    if (!req.body || Object.keys(req.body).length === 0) {
       console.log('[Login] No body provided');
       res.statusCode = 400;
       return res.end(JSON.stringify({ success: false, message: 'No request body' }));
@@ -108,9 +132,9 @@ module.exports = async function handler(req, res) {
       { expiresIn: '7d' }
     );
 
-    // Set cookies
-    res.setHeader('Set-Cookie', `adminToken=${accessToken}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=900`);
-    res.appendHeader('Set-Cookie', `refreshToken=${refreshToken}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=604800`);
+    // Set cookies - use SameSite=None for cross-domain (Hostinger -> Vercel)
+    res.setHeader('Set-Cookie', `adminToken=${accessToken}; Path=/; HttpOnly; Secure; SameSite=None; Max-Age=900`);
+    res.appendHeader('Set-Cookie', `refreshToken=${refreshToken}; Path=/; HttpOnly; Secure; SameSite=None; Max-Age=604800`);
 
     console.log('[Login] ✅ Login successful for user:', username);
     res.statusCode = 200;

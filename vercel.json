@@ -13,7 +13,7 @@
   ],
   "routes": [
     {
-      "src": "/api/.*",
+      "src": "/api/(.*)",
       "dest": "/api/[...].js"
     },
     {
@@ -25,11 +25,11 @@
       "dest": "/public/images/$1"
     },
     {
-      "src": "/(admin-login|admin|blog-admin|add-blog|about|blogs|book-session|community|contact|events|legal-compliance|partners|404|index)\\.html",
+      "src": "/(admin-login|admin|blog-admin|add-blog|about|blogs|book-session|community|contact|events|legal-compliance|partners|404|index)$",
       "dest": "/public/$1.html"
     },
     {
-      "src": "/(.+)",
+      "src": "/(?!api)(.+)",
       "dest": "/public/$1"
     },
     {

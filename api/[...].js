@@ -159,8 +159,19 @@ module.exports = async (req, res) => {
     if ((normalizedPath === '/auth/login') && method === 'POST') {
       console.log('[API] → Delegating to login handler');
       
-      // Parse body first
-      req.body = await parseBodySync(req);
+      // Parse body - check if Vercel runtime already parsed it
+      if (!req.body || (typeof req.body === 'object' && Object.keys(req.body).length === 0)) {
+        try {
+          req.body = await Promise.race([
+            parseBodySync(req),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('Body parse timeout')), 3000))
+          ]);
+        } catch (e) {
+          console.warn('[API] Body parse failed/timeout, using existing req.body:', req.body);
+        }
+      } else {
+        console.log('[API] Body already parsed by Vercel runtime');
+      }
       
       const loginHandler = require('../api/auth/login');
       return await loginHandler(req, res);

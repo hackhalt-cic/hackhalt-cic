@@ -21,6 +21,14 @@
       "dest": "/public/images/$1"
     },
     {
+      "src": "/api/auth/login",
+      "dest": "/api/auth/login.js"
+    },
+    {
+      "src": "/api/auth(.*)",
+      "dest": "/api/auth/index.js"
+    },
+    {
       "src": "/api/(.*)",
       "dest": "/api/[...].js"
     },

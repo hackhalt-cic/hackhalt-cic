@@ -29,17 +29,31 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    // Parse body if not already parsed (when called directly by Vercel, not via catch-all)
-    if (!req.body) {
-      req.body = await new Promise((resolve, reject) => {
-        let body = '';
-        req.on('data', chunk => { body += chunk.toString(); });
-        req.on('end', () => {
-          try { resolve(body ? JSON.parse(body) : {}); }
-          catch (e) { resolve({}); }
-        });
-        req.on('error', reject);
-      });
+    // Parse body if not already parsed by Vercel runtime or catch-all handler
+    if (!req.body || (typeof req.body === 'object' && Object.keys(req.body).length === 0)) {
+      try {
+        req.body = await Promise.race([
+          new Promise((resolve, reject) => {
+            let body = '';
+            req.on('data', chunk => { body += chunk.toString(); });
+            req.on('end', () => {
+              try { resolve(body ? JSON.parse(body) : {}); }
+              catch (e) { resolve({}); }
+            });
+            req.on('error', reject);
+          }),
+          // Timeout protection: if stream is already consumed by Vercel, this prevents hanging
+          new Promise((resolve) => setTimeout(() => {
+            console.warn('[Login] Body stream parse timeout - likely pre-parsed by runtime');
+            resolve(req.body || {});
+          }, 2000))
+        ]);
+      } catch (parseErr) {
+        console.warn('[Login] Body parse error:', parseErr.message);
+        // Fall back to whatever req.body already has
+      }
+    } else {
+      console.log('[Login] Body already parsed:', typeof req.body);
     }
 
     if (!req.body || Object.keys(req.body).length === 0) {
@@ -133,8 +147,11 @@ module.exports = async function handler(req, res) {
     );
 
     // Set cookies - use SameSite=None for cross-domain (Hostinger -> Vercel)
-    res.setHeader('Set-Cookie', `adminToken=${accessToken}; Path=/; HttpOnly; Secure; SameSite=None; Max-Age=900`);
-    res.appendHeader('Set-Cookie', `refreshToken=${refreshToken}; Path=/; HttpOnly; Secure; SameSite=None; Max-Age=604800`);
+    // Use array form for multiple Set-Cookie headers (appendHeader not available in all runtimes)
+    res.setHeader('Set-Cookie', [
+      `adminToken=${accessToken}; Path=/; HttpOnly; Secure; SameSite=None; Max-Age=900`,
+      `refreshToken=${refreshToken}; Path=/; HttpOnly; Secure; SameSite=None; Max-Age=604800`
+    ]);
 
     console.log('[Login] ✅ Login successful for user:', username);
     res.statusCode = 200;

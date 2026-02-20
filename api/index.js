@@ -36,7 +36,11 @@ function isOriginAllowed(origin) {
 }
 
 function setCORSHeaders(req, res) {
-  const origin = req.headers.origin || req.headers.referer;
+  // Get origin - Node.js normalizes header names to lowercase
+  const origin = req.headers.origin || req.headers.Origin;
+  
+  console.log(`[CORS] Incoming origin: ${origin}`);
+  console.log(`[CORS] All headers:`, Object.keys(req.headers));
   
   // For preflight, be permissive to allow the browser to proceed
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
@@ -45,13 +49,17 @@ function setCORSHeaders(req, res) {
   
   // Set the origin - if it's in our whitelist, echo it back; otherwise use wildcard
   if (isOriginAllowed(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin || '*');
+    res.setHeader('Access-Control-Allow-Origin', origin);
     res.setHeader('Access-Control-Allow-Credentials', 'true');
-    console.log(`[CORS] ✅ Allowed origin: ${origin || 'no-origin'}`);
+    console.log(`[CORS] ✅ Allowed origin: ${origin}`);
+  } else if (origin) {
+    // Non-whitelisted origin - still allow but without credentials
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    console.log(`[CORS] ⚠️ Non-whitelisted origin: ${origin} - allowing without credentials`);
   } else {
-    // Still allow the request but without credentials
+    // No origin header - allow without credentials
     res.setHeader('Access-Control-Allow-Origin', '*');
-    console.log(`[CORS] ⚠️ Non-whitelisted origin: ${origin}`);
+    console.log(`[CORS] ℹ️ No origin header provided`);
   }
   
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
@@ -122,8 +130,10 @@ function handleNotFound(req, res) {
 }
 
 function handleOptions(req, res) {
+  console.log('[API] OPTIONS request - sending CORS preflight response');
   res.setHeader('Content-Type', 'application/json');
-  return res.status(200).end();
+  res.writeHead(200);
+  return res.end();
 }
 
 // ============================================
@@ -133,14 +143,15 @@ function handleOptions(req, res) {
 async function handler(req, res) {
   try {
     console.log(`[API] ${req.method} ${req.url}`);
+    console.log(`[API] Origin header: ${req.headers.origin}`);
     
     // Always set CORS headers FIRST
     setCORSHeaders(req, res);
     
-    // Handle preflight OPTIONS requests
+    // Handle preflight OPTIONS requests immediately
     if (req.method === 'OPTIONS') {
-      console.log('[API] Handling OPTIONS preflight request');
-      return handleOptions(req, res);
+      console.log('[API] ✅ Handling OPTIONS preflight - sending CORS response');
+      return res.status(200).end();
     }
     
     // Parse URL and route appropriately

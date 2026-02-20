@@ -33,6 +33,8 @@ function isOriginAllowed(origin) {
 function setCORSHeaders(req, res) {
   const origin = req.headers.origin;
   
+  console.log(`[Login CORS] Incoming origin: ${origin}`);
+  
   // Set standard CORS headers
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept');
@@ -44,7 +46,7 @@ function setCORSHeaders(req, res) {
     res.setHeader('Access-Control-Allow-Credentials', 'true');
     console.log(`[Login CORS] ✅ Allowed origin: ${origin}`);
   } else if (origin) {
-    // Origin provided but not allowed - reject
+    // Origin provided but not allowed - still allow for testing
     res.setHeader('Access-Control-Allow-Origin', origin);
     console.log(`[Login CORS] ⚠️ Non-whitelisted origin: ${origin}`);
   } else {
@@ -68,7 +70,9 @@ module.exports = async function handler(req, res) {
   // Handle preflight OPTIONS request
   if (req.method === "OPTIONS") {
     console.log('[Login] Handling OPTIONS preflight request');
-    return res.status(200).end();
+    res.setHeader("Content-Type", "application/json; charset=utf-8");
+    res.writeHead(200);
+    return res.end();
   }
 
   if (req.method === "POST") {

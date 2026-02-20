@@ -1,162 +1,87 @@
 /**
- * Main API Handler for Vercel - CORS-First Approach
- * All routes go through this handler with CORS headers set immediately
+ * Ultra-Minimal CORS-First Handler
+ * No dependencies, no complications - just set headers and respond
  */
 
-const mongoose = require('mongoose');
-
-// ============================================
-// CORS Configuration
-// ============================================
-const ALLOWED_ORIGINS = [
-  'https://hackhalt.org',
-  'https://www.hackhalt.org',
-  'https://hackhalt-cic-lemon.vercel.app',
-  'https://hackhalt-cic.vercel.app',
-  'http://localhost:5000',
-  'http://localhost:3000',
-  'http://127.0.0.1:5000',
-  'http://127.0.0.1:3000'
-];
-
-function isOriginAllowed(origin) {
-  if (!origin) return true;
-  if (ALLOWED_ORIGINS.includes(origin)) return true;
-  
-  const regexPatterns = [
-    /https:\/\/.*\.vercel\.app$/,
-    /https:\/\/.*\.hostinger\..*/
-  ];
-  
-  return regexPatterns.some(pattern => pattern.test(origin));
-}
-
-// ============================================
-// Body Parser
-// ============================================
-function parseBody(req) {
+// Simple synchronous body parser for small payloads
+function parseBodySync(req) {
   return new Promise((resolve, reject) => {
     let body = '';
-    
-    req.on('data', chunk => {
-      body += chunk.toString();
-    });
-    
+    req.on('data', chunk => { body += chunk.toString(); });
     req.on('end', () => {
       try {
-        const parsed = body ? JSON.parse(body) : {};
-        resolve(parsed);
-      } catch (error) {
-        reject(new Error('Invalid JSON in request body'));
+        resolve(body ? JSON.parse(body) : {});
+      } catch (e) {
+        reject(new Error('Invalid JSON'));
       }
     });
-    
     req.on('error', reject);
   });
 }
 
-// ============================================
-// MAIN HANDLER ENTRY POINT
-// ============================================
 module.exports = async (req, res) => {
-  const origin = req.headers.origin || req.headers.Origin || '';
+  const origin = (req.headers.origin || req.headers.Origin || '').trim();
   const method = req.method;
   const url = req.url;
   
-  console.log(`\n[API] ═══════════════════════════════════════`);
-  console.log(`[API] ${method} ${url}`);
-  console.log(`[API] Origin: ${origin || 'NONE'}`);
-  
-  // =========================================
-  // CRITICAL: SET CORS HEADERS IMMEDIATELY
-  // =========================================
-  res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET, HEAD, POST, PUT, DELETE, PATCH');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept, X-Requested-With');
-  res.setHeader('Access-Control-Max-Age', '86400');
+  // CRITICAL: Set CORS headers FIRST, BEFORE anything else
+  // This must happen for every single response
+  res.setHeader('Access-Control-Allow-Origin', origin || '*');
   res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, POST, PUT, DELETE, PATCH, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept');
+  res.setHeader('Access-Control-Max-Age', '86400');
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
   
-  // Always set the origin header
-  if (origin) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
-    console.log(`[API] ✅ CORS Allow-Origin: ${origin}`);
-  } else {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    console.log(`[API] ✅ CORS Allow-Origin: *`);
-  }
+  console.log(`[API] ${method} ${url} | Origin: ${origin || 'NONE'}`);
   
-  // =========================================
-  // HANDLE OPTIONS PREFLIGHT IMMEDIATELY
-  // =========================================
+  // Handle OPTIONS immediately with headers set
   if (method === 'OPTIONS') {
-    console.log('[API] OPTIONS preflight - returning 204');
-    res.statusCode = 204;
-    res.end();
-    return;
+    console.log('[API] OPTIONS preflight response');
+    res.statusCode = 200;
+    return res.end();
   }
   
   try {
-    // Parse request path
     const urlPath = url.split('?')[0];
     
-    // =========================================
-    // ROUTE HANDLER
-    // =========================================
-    
-    // Health check endpoint
+    // Health check
     if (urlPath === '/api/health') {
-      console.log('[API] → Health endpoint');
+      console.log('[API] → Health check');
       res.statusCode = 200;
-      res.end(JSON.stringify({
-        status: 'OK',
-        timestamp: new Date().toISOString(),
-        environment: 'production',
-        database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
+      return res.end(JSON.stringify({ 
+        status: 'OK', 
+        time: new Date().toISOString() 
       }));
-      return;
     }
     
     // Login endpoint
     if (urlPath === '/api/auth/login' && method === 'POST') {
-      console.log('[API] → Login endpoint');
+      console.log('[API] → Delegating to login handler');
       
-      // Parse body
-      req.body = await parseBody(req);
+      // Parse body first
+      req.body = await parseBodySync(req);
       
-      // Load and execute login handler
       const loginHandler = require('./auth/login');
       return await loginHandler(req, res);
     }
     
-    // Catch-all 404
-    console.log('[API] → 404 Not Found');
+    // 404
     res.statusCode = 404;
-    res.end(JSON.stringify({
-      success: false,
-      message: 'API endpoint not found',
-      path: urlPath,
-      method: method
+    return res.end(JSON.stringify({ 
+      success: false, 
+      message: 'Not found',
+      path: urlPath
     }));
     
   } catch (error) {
-    console.error('[API] ❌ ERROR:', error.message);
-    console.error('[API] Stack:', error.stack);
-    
-    // Ensure headers are still set in error case
-    if (!res.headersSent) {
-      res.setHeader('Content-Type', 'application/json');
-      if (origin) {
-        res.setHeader('Access-Control-Allow-Origin', origin);
-      } else {
-        res.setHeader('Access-Control-Allow-Origin', '*');
-      }
-    }
+    console.error('[API] ERROR:', error.message);
     
     res.statusCode = 500;
-    res.end(JSON.stringify({
-      success: false,
-      message: 'Internal server error',
-      error: error.message
+    return res.end(JSON.stringify({ 
+      success: false, 
+      message: 'Server error',
+      error: error.message 
     }));
   }
 };

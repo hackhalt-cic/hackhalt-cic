@@ -22,16 +22,21 @@ if (isDevelopment) {
   BACKEND_API_URL = 'https://hackhalt-cic-lemon.vercel.app';
 }
 
+console.log('[API CONFIG] ════════════════════════════════════════');
 console.log('[API CONFIG] Environment detected:', isDevelopment ? 'development' : 'production');
 console.log('[API CONFIG] Backend URL:', BACKEND_API_URL);
 console.log('[API CONFIG] Frontend origin:', window.location.origin);
 console.log('[API CONFIG] Frontend hostname:', window.location.hostname);
+console.log('[API CONFIG] ════════════════════════════════════════');
 
 function getApiUrl(endpoint) {
   if (!endpoint.startsWith('/')) {
     endpoint = '/' + endpoint;
   }
-  const fullUrl = BACKEND_API_URL + endpoint;
+  // Add cache buster for API calls
+  const separator = endpoint.includes('?') ? '&' : '?';
+  const cacheBuster = `_t=${Date.now()}`;
+  const fullUrl = BACKEND_API_URL + endpoint + separator + cacheBuster;
   console.log('[API CONFIG] Full API URL:', fullUrl);
   return fullUrl;
 }

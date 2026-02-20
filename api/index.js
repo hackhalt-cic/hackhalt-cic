@@ -55,6 +55,22 @@ module.exports = async (req, res) => {
       }));
     }
     
+    // CORS test endpoint
+    if (urlPath === '/api/cors-test') {
+      console.log('[API] → CORS test endpoint');
+      res.statusCode = 200;
+      return res.end(JSON.stringify({
+        message: 'CORS test - if you see this, CORS is working!',
+        origin: origin || 'NONE',
+        method: method,
+        headers: {
+          'Access-Control-Allow-Origin': res.getHeader('Access-Control-Allow-Origin'),
+          'Access-Control-Allow-Credentials': res.getHeader('Access-Control-Allow-Credentials'),
+          'Access-Control-Allow-Methods': res.getHeader('Access-Control-Allow-Methods')
+        }
+      }));
+    }
+    
     // Login endpoint
     if (urlPath === '/api/auth/login' && method === 'POST') {
       console.log('[API] → Delegating to login handler');

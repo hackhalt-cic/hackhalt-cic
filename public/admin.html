@@ -1416,11 +1416,25 @@
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', () => {
         console.log('📍 Admin panel initializing...');
+        console.log('🔑 Checking for auth token in sessionStorage...');
+        const token = getAuthToken();
+        if (token) {
+          console.log('✅ Token found in sessionStorage, length:', token.length);
+        } else {
+          console.warn('❌ No token found in sessionStorage - you may not be authenticated');
+        }
         setupPurposeFilter();
         loadData();
       });
     } else {
       console.log('📍 Admin panel initializing...');
+      console.log('🔑 Checking for auth token in sessionStorage...');
+      const token = getAuthToken();
+      if (token) {
+        console.log('✅ Token found in sessionStorage, length:', token.length);
+      } else {
+        console.warn('❌ No token found in sessionStorage - you may not be authenticated');
+      }
       setupPurposeFilter();
       loadData();
     }

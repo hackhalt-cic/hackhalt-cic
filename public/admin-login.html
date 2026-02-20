@@ -587,7 +587,16 @@
           throw new Error('Invalid server response - missing admin data');
         }
 
-        // Success
+        // Success - Store the access token for use in admin panel
+        if (data.accessToken) {
+          try {
+            sessionStorage.setItem('adminToken', data.accessToken);
+            console.log('[LOGIN] ✅ Token stored in sessionStorage for cross-domain API calls');
+          } catch (e) {
+            console.warn('[LOGIN] Could not store token in sessionStorage:', e.message);
+          }
+        }
+        
         console.log('[LOGIN] Login successful for user:', data.admin.username);
         successMessage.innerHTML = '<i class="fa-solid fa-check-circle"></i><span>Login successful! Redirecting to dashboard...</span>';
         successMessage.classList.add('show');

@@ -536,6 +536,46 @@
     }
   </style>
   <script src="assets/js/api-config.js"></script>
+  <script>
+    // Store auth token from login response
+    function storeAuthToken(token) {
+      try {
+        sessionStorage.setItem('adminToken', token);
+        console.log('[AUTH] Token stored in sessionStorage');
+      } catch (e) {
+        console.warn('[AUTH] Failed to store token in sessionStorage:', e);
+      }
+    }
+
+    // Retrieve auth token from storage
+    function getAuthToken() {
+      try {
+        return sessionStorage.getItem('adminToken');
+      } catch (e) {
+        console.warn('[AUTH] Failed to retrieve token from sessionStorage:', e);
+        return null;
+      }
+    }
+
+    // Helper to make API calls with auth token
+    async function apiCall(url, options = {}) {
+      const token = getAuthToken();
+      const headers = options.headers || {};
+      
+      // Add token to Authorization header if available
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      
+      const finalOptions = {
+        ...options,
+        headers,
+        credentials: 'include' // Still send cookies as fallback for same-domain scenarios
+      };
+      
+      return fetch(url, finalOptions);
+    }
+  </script>
 </head>
 <body>
   <header>
@@ -757,18 +797,15 @@
         
         // Fetch with backend filtering for each purpose type
         const [contactResp, joinResp, ambassadorResp] = await Promise.all([
-          fetch(apiBase + '/api/submissions/contact?purpose=' + encodeURIComponent('Contact Inquiry'), { 
-            credentials: 'include',
+          apiCall(apiBase + '/api/submissions/contact?purpose=' + encodeURIComponent('Contact Inquiry'), { 
             method: 'GET',
             headers: { 'Content-Type': 'application/json' }
           }),
-          fetch(apiBase + '/api/submissions/contact?purpose=' + encodeURIComponent('Join Initiative'), { 
-            credentials: 'include',
+          apiCall(apiBase + '/api/submissions/contact?purpose=' + encodeURIComponent('Join Initiative'), { 
             method: 'GET',
             headers: { 'Content-Type': 'application/json' }
           }),
-          fetch(apiBase + '/api/submissions/contact?purpose=' + encodeURIComponent('Ambassador Application'), { 
-            credentials: 'include',
+          apiCall(apiBase + '/api/submissions/contact?purpose=' + encodeURIComponent('Ambassador Application'), { 
             method: 'GET',
             headers: { 'Content-Type': 'application/json' }
           })
@@ -1070,8 +1107,7 @@
       
       try {
         console.log('📡 Fetching blogs from:', apiBase + '/api/submissions/blogs');
-        const resp = await fetch(apiBase + '/api/submissions/blogs', { 
-          credentials: 'include',
+        const resp = await apiCall(apiBase + '/api/submissions/blogs', { 
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'
@@ -1137,7 +1173,7 @@
     async function showBlogView(blogId) {
       try {
         if (!blogCache[blogId]) {
-          const resp = await fetch(apiBase + '/api/submissions/blogs', { credentials: 'include' });
+          const resp = await apiCall(apiBase + '/api/submissions/blogs', { method: 'GET' });
           if (!resp.ok) throw new Error(`API Error (${resp.status})`);
           const data = await resp.json();
           if (!data.success) throw new Error(data.error);
@@ -1196,10 +1232,9 @@
       const content = document.getElementById('blogContent').value;
 
       try {
-        const resp = await fetch(apiBase + '/api/blog', {
+        const resp = await apiCall(apiBase + '/api/blog', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
           body: JSON.stringify({ title, author, category, content, image })
         });
 
@@ -1217,7 +1252,7 @@
     async function showEditBlogForm(blogId) {
       try {
         if (!blogCache[blogId]) {
-          const resp = await fetch(apiBase + '/api/submissions/blogs', { credentials: 'include' });
+          const resp = await apiCall(apiBase + '/api/submissions/blogs', { method: 'GET' });
           if (!resp.ok) throw new Error(`API Error (${resp.status})`);
           const data = await resp.json();
           if (!data.success) throw new Error(data.error);
@@ -1283,10 +1318,9 @@
         }
 
         const payload = { title, author, category, content, image, status };
-        const resp = await fetch(apiBase + '/api/blog/' + id, {
+        const resp = await apiCall(apiBase + '/api/blog/' + id, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
           body: JSON.stringify(payload)
         });
 
@@ -1304,10 +1338,9 @@
     // Update Blog Status (Approve/Deny)
     async function updateBlogStatus(blogId, status) {
       try {
-        const resp = await fetch(apiBase + '/api/blog/' + blogId, {
+        const resp = await apiCall(apiBase + '/api/blog/' + blogId, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
           body: JSON.stringify({ status })
         });
 
@@ -1340,9 +1373,8 @@
         
         console.log(`🗑️  Deleting ${type} submission:`, id);
         
-        const resp = await fetch(apiBase + endpoint, {
-          method: 'DELETE',
-          credentials: 'include'
+        const resp = await apiCall(apiBase + endpoint, {
+          method: 'DELETE'
         });
 
         if (!resp.ok) throw new Error(`Delete failed (${resp.status})`);

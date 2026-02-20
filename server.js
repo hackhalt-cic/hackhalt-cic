@@ -4,9 +4,11 @@ const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
 const mongoose = require('mongoose');
-const secureAdminAuth = require('./routes/secureAdminAuth');
-const submissionsRouter = require('./routes/submissions');
-const blogRouter = require('./routes/blog');
+
+// Lazy require routes only when needed
+const getSecureAdminAuth = () => require('./routes/secureAdminAuth');
+const getSubmissionsRouter = () => require('./routes/submissions');
+const getBlogRouter = () => require('./routes/blog');
 
 const app = express();
 
@@ -21,40 +23,49 @@ const connectDB = async (retries = MAX_CONNECTION_ATTEMPTS) => {
     const mongoURI = process.env.MONGODB_URI;
     
     if (!mongoURI) {
-      throw new Error('MONGODB_URI is not defined in environment variables.');
+      console.warn('⚠️ MONGODB_URI is not defined - running without database');
+      return null;
+    }
+
+    // Skip if already connected
+    if (mongoose.connection.readyState === 1) {
+      console.log('✅ Already connected to MongoDB');
+      return mongoose.connection;
     }
 
     console.log('🔄 Connecting to MongoDB...');
     
     const conn = await mongoose.connect(mongoURI, {
-      serverSelectionTimeoutMS: 3000,
-      socketTimeoutMS: 10000,
-      connectTimeoutMS: 5000,
+      serverSelectionTimeoutMS: 2000,
+      socketTimeoutMS: 5000,
+      connectTimeoutMS: 3000,
       family: 4,
       retryWrites: true,
       w: 'majority',
-      maxPoolSize: 2,
+      maxPoolSize: 1,
       minPoolSize: 0,
-      maxIdleTimeMS: 10000,
-      waitQueueTimeoutMS: 3000,
+      maxIdleTimeMS: 5000,
+      waitQueueTimeoutMS: 2000,
       autoCreate: true
     });
 
     console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
     isConnecting = false;
+    connectionAttempts = 0;
     return conn;
   } catch (error) {
     console.error('❌ MongoDB Connection Error:', error.message);
     isConnecting = false;
     
     if (retries > 0) {
-      const delayMs = (MAX_CONNECTION_ATTEMPTS - retries + 1) * 1000;
-      console.log(`⏳ Retrying connection (${retries} attempts left) in ${delayMs}ms...`);
+      const delayMs = 1000;
+      console.log(`⏳ Retrying connection (${retries} attempts left)...`);
       await new Promise(resolve => setTimeout(resolve, delayMs));
       return connectDB(retries - 1);
     }
     
-    throw error;
+    console.error('❌ Max connection attempts reached - API will work without database');
+    return null;
   }
 };
 
@@ -62,38 +73,39 @@ const connectDB = async (retries = MAX_CONNECTION_ATTEMPTS) => {
 const ensureDBConnection = async () => {
   // If already connected, return
   if (mongoose.connection.readyState === 1) {
-    return;
+    return true;
   }
   
-  // If currently connecting, wait a bit and retry
+  // If currently connecting or max attempts reached, don't retry
   if (isConnecting || connectionAttempts >= MAX_CONNECTION_ATTEMPTS) {
-    console.warn('[DB] Connection already in progress or max attempts reached');
-    return;
+    return false;
   }
   
   // Try to connect
   isConnecting = true;
   connectionAttempts++;
   try {
-    await connectDB();
+    const result = await connectDB(1); // Only 1 retry attempt in middleware
+    return result !== null;
   } catch (error) {
-    console.error('[DB] Failed to connect after all retries:', error.message);
-    // Don't throw - allow the API to continue without DB
+    console.error('[DB] Failed to connect:', error.message);
+    return false;
   }
 };
 
 // Middleware to ensure DB connection before processing requests that need it
-const ensureDBMiddleware = async (req, res, next) => {
-  // Skip health check
+const ensureDBMiddleware = (req, res, next) => {
+  // Always skip health check
   if (req.path === '/api/health') {
     return next();
   }
   
-  // For other routes, try to ensure DB connection
-  try {
-    await ensureDBConnection();
-  } catch (error) {
-    console.error('[Middleware] Error ensuring DB connection:', error.message);
+  // For other routes, attempt connection in background without blocking
+  if (mongoose.connection.readyState !== 1 && !isConnecting && connectionAttempts < MAX_CONNECTION_ATTEMPTS) {
+    // Fire and forget - don't await or block the request
+    connectDB(1).catch(err => {
+      console.error('[DB Background] Connection error:', err.message);
+    });
   }
   
   next();
@@ -161,27 +173,53 @@ app.use(express.urlencoded({ extended: true }));
 // Middleware to ensure DB connection for routes that need it
 app.use(ensureDBMiddleware);
 
-// Health check endpoint - MUST be before router mounts
+// Health check endpoint - MUST be first and before all middleware that requires DB
 app.get('/api/health', (req, res) => {
-  res.set('Content-Type', 'application/json');
-  return res.json({ 
-    status: 'OK',
-    timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'development'
-  });
+  try {
+    res.set('Content-Type', 'application/json');
+    const dbStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
+    return res.status(200).json({ 
+      status: 'OK',
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV || 'development',
+      database: dbStatus
+    });
+  } catch (error) {
+    console.error('[Health] Error:', error.message);
+    res.set('Content-Type', 'application/json');
+    return res.status(200).json({
+      status: 'OK',
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV || 'development',
+      database: 'error',
+      error: error.message
+    });
+  }
 });
 
 // Auth routes MUST come before static file serving
 console.log('[INIT] Mounting /api/auth routes...');
-app.use('/api/auth', secureAdminAuth);
+try {
+  app.use('/api/auth', getSecureAdminAuth());
+} catch (error) {
+  console.error('[ERROR] Failed to load auth routes:', error.message);
+}
 
 // Submissions routes for admin dashboard
 console.log('[INIT] Mounting /api/submissions routes...');
-app.use('/api/submissions', submissionsRouter);
+try {
+  app.use('/api/submissions', getSubmissionsRouter());
+} catch (error) {
+  console.error('[ERROR] Failed to load submissions routes:', error.message);
+}
 
 // Blog routes for admin dashboard
 console.log('[INIT] Mounting /api/blog routes...');
-app.use('/api/blog', blogRouter);
+try {
+  app.use('/api/blog', getBlogRouter());
+} catch (error) {
+  console.error('[ERROR] Failed to load blog routes:', error.message);
+}
 
 // Serve static files from public folder AFTER API routes but BEFORE catch-all handlers
 // Prevent static file serving for API paths

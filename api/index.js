@@ -1,7 +1,10 @@
 /**
- * Ultra-Minimal CORS-First Handler
- * No dependencies, no complications - just set headers and respond
+ * Ultra-Minimal CORS-First Handler with Submissions Routes
+ * Handles login, submissions, and other API endpoints
  */
+
+const express = require('express');
+const mongoose = require('mongoose');
 
 // Simple synchronous body parser for small payloads
 function parseBodySync(req) {
@@ -80,6 +83,61 @@ module.exports = async (req, res) => {
       
       const loginHandler = require('./auth/login');
       return await loginHandler(req, res);
+    }
+    
+    // Submissions endpoints
+    if (urlPath.startsWith('/api/submissions')) {
+      console.log('[API] → Delegating to submissions handler');
+      
+      // Initialize database if needed
+      if (mongoose.connections[0].readyState === 0) {
+        console.log('[API] Connecting to MongoDB');
+        try {
+          await mongoose.connect(process.env.MONGODB_URI);
+        } catch (dbError) {
+          console.error('[API] Database connection failed:', dbError.message);
+          res.statusCode = 503;
+          return res.end(JSON.stringify({
+            success: false,
+            error: 'Database unavailable'
+          }));
+        }
+      }
+      
+      // Parse body if needed
+      if (!req.body) {
+        req.body = await parseBodySync(req);
+      }
+      
+      // Create mock Express app to use router
+      const app = express();
+      app.use(express.json());
+      
+      const submissionsRouter = require('../routes/submissions');
+      app.use('/api/submissions', submissionsRouter);
+      
+      // Create a mock response to capture Express output
+      const oldEnd = res.end;
+      const oldJson = res.json;
+      let finished = false;
+      
+      res.json = function(data) {
+        if (!finished) {
+          finished = true;
+          res.setHeader('Content-Type', 'application/json; charset=utf-8');
+          oldEnd.call(res, JSON.stringify(data));
+        }
+      };
+      
+      res.end = function(data) {
+        if (!finished) {
+          finished = true;
+          oldEnd.call(res, data);
+        }
+      };
+      
+      // Route through Express app
+      return app(req, res);
     }
     
     // 404

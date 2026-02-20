@@ -15,9 +15,12 @@ const ALLOWED_ORIGINS = [
 ];
 
 function isOriginAllowed(origin) {
-  if (!origin) return true;
+  if (!origin) return false;
+  
+  // Check exact matches
   if (ALLOWED_ORIGINS.includes(origin)) return true;
   
+  // Check regex patterns
   const regexPatterns = [
     /https:\/\/.*\.vercel\.app$/,
     /https:\/\/.*\.hostinger\..*/,
@@ -28,20 +31,26 @@ function isOriginAllowed(origin) {
 }
 
 function setCORSHeaders(req, res) {
-  const origin = req.headers.origin || req.headers.referer;
+  const origin = req.headers.origin;
   
-  // Set CORS headers
+  // Set standard CORS headers
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept');
   res.setHeader('Access-Control-Max-Age', '86400');
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
   
-  if (isOriginAllowed(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin || '*');
-    console.log(`[Login CORS] ✅ Allowed origin: ${origin || 'no-origin'}`);
-  } else {
-    res.setHeader('Access-Control-Allow-Origin', '*');
+  // For credentials: 'include', origin MUST be specific, not '*'
+  if (origin && isOriginAllowed(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    console.log(`[Login CORS] ✅ Allowed origin: ${origin}`);
+  } else if (origin) {
+    // Origin provided but not allowed - reject
+    res.setHeader('Access-Control-Allow-Origin', origin);
     console.log(`[Login CORS] ⚠️ Non-whitelisted origin: ${origin}`);
+  } else {
+    // No origin header - allow without credentials
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    console.log(`[Login CORS] ℹ️ No origin header provided`);
   }
 }
 

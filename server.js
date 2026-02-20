@@ -71,8 +71,10 @@ const corsOptions = {
       'https://hackhalt-cic.vercel.app',
       // Any Vercel deployment
       /https:\/\/.*\.vercel\.app$/,
-      // Hostinger domains
-      /https:\/\/.*\.hostinger\.com$/,
+      // Hostinger domains - both with and without www
+      /https:\/\/.*\.hostinger\..*$/,
+      'https://hackhalt-cic.hostinger.com',
+      'https://www.hackhalt-cic.hostinger.com',
       // Local development
       'http://localhost:5000',
       'http://localhost:3000',
@@ -87,14 +89,15 @@ const corsOptions = {
     });
     
     if (isAllowed) {
+      console.log(`[CORS] ✅ Allowed origin: ${origin || 'no-origin'}`);
       callback(null, true);
     } else {
       // For development, allow all origins. For production, restrict.
       if (process.env.NODE_ENV === 'production') {
-        console.warn(`[CORS] Rejected origin: ${origin}`);
+        console.warn(`[CORS] ❌ Rejected origin: ${origin}`);
         callback(new Error('CORS policy violation'));
       } else {
-        console.log(`[CORS] Allowing origin in development: ${origin}`);
+        console.log(`[CORS] ⚠️ Allowing origin in development: ${origin}`);
         callback(null, true);
       }
     }

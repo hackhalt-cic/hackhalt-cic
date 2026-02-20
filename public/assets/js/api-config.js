@@ -1,16 +1,42 @@
 /**
  * API Configuration
  * Production frontend (Hostinger) -> Backend (Vercel)
+ * Maintains compatibility across different deployment scenarios
  */
 
-const BACKEND_API_URL = 'https://hackhalt-cic-lemon.vercel.app';
+// Detect current environment
+const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+const isHostinger = window.location.hostname.includes('hostinger') || window.location.origin.includes('hackhalt.org');
 
+// Determine backend API URL based on environment
+let BACKEND_API_URL;
+
+if (isDevelopment) {
+  // Local development
+  BACKEND_API_URL = 'http://localhost:5000';
+} else if (isHostinger) {
+  // Production: Frontend on Hostinger, Backend on Vercel
+  BACKEND_API_URL = 'https://hackhalt-cic-lemon.vercel.app';
+} else {
+  // Default to Vercel backend
+  BACKEND_API_URL = 'https://hackhalt-cic-lemon.vercel.app';
+}
+
+console.log('[API CONFIG] Environment detected:', isDevelopment ? 'development' : 'production');
 console.log('[API CONFIG] Backend URL:', BACKEND_API_URL);
 console.log('[API CONFIG] Frontend origin:', window.location.origin);
+console.log('[API CONFIG] Frontend hostname:', window.location.hostname);
 
 function getApiUrl(endpoint) {
   if (!endpoint.startsWith('/')) {
     endpoint = '/' + endpoint;
   }
-  return BACKEND_API_URL + endpoint;
+  const fullUrl = BACKEND_API_URL + endpoint;
+  console.log('[API CONFIG] Full API URL:', fullUrl);
+  return fullUrl;
+}
+
+// Export for use in other scripts
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { BACKEND_API_URL, getApiUrl };
 }

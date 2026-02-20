@@ -68,51 +68,9 @@ function setCORSHeaders(req, res) {
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
 }
 
-function parseBody(req) {
-  return new Promise((resolve, reject) => {
-    let body = '';
-    
-    req.on('data', chunk => {
-      body += chunk.toString();
-    });
-    
-    req.on('end', () => {
-      try {
-        const parsed = body ? JSON.parse(body) : {};
-        resolve(parsed);
-      } catch (error) {
-        reject(new Error('Invalid JSON in request body'));
-      }
-    });
-    
-    req.on('error', reject);
-  });
-}
-
 // ============================================
 // Handler Functions
 // ============================================
-
-async function handleLogin(req, res) {
-  try {
-    // Parse request body if not already parsed
-    if (!req.body) {
-      req.body = await parseBody(req);
-    }
-    
-    const loginHandler = require('./auth/login');
-    return await loginHandler(req, res);
-  } catch (error) {
-    console.error('[Login] Error:', error.message);
-    res.setHeader('Content-Type', 'application/json');
-    res.statusCode = 500;
-    return res.end(JSON.stringify({
-      success: false,
-      message: 'Server error',
-      error: error.message
-    }));
-  }
-}
 
 function handleHealth(req, res) {
   res.setHeader('Content-Type', 'application/json');
@@ -156,7 +114,7 @@ async function handler(req, res) {
     
     // Handle preflight OPTIONS requests immediately
     if (req.method === 'OPTIONS') {
-      cos.statusCode = 200;
+      res.statusCode = 200;
       return res.end();
     }
     
@@ -165,10 +123,6 @@ async function handler(req, res) {
     
     if (urlPath === '/api/health' && req.method === 'GET') {
       return handleHealth(req, res);
-    }
-    
-    if (urlPath === '/api/auth/login' && req.method === 'POST') {
-      return handleLogin(req, res);
     }
     
     // 404 for unknown routes
@@ -182,8 +136,7 @@ async function handler(req, res) {
       success: false,
       message: 'Internal server error',
       error: error.message
-    }) error: error.message
-    });
+    }));
   }
 }
 

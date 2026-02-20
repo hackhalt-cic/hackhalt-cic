@@ -7,6 +7,8 @@
 const mongoose = require('mongoose');
 const ContactSubmission = require('../models/ContactSubmission');
 const BlogSubmission = require('../models/BlogSubmission');
+const JoinSubmission = require('../models/JoinSubmission');
+const AmbassadorSubmission = require('../models/AmbassadorSubmission');
 
 // Simple synchronous body parser for small payloads
 function parseBodySync(req) {
@@ -266,6 +268,124 @@ module.exports = async (req, res) => {
           return res.end(JSON.stringify({
             success: false,
             error: 'Failed to fetch blog submission',
+            message: error.message
+          }));
+        }
+      }
+      
+      // GET /submissions/join
+      if ((normalizedPath === '/submissions/join') && method === 'GET') {
+        try {
+          console.log('[API] Fetching join submissions');
+          const submissions = await JoinSubmission.find({})
+            .sort({ createdAt: -1 })
+            .limit(1000)
+            .lean();
+          
+          res.statusCode = 200;
+          return res.end(JSON.stringify({
+            success: true,
+            submissions: submissions,
+            data: submissions,
+            count: submissions.length
+          }));
+        } catch (error) {
+          console.error('[API] Join submissions error:', error.message);
+          res.statusCode = 500;
+          return res.end(JSON.stringify({
+            success: false,
+            error: 'Failed to fetch join submissions',
+            message: error.message
+          }));
+        }
+      }
+      
+      // GET /submissions/join/:id
+      if ((normalizedPath.match(/^\/submissions\/join\/[^\/]+$/)) && method === 'GET') {
+        try {
+          const id = normalizedPath.split('/').pop();
+          console.log('[API] Fetching single join submission:', id);
+          
+          const submission = await JoinSubmission.findById(id).lean();
+          
+          if (!submission) {
+            res.statusCode = 404;
+            return res.end(JSON.stringify({
+              success: false,
+              error: 'Join submission not found'
+            }));
+          }
+          
+          res.statusCode = 200;
+          return res.end(JSON.stringify({
+            success: true,
+            data: submission
+          }));
+        } catch (error) {
+          console.error('[API] Join submission error:', error.message);
+          res.statusCode = 500;
+          return res.end(JSON.stringify({
+            success: false,
+            error: 'Failed to fetch join submission',
+            message: error.message
+          }));
+        }
+      }
+      
+      // GET /submissions/ambassadors
+      if ((normalizedPath === '/submissions/ambassadors') && method === 'GET') {
+        try {
+          console.log('[API] Fetching ambassador submissions');
+          const submissions = await AmbassadorSubmission.find({})
+            .sort({ createdAt: -1 })
+            .limit(1000)
+            .lean();
+          
+          res.statusCode = 200;
+          return res.end(JSON.stringify({
+            success: true,
+            submissions: submissions,
+            data: submissions,
+            count: submissions.length
+          }));
+        } catch (error) {
+          console.error('[API] Ambassador submissions error:', error.message);
+          res.statusCode = 500;
+          return res.end(JSON.stringify({
+            success: false,
+            error: 'Failed to fetch ambassador submissions',
+            message: error.message
+          }));
+        }
+      }
+      
+      // GET /submissions/ambassadors/:id
+      if ((normalizedPath.match(/^\/submissions\/ambassadors\/[^\/]+$/)) && method === 'GET') {
+        try {
+          const id = normalizedPath.split('/').pop();
+          console.log('[API] Fetching single ambassador submission:', id);
+          
+          const submission = await AmbassadorSubmission.findById(id).lean();
+          
+          if (!submission) {
+            res.statusCode = 404;
+            return res.end(JSON.stringify({
+              success: false,
+              error: 'Ambassador submission not found'
+            }));
+          }
+          
+          res.statusCode = 200;
+          return res.end(JSON.stringify({
+            success: true,
+            data: submission
+          }));
+        } catch (error) {
+          console.error('[API] Ambassador submission error:', error.message);
+          res.statusCode = 500;
+          return res.end(JSON.stringify({
+            success: false,
+            error: 'Failed to fetch ambassador submission',
             message: error.message
           }));
         }

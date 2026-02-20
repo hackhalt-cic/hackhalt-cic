@@ -18,10 +18,14 @@ function verifyJWTToken(req) {
     let token = null;
     const cookies = req.headers.cookie || '';
     
+    console.log('[API] [AUTH] Cookie header:', cookies ? `${cookies.length} chars` : 'NONE');
+    console.log('[API] [AUTH] Authorization header:', req.headers.authorization ? 'Present' : 'NONE');
+    
     // Try adminToken first (which is what the login sets)
     const adminTokenMatch = cookies.split('; ').find(row => row.startsWith('adminToken='));
     if (adminTokenMatch) {
       token = adminTokenMatch.split('=')[1];
+      console.log('[API] [AUTH] ✅ Found adminToken in cookies');
     }
     
     // Fall back to generic 'token' cookie
@@ -29,27 +33,33 @@ function verifyJWTToken(req) {
       const tokenMatch = cookies.split('; ').find(row => row.startsWith('token='));
       if (tokenMatch) {
         token = tokenMatch.split('=')[1];
+        console.log('[API] [AUTH] ✅ Found token in cookies');
       }
     }
     
     // Fall back to Authorization header
     if (!token) {
       const authHeader = req.headers.authorization || req.headers.Authorization;
-      token = authHeader?.replace('Bearer ', '');
+      if (authHeader) {
+        token = authHeader.replace('Bearer ', '');
+        console.log('[API] [AUTH] ✅ Found token in Authorization header');
+      }
     }
     
     if (!token) {
-      console.log('[API] ⚠️  No token found in request');
+      console.log('[API] [AUTH] ❌ No token found in request');
       return null;
     }
     
     // Use the same JWT_SECRET as the login handler
     const secret = process.env.JWT_SECRET || 'your-secure-secret-key-change-in-production';
+    console.log('[API] [AUTH] Verifying token with secret...');
+    
     const decoded = jwt.verify(token, secret);
-    console.log('[API] ✅ Token verified for:', decoded.username);
+    console.log('[API] [AUTH] ✅ Token verified for:', decoded.username);
     return decoded;
   } catch (error) {
-    console.error('[API] ❌ Token verification failed:', error.message);
+    console.error('[API] [AUTH] ❌ Token verification failed:', error.message);
     return null;
   }
 }

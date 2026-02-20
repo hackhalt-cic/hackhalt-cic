@@ -565,6 +565,9 @@
       // Add token to Authorization header if available
       if (token) {
         headers['Authorization'] = `Bearer ${token}`;
+        console.log('[APICALL] Token added to Authorization header');
+      } else {
+        console.warn('[APICALL] ⚠️ No token found in sessionStorage - requests may fail');
       }
       
       const finalOptions = {
@@ -573,7 +576,12 @@
         credentials: 'include' // Still send cookies as fallback for same-domain scenarios
       };
       
-      return fetch(url, finalOptions);
+      console.log('[APICALL] Fetching:', url);
+      console.log('[APICALL] Headers:', Object.keys(headers));
+      
+      const response = await fetch(url, finalOptions);
+      console.log('[APICALL] Response Status:', response.status);
+      return response;
     }
   </script>
 </head>
@@ -794,6 +802,7 @@
     async function loadData() {
       try {
         console.log('📡 Fetching all submissions...');
+        console.log('🔑 Token check:', getAuthToken() ? '✅ Token found' : '❌ No token');
         
         // Fetch with backend filtering for each purpose type
         const [contactResp, joinResp, ambassadorResp] = await Promise.all([
@@ -812,6 +821,9 @@
         ]);
         
         console.log('✅ All requests completed');
+        console.log('Contact response:', contactResp.status);
+        console.log('Join response:', joinResp.status);
+        console.log('Ambassador response:', ambassadorResp.status);
         
         // Process Contact Inquiry responses
         if (!contactResp.ok) {

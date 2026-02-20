@@ -16,10 +16,11 @@ function verifyJWTToken(req) {
   try {
     // Try to get token from cookies first - check both 'token' and 'adminToken'
     let token = null;
-    const cookies = req.headers.cookie || '';
+    const cookies = req.headers.cookie || req.headers.Cookie || '';
     
-    console.log('[API] [AUTH] Cookie header:', cookies ? `${cookies.length} chars` : 'NONE');
-    console.log('[API] [AUTH] Authorization header:', req.headers.authorization ? 'Present' : 'NONE');
+    console.log('[API] [AUTH] Checking for token...');
+    console.log('[API] [AUTH] Cookie header length:', cookies.length);
+    console.log('[API] [AUTH] All headers:', Object.keys(req.headers));
     
     // Try adminToken first (which is what the login sets)
     const adminTokenMatch = cookies.split('; ').find(row => row.startsWith('adminToken='));
@@ -37,12 +38,16 @@ function verifyJWTToken(req) {
       }
     }
     
-    // Fall back to Authorization header
+    // Fall back to Authorization header (check multiple variations)
     if (!token) {
-      const authHeader = req.headers.authorization || req.headers.Authorization;
+      const authHeader = req.headers.authorization || 
+                        req.headers.Authorization || 
+                        req.headers['Authorization'] ||
+                        req.headers['authorization'];
       if (authHeader) {
         token = authHeader.replace('Bearer ', '');
         console.log('[API] [AUTH] ✅ Found token in Authorization header');
+        console.log('[API] [AUTH] Token starts with:', token.substring(0, 20) + '...');
       }
     }
     

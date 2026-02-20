@@ -53,6 +53,12 @@ const connectDB = async (retries = 5) => {
   }
 };
 
+
+// Connect once when serverless initializes
+connectDB().catch(err => {
+  console.error('Initial MongoDB connection failed:', err.message);
+});
+
 // CORS MUST be first - before all other middleware
 const corsOptions = {
   origin: function(origin, callback) {
@@ -109,27 +115,7 @@ app.options('*', cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Database connection state
-let mongodbConnected = false;
 
-// Middleware to ensure database is connected on first request (non-blocking)
-app.use(async (req, res, next) => {
-  if (!mongodbConnected && req.path.startsWith('/api/')) {
-    try {
-      console.log('[MIDDLEWARE] First API request - attempting MongoDB connection...');
-      await connectDB(1); // Only 1 rapid retry on Vercel
-      mongodbConnected = true;
-      console.log('[MIDDLEWARE] Database connected successfully');
-    } catch (error) {
-      console.error('[MIDDLEWARE] Database connection failed:', error.message);
-      // For API requests, continue to let the route handle the error
-      if (req.path.startsWith('/api/')) {
-        console.warn('[MIDDLEWARE] Proceeding with API request despite DB connection failure');
-      }
-    }
-  }
-  next();
-});
 
 // CRITICAL: Protect all API routes to ensure JSON responses BEFORE any static middleware
 app.use((req, res, next) => {

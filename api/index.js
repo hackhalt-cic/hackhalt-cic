@@ -1,6 +1,6 @@
 /**
- * Main API Handler for Vercel
- * Routes requests and handles CORS directly
+ * Main API Handler for Vercel - CORS-First Approach
+ * All routes go through this handler with CORS headers set immediately
  */
 
 const mongoose = require('mongoose');
@@ -20,124 +20,143 @@ const ALLOWED_ORIGINS = [
 ];
 
 function isOriginAllowed(origin) {
-  if (!origin) return true; // Allow requests without origin header
-  
-  // Check exact matches
+  if (!origin) return true;
   if (ALLOWED_ORIGINS.includes(origin)) return true;
   
-  // Check regex patterns
   const regexPatterns = [
     /https:\/\/.*\.vercel\.app$/,
-    /https:\/\/.*\.hostinger\..*/,
-    /https:\/\/hackhalt-cic.*\.hostinger\.com$/
+    /https:\/\/.*\.hostinger\..*/
   ];
   
   return regexPatterns.some(pattern => pattern.test(origin));
 }
 
-function setCORSHeaders(req, res) {
-  // Get origin - Node.js normalizes header names to lowercase
-  const origin = req.headers.origin || req.headers.Origin;
-  
-  console.log(`[CORS] Incoming origin: ${origin}`);
-  console.log(`[CORS] Request method: ${req.method}`);
-  
-  // Set standard CORS methods and headers that apply to all responses
-  res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, POST, PUT, DELETE, PATCH, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept, X-Requested-With');
-  res.setHeader('Access-Control-Max-Age', '86400');
-  
-  // Always include credentials support
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  
-  // Set the origin - if it's in our whitelist, echo it back; otherwise use wildcard
-  if (isOriginAllowed(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
-    console.log(`[CORS] ✅ Allowed origin: ${origin}`);
-  } else if (origin) {
-    // For any origin, still allow it to see if it's a legitimate request
-    // The browser will handle the decision based on Access-Control-Allow-Origin
-    res.setHeader('Access-Control-Allow-Origin', origin);
-    console.log(`[CORS] ℹ️ Origin ${origin} allowed to test`);
-  } else {
-    // No origin header - this is a same-origin or non-browser request
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    console.log(`[CORS] ℹ️ No origin header provided, using *`);
-  }
-  
-  res.setHeader('Content-Type', 'application/json; charset=utf-8');
-}
-
 // ============================================
-// Handler Functions
+// Body Parser
 // ============================================
-
-function handleHealth(req, res) {
-  res.setHeader('Content-Type', 'application/json');
-  res.statusCode = 200;
-  return res.end(JSON.stringify({
-    status: 'OK',
-    timestamp: new Date().toISOString(),
-    environment: 'production',
-    database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
-  }));
-}
-
-function handleNotFound(req, res) {
-  res.statusCode = 404;
-  return res.end(JSON.stringify({
-    success: false,
-    message: 'Not found',
-    path: req.url
-  }) path: req.url
+function parseBody(req) {
+  return new Promise((resolve, reject) => {
+    let body = '';
+    
+    req.on('data', chunk => {
+      body += chunk.toString();
+    });
+    
+    req.on('end', () => {
+      try {
+        const parsed = body ? JSON.parse(body) : {};
+        resolve(parsed);
+      } catch (error) {
+        reject(new Error('Invalid JSON in request body'));
+      }
+    });
+    
+    req.on('error', reject);
   });
 }
 
-function handleOptions(req, res) {
-  console.log('[API] OPTIONS request - sending CORS preflight response');
-  res.setHeader('Content-Type', 'application/json');
-  res.writeHead(200);
-  return res.end();
-}
-
 // ============================================
-// Main Handler
+// MAIN HANDLER ENTRY POINT
 // ============================================
-
-async function handler(req, res) {
+module.exports = async (req, res) => {
+  const origin = req.headers.origin || req.headers.Origin || '';
+  const method = req.method;
+  const url = req.url;
+  
+  console.log(`\n[API] ═══════════════════════════════════════`);
+  console.log(`[API] ${method} ${url}`);
+  console.log(`[API] Origin: ${origin || 'NONE'}`);
+  
+  // =========================================
+  // CRITICAL: SET CORS HEADERS IMMEDIATELY
+  // =========================================
+  res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET, HEAD, POST, PUT, DELETE, PATCH');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept, X-Requested-With');
+  res.setHeader('Access-Control-Max-Age', '86400');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
+  
+  // Always set the origin header
+  if (origin) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    console.log(`[API] ✅ CORS Allow-Origin: ${origin}`);
+  } else {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    console.log(`[API] ✅ CORS Allow-Origin: *`);
+  }
+  
+  // =========================================
+  // HANDLE OPTIONS PREFLIGHT IMMEDIATELY
+  // =========================================
+  if (method === 'OPTIONS') {
+    console.log('[API] OPTIONS preflight - returning 204');
+    res.statusCode = 204;
+    res.end();
+    return;
+  }
+  
   try {
-    console.log(`[API] ${req.method} ${req.url}`);
-    console.log(`[API] Origin header: ${req.headers.origin}`);
+    // Parse request path
+    const urlPath = url.split('?')[0];
     
-    // Always set CORS headers FIRST
-    setCORSHeaders(req, res);
+    // =========================================
+    // ROUTE HANDLER
+    // =========================================
     
-    // Handle preflight OPTIONS requests immediately
-    if (req.method === 'OPTIONS') {
+    // Health check endpoint
+    if (urlPath === '/api/health') {
+      console.log('[API] → Health endpoint');
       res.statusCode = 200;
-      return res.end();
+      res.end(JSON.stringify({
+        status: 'OK',
+        timestamp: new Date().toISOString(),
+        environment: 'production',
+        database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
+      }));
+      return;
     }
     
-    // Parse URL and route appropriately
-    const urlPath = req.url.split('?')[0];
-    
-    if (urlPath === '/api/health' && req.method === 'GET') {
-      return handleHealth(req, res);
+    // Login endpoint
+    if (urlPath === '/api/auth/login' && method === 'POST') {
+      console.log('[API] → Login endpoint');
+      
+      // Parse body
+      req.body = await parseBody(req);
+      
+      // Load and execute login handler
+      const loginHandler = require('./auth/login');
+      return await loginHandler(req, res);
     }
     
-    // 404 for unknown routes
-    return handleNotFound(req, res);
+    // Catch-all 404
+    console.log('[API] → 404 Not Found');
+    res.statusCode = 404;
+    res.end(JSON.stringify({
+      success: false,
+      message: 'API endpoint not found',
+      path: urlPath,
+      method: method
+    }));
     
   } catch (error) {
-    console.error('[API] Unhandled error:', error);
-    res.setHeader('Content-Type', 'application/json');
+    console.error('[API] ❌ ERROR:', error.message);
+    console.error('[API] Stack:', error.stack);
+    
+    // Ensure headers are still set in error case
+    if (!res.headersSent) {
+      res.setHeader('Content-Type', 'application/json');
+      if (origin) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+      } else {
+        res.setHeader('Access-Control-Allow-Origin', '*');
+      }
+    }
+    
     res.statusCode = 500;
-    return res.end(JSON.stringify({
+    res.end(JSON.stringify({
       success: false,
       message: 'Internal server error',
       error: error.message
     }));
   }
-}
-
-module.exports = handler;
+};

@@ -64,7 +64,7 @@ module.exports = async (req, res) => {
     console.log('[API] URL Path:', urlPath, '| Full URL:', url);
     
     // Health check
-    if (urlPath === '/api/health') {
+    if (urlPath === '/health' || urlPath === '/api/health') {
       console.log('[API] → Health check');
       res.statusCode = 200;
       return res.end(JSON.stringify({ 
@@ -74,7 +74,7 @@ module.exports = async (req, res) => {
     }
     
     // CORS test endpoint
-    if (urlPath === '/api/cors-test') {
+    if (urlPath === '/cors-test' || urlPath === '/api/cors-test') {
       console.log('[API] → CORS test endpoint');
       res.statusCode = 200;
       return res.end(JSON.stringify({
@@ -90,7 +90,7 @@ module.exports = async (req, res) => {
     }
     
     // Login endpoint
-    if (urlPath === '/api/auth/login' && method === 'POST') {
+    if ((urlPath === '/auth/login' || urlPath === '/api/auth/login') && method === 'POST') {
       console.log('[API] → Delegating to login handler');
       
       // Parse body first
@@ -101,7 +101,7 @@ module.exports = async (req, res) => {
     }
     
     // Submissions endpoints - Direct handling
-    if (urlPath.startsWith('/api/submissions')) {
+    if (urlPath.startsWith('/submissions') || urlPath.startsWith('/api/submissions')) {
       console.log('[API] ✅ MATCHED: submissions endpoint');
       console.log('[API] URL Path:', urlPath);
       console.log('[API] Method:', method);
@@ -130,7 +130,7 @@ module.exports = async (req, res) => {
       }
       
       // GET /api/submissions/contact
-      if (urlPath === '/api/submissions/contact' && method === 'GET') {
+      if ((urlPath === '/submissions/contact' || urlPath === '/api/submissions/contact') && method === 'GET') {
         console.log('[API] 📋 GET /api/submissions/contact');
         try {
           const { purpose } = Object.fromEntries(new URL(`http://dummy${url}`).searchParams);
@@ -168,7 +168,7 @@ module.exports = async (req, res) => {
       }
       
       // GET /api/submissions/contact/:id
-      if (urlPath.match(/^\/api\/submissions\/contact\/[^/]+$/) && method === 'GET') {
+      if ((urlPath.match(/^\/submissions\/contact\/[^\/]+$/) || urlPath.match(/^\/api\/submissions\/contact\/[^\/]+$/)) && method === 'GET') {
         try {
           const id = urlPath.split('/').pop();
           console.log('[API] Fetching single contact submission:', id);
@@ -200,7 +200,7 @@ module.exports = async (req, res) => {
       }
       
       // GET /api/submissions/blogs
-      if (urlPath === '/api/submissions/blogs' && method === 'GET') {
+      if ((urlPath === '/submissions/blogs' || urlPath === '/api/submissions/blogs') && method === 'GET') {
         try {
           const { status } = Object.fromEntries(new URL(`http://dummy${url}`).searchParams);
           
@@ -235,7 +235,7 @@ module.exports = async (req, res) => {
       }
       
       // GET /api/submissions/blogs/:id
-      if (urlPath.match(/^\/api\/submissions\/blogs\/[^/]+$/) && method === 'GET') {
+      if ((urlPath.match(/^\/submissions\/blogs\/[^\/]+$/) || urlPath.match(/^\/api\/submissions\/blogs\/[^\/]+$/)) && method === 'GET') {
         try {
           const id = urlPath.split('/').pop();
           console.log('[API] Fetching single blog submission:', id);

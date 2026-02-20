@@ -579,17 +579,20 @@
         headers['Authorization'] = `Bearer ${token}`;
         console.log('[APICALL] Token added to Authorization header');
       } else {
-        console.warn('[APICALL] ⚠️ No token found in sessionStorage - requests may fail');
+        console.warn('[APICALL] ⚠️ No token found - requests may fail');
       }
+      
+      // Detect if cross-origin (Hostinger frontend -> Vercel backend)
+      const isCrossOrigin = url.startsWith('http') && !url.startsWith(window.location.origin);
       
       const finalOptions = {
         ...options,
         headers,
-        credentials: 'include' // Still send cookies as fallback for same-domain scenarios
+        mode: isCrossOrigin ? 'cors' : 'same-origin',
+        credentials: isCrossOrigin ? 'omit' : 'include' // Don't send cookies cross-origin, use Bearer token instead
       };
       
-      console.log('[APICALL] Fetching:', url);
-      console.log('[APICALL] Headers:', Object.keys(headers));
+      console.log('[APICALL] Fetching:', url, isCrossOrigin ? '(cross-origin)' : '(same-origin)');
       
       const response = await fetch(url, finalOptions);
       console.log('[APICALL] Response Status:', response.status);

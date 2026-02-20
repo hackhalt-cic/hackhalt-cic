@@ -117,60 +117,6 @@ app.use(express.urlencoded({ extended: true }));
 
 
 
-// CRITICAL: Protect all API routes to ensure JSON responses BEFORE any static middleware
-app.use((req, res, next) => {
-  if (req.path.startsWith('/api/')) {
-    console.log(`[API] ${req.method} ${req.path} from ${req.ip}`);
-    
-    // MUST be set FIRST to prevent content negotiation issues
-    res.setHeader('Content-Type', 'application/json; charset=utf-8');
-    res.setHeader('X-Content-Type-Options', 'nosniff'); // Prevent MIME sniffing
-    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-    res.setHeader('X-Frame-Options', 'DENY');
-    res.setHeader('X-XSS-Protection', '1; mode=block');
-    res.setHeader('Pragma', 'no-cache');
-    res.setHeader('Expires', '0');
-    
-    // Track if response has been sent
-    let responseSent = false;
-    
-    // Override send to prevent any non-JSON output
-    const originalSend = res.send;
-    res.send = function(data) {
-      if (responseSent) return;
-      responseSent = true;
-      console.error(`[API ERROR] Attempted to use res.send() on API route - converting to JSON`);
-      res.status(res.statusCode || 500);
-      return res.json({
-        success: false,
-        error: 'Internal server error'
-      });
-    };
-    
-    // Override sendFile to prevent HTML from being returned on API routes
-    const originalSendFile = res.sendFile;
-    res.sendFile = function(filepath, options, callback) {
-      if (responseSent) return;
-      responseSent = true;
-      console.error(`[API ERROR] Attempted sendFile on API route: ${filepath}`);
-      res.status(500);
-      return res.json({
-        success: false,
-        error: 'Internal server error'
-      });
-    };
-    
-    // Track original end method
-    const originalEnd = res.end;
-    res.end = function(...args) {
-      if (responseSent) return;
-      responseSent = true;
-      return originalEnd.apply(res, args);
-    };
-  }
-  next();
-});
-
 // Health check endpoint - MUST be before router mounts
 app.get('/api/health', (req, res) => {
   res.set('Content-Type', 'application/json');

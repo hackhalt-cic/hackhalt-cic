@@ -7,8 +7,9 @@ module.exports = async function handler(req, res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
   res.setHeader("X-Content-Type-Options", "nosniff");
   
-  // CORS headers
-  res.setHeader("Access-Control-Allow-Origin", "https://hackhalt.org");
+  // CORS headers - Allow all origins for public login endpoint
+  // The origin check happens in server.js for full CORS control
+  res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
   res.setHeader("Access-Control-Allow-Credentials", "true");

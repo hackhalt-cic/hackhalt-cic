@@ -5,10 +5,52 @@
  */
 
 const mongoose = require('mongoose');
+const jwt = require('jsonwebtoken');
 const ContactSubmission = require('../models/ContactSubmission');
 const BlogSubmission = require('../models/BlogSubmission');
 const JoinSubmission = require('../models/JoinSubmission');
 const AmbassadorSubmission = require('../models/AmbassadorSubmission');
+
+// Helper function to verify JWT token from cookies or headers
+function verifyJWTToken(req) {
+  try {
+    // Try to get token from cookies first - check both 'token' and 'adminToken'
+    let token = null;
+    const cookies = req.headers.cookie || '';
+    
+    // Try adminToken first (which is what the login sets)
+    const adminTokenMatch = cookies.split('; ').find(row => row.startsWith('adminToken='));
+    if (adminTokenMatch) {
+      token = adminTokenMatch.split('=')[1];
+    }
+    
+    // Fall back to generic 'token' cookie
+    if (!token) {
+      const tokenMatch = cookies.split('; ').find(row => row.startsWith('token='));
+      if (tokenMatch) {
+        token = tokenMatch.split('=')[1];
+      }
+    }
+    
+    // Fall back to Authorization header
+    if (!token) {
+      const authHeader = req.headers.authorization || req.headers.Authorization;
+      token = authHeader?.replace('Bearer ', '');
+    }
+    
+    if (!token) {
+      console.log('[API] ⚠️  No token found in request');
+      return null;
+    }
+    
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'hackhalt_secret_key_2026');
+    console.log('[API] ✅ Token verified for:', decoded.username);
+    return decoded;
+  } catch (error) {
+    console.error('[API] ❌ Token verification failed:', error.message);
+    return null;
+  }
+}
 
 // Simple synchronous body parser for small payloads
 function parseBodySync(req) {
@@ -114,6 +156,18 @@ module.exports = async (req, res) => {
       console.log('[API] Method:', method);
       console.log('[API] Full URL:', url);
       
+      // Verify authentication for admin access
+      const admin = verifyJWTToken(req);
+      if (!admin) {
+        console.log('[API] ❌ Unauthorized access to submissions endpoint');
+        res.statusCode = 401;
+        return res.end(JSON.stringify({
+          success: false,
+          error: 'Unauthorized',
+          message: 'Admin authentication required'
+        }));
+      }
+      
       // Initialize database if needed
       if (mongoose.connections[0].readyState === 0) {
         console.log('[API] 🔌 Connecting to MongoDB');
@@ -206,6 +260,39 @@ module.exports = async (req, res) => {
         }
       }
       
+      // DELETE /api/submissions/contact/:id
+      if ((normalizedPath.match(/^\/submissions\/contact\/[^\/]+$/)) && method === 'DELETE') {
+        try {
+          const id = normalizedPath.split('/').pop();
+          console.log('[API] Deleting contact submission:', id);
+          
+          const result = await ContactSubmission.findByIdAndDelete(id);
+          
+          if (!result) {
+            res.statusCode = 404;
+            return res.end(JSON.stringify({
+              success: false,
+              error: 'Contact submission not found'
+            }));
+          }
+          
+          res.statusCode = 200;
+          return res.end(JSON.stringify({
+            success: true,
+            message: 'Contact submission deleted',
+            data: result
+          }));
+        } catch (error) {
+          console.error('[API] Contact deletion error:', error.message);
+          res.statusCode = 500;
+          return res.end(JSON.stringify({
+            success: false,
+            error: 'Failed to delete contact submission',
+            message: error.message
+          }));
+        }
+      }
+      
       // GET /api/submissions/blogs
       if ((normalizedPath === '/submissions/blogs') && method === 'GET') {
         try {
@@ -273,6 +360,39 @@ module.exports = async (req, res) => {
         }
       }
       
+      // DELETE /api/submissions/blogs/:id
+      if ((normalizedPath.match(/^\/submissions\/blogs\/[^\/]+$/)) && method === 'DELETE') {
+        try {
+          const id = normalizedPath.split('/').pop();
+          console.log('[API] Deleting blog submission:', id);
+          
+          const result = await BlogSubmission.findByIdAndDelete(id);
+          
+          if (!result) {
+            res.statusCode = 404;
+            return res.end(JSON.stringify({
+              success: false,
+              error: 'Blog submission not found'
+            }));
+          }
+          
+          res.statusCode = 200;
+          return res.end(JSON.stringify({
+            success: true,
+            message: 'Blog submission deleted',
+            data: result
+          }));
+        } catch (error) {
+          console.error('[API] Blog deletion error:', error.message);
+          res.statusCode = 500;
+          return res.end(JSON.stringify({
+            success: false,
+            error: 'Failed to delete blog submission',
+            message: error.message
+          }));
+        }
+      }
+      
       // GET /submissions/join
       if ((normalizedPath === '/submissions/join') && method === 'GET') {
         try {
@@ -327,6 +447,39 @@ module.exports = async (req, res) => {
           return res.end(JSON.stringify({
             success: false,
             error: 'Failed to fetch join submission',
+            message: error.message
+          }));
+        }
+      }
+      
+      // DELETE /submissions/join/:id
+      if ((normalizedPath.match(/^\/submissions\/join\/[^\/]+$/)) && method === 'DELETE') {
+        try {
+          const id = normalizedPath.split('/').pop();
+          console.log('[API] Deleting join submission:', id);
+          
+          const result = await JoinSubmission.findByIdAndDelete(id);
+          
+          if (!result) {
+            res.statusCode = 404;
+            return res.end(JSON.stringify({
+              success: false,
+              error: 'Join submission not found'
+            }));
+          }
+          
+          res.statusCode = 200;
+          return res.end(JSON.stringify({
+            success: true,
+            message: 'Join submission deleted',
+            data: result
+          }));
+        } catch (error) {
+          console.error('[API] Join deletion error:', error.message);
+          res.statusCode = 500;
+          return res.end(JSON.stringify({
+            success: false,
+            error: 'Failed to delete join submission',
             message: error.message
           }));
         }
@@ -391,11 +544,247 @@ module.exports = async (req, res) => {
         }
       }
       
+      // DELETE /submissions/ambassadors/:id
+      if ((normalizedPath.match(/^\/submissions\/ambassadors\/[^\/]+$/)) && method === 'DELETE') {
+        try {
+          const id = normalizedPath.split('/').pop();
+          console.log('[API] Deleting ambassador submission:', id);
+          
+          const result = await AmbassadorSubmission.findByIdAndDelete(id);
+          
+          if (!result) {
+            res.statusCode = 404;
+            return res.end(JSON.stringify({
+              success: false,
+              error: 'Ambassador submission not found'
+            }));
+          }
+          
+          res.statusCode = 200;
+          return res.end(JSON.stringify({
+            success: true,
+            message: 'Ambassador submission deleted',
+            data: result
+          }));
+        } catch (error) {
+          console.error('[API] Ambassador deletion error:', error.message);
+          res.statusCode = 500;
+          return res.end(JSON.stringify({
+            success: false,
+            error: 'Failed to delete ambassador submission',
+            message: error.message
+          }));
+        }
+      }
+      
       // Unknown submissions route
       res.statusCode = 404;
       return res.end(JSON.stringify({
         success: false,
         message: 'Submissions endpoint not found',
+        path: normalizedPath
+      }));
+    }
+    
+    // Blog endpoints - Direct handling
+    if (normalizedPath.startsWith('/blog')) {
+      console.log('[API] ✅ MATCHED: blog endpoint');
+      console.log('[API] Normalized Path:', normalizedPath);
+      console.log('[API] Method:', method);
+      
+      // Verify authentication for admin access
+      const admin = verifyJWTToken(req);
+      if (!admin) {
+        console.log('[API] ❌ Unauthorized access to blog endpoint');
+        res.statusCode = 401;
+        return res.end(JSON.stringify({
+          success: false,
+          error: 'Unauthorized',
+          message: 'Admin authentication required'
+        }));
+      }
+      
+      // Initialize database if needed
+      if (mongoose.connections[0].readyState === 0) {
+        console.log('[API] 🔌 Connecting to MongoDB for blog operations');
+        try {
+          await mongoose.connect(process.env.MONGODB_URI, {
+            serverSelectionTimeoutMS: 5000,
+            socketTimeoutMS: 5000
+          });
+          console.log('[API] ✅ MongoDB connected');
+        } catch (dbError) {
+          console.error('[API] ❌ Database connection failed:', dbError.message);
+          res.statusCode = 503;
+          return res.end(JSON.stringify({
+            success: false,
+            error: 'Database unavailable',
+            message: dbError.message
+          }));
+        }
+      }
+      
+      // POST /api/blog - Create new blog
+      if ((normalizedPath === '/blog') && method === 'POST') {
+        try {
+          const { title, author, category, content, excerpt, image, tags, status } = await parseBodySync(req);
+          
+          if (!title || !author || !content) {
+            res.statusCode = 400;
+            return res.end(JSON.stringify({
+              success: false,
+              error: 'Title, author, and content are required'
+            }));
+          }
+          
+          const newBlog = new BlogSubmission({
+            title,
+            author,
+            category,
+            content,
+            excerpt,
+            image,
+            tags,
+            status: status || 'Pending'
+          });
+          
+          await newBlog.save();
+          
+          res.statusCode = 201;
+          return res.end(JSON.stringify({
+            success: true,
+            message: 'Blog created successfully',
+            data: newBlog
+          }));
+        } catch (error) {
+          console.error('[API] Blog creation error:', error.message);
+          res.statusCode = 500;
+          return res.end(JSON.stringify({
+            success: false,
+            error: 'Failed to create blog',
+            message: error.message
+          }));
+        }
+      }
+      
+      // GET /api/blog/:id - Get single blog
+      if ((normalizedPath.match(/^\/blog\/[^\/]+$/)) && method === 'GET') {
+        try {
+          const id = normalizedPath.split('/').pop();
+          console.log('[API] Fetching single blog:', id);
+          
+          const blog = await BlogSubmission.findById(id);
+          
+          if (!blog) {
+            res.statusCode = 404;
+            return res.end(JSON.stringify({
+              success: false,
+              error: 'Blog not found'
+            }));
+          }
+          
+          res.statusCode = 200;
+          return res.end(JSON.stringify({
+            success: true,
+            data: blog
+          }));
+        } catch (error) {
+          console.error('[API] Blog fetch error:', error.message);
+          res.statusCode = 500;
+          return res.end(JSON.stringify({
+            success: false,
+            error: 'Failed to fetch blog',
+            message: error.message
+          }));
+        }
+      }
+      
+      // PUT /api/blog/:id - Update blog
+      if ((normalizedPath.match(/^\/blog\/[^\/]+$/)) && method === 'PUT') {
+        try {
+          const id = normalizedPath.split('/').pop();
+          const { title, author, category, content, excerpt, image, tags, status } = await parseBodySync(req);
+          
+          console.log('[API] Updating blog:', id);
+          
+          const blog = await BlogSubmission.findByIdAndUpdate(
+            id,
+            {
+              title,
+              author,
+              category,
+              content,
+              excerpt,
+              image,
+              tags,
+              status
+            },
+            { new: true }
+          );
+          
+          if (!blog) {
+            res.statusCode = 404;
+            return res.end(JSON.stringify({
+              success: false,
+              error: 'Blog not found'
+            }));
+          }
+          
+          res.statusCode = 200;
+          return res.end(JSON.stringify({
+            success: true,
+            message: 'Blog updated successfully',
+            data: blog
+          }));
+        } catch (error) {
+          console.error('[API] Blog update error:', error.message);
+          res.statusCode = 500;
+          return res.end(JSON.stringify({
+            success: false,
+            error: 'Failed to update blog',
+            message: error.message
+          }));
+        }
+      }
+      
+      // DELETE /api/blog/:id - Delete blog
+      if ((normalizedPath.match(/^\/blog\/[^\/]+$/)) && method === 'DELETE') {
+        try {
+          const id = normalizedPath.split('/').pop();
+          console.log('[API] Deleting blog:', id);
+          
+          const blog = await BlogSubmission.findByIdAndDelete(id);
+          
+          if (!blog) {
+            res.statusCode = 404;
+            return res.end(JSON.stringify({
+              success: false,
+              error: 'Blog not found'
+            }));
+          }
+          
+          res.statusCode = 200;
+          return res.end(JSON.stringify({
+            success: true,
+            message: 'Blog deleted successfully',
+            data: blog
+          }));
+        } catch (error) {
+          console.error('[API] Blog deletion error:', error.message);
+          res.statusCode = 500;
+          return res.end(JSON.stringify({
+            success: false,
+            error: 'Failed to delete blog',
+            message: error.message
+          }));
+        }
+      }
+      
+      // Unknown blog route
+      res.statusCode = 404;
+      return res.end(JSON.stringify({
+        success: false,
+        message: 'Blog endpoint not found',
         path: normalizedPath
       }));
     }

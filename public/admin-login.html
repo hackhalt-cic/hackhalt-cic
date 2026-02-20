@@ -461,10 +461,21 @@
   <script src="assets/js/utils.js"></script>
   
   <script>
-    // Ensure api-config.js functions are available before running login script
+    // Robust fallback if api-config.js fails to load
+    if (typeof BACKEND_API_URL === 'undefined') {
+      const _hostname = window.location.hostname;
+      var BACKEND_API_URL = (_hostname === 'localhost' || _hostname === '127.0.0.1') 
+        ? 'http://localhost:5000' 
+        : 'https://hackhalt-cic-lemon.vercel.app';
+      console.warn('[LOGIN] api-config.js not loaded, using fallback BACKEND_API_URL:', BACKEND_API_URL);
+    }
     if (typeof getApiUrl !== 'function') {
-      console.error('[CRITICAL] getApiUrl() function not available! api-config.js may not have loaded.');
-      console.error('[DEBUG] BACKEND_API_URL:', typeof BACKEND_API_URL !== 'undefined' ? BACKEND_API_URL : 'UNDEFINED');
+      console.warn('[LOGIN] getApiUrl not available, defining fallback');
+      function getApiUrl(endpoint) {
+        if (!endpoint.startsWith('/')) endpoint = '/' + endpoint;
+        const separator = endpoint.includes('?') ? '&' : '?';
+        return BACKEND_API_URL + endpoint + separator + '_t=' + Date.now();
+      }
     }
     
     const loginForm = document.getElementById('loginForm');

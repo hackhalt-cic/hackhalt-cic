@@ -753,10 +753,28 @@
   </div>
 
   <script>
-    // Use backend API URL from api-config.js
-    // If BACKEND_API_URL is not available (shouldn't happen), fallback to current origin
-    const apiBase = typeof BACKEND_API_URL !== 'undefined' ? BACKEND_API_URL : window.location.origin;
+    // Determine backend API URL - must point to Vercel backend
+    // Priority: 1) api-config.js value, 2) inline detection, 3) hardcoded Vercel URL
+    const VERCEL_BACKEND = 'https://hackhalt-cic-lemon.vercel.app';
+    let apiBase;
+    
+    if (typeof BACKEND_API_URL !== 'undefined' && BACKEND_API_URL) {
+      apiBase = BACKEND_API_URL;
+      console.log('[ADMIN] API Base from api-config.js:', apiBase);
+    } else {
+      // api-config.js didn't load - detect environment
+      const hostname = window.location.hostname;
+      if (hostname === 'localhost' || hostname === '127.0.0.1') {
+        apiBase = 'http://localhost:5000';
+      } else {
+        // Production: always use Vercel backend for API calls
+        apiBase = VERCEL_BACKEND;
+      }
+      console.warn('[ADMIN] api-config.js not loaded, using fallback:', apiBase);
+    }
+    
     console.log('[ADMIN] API Base URL:', apiBase);
+    console.log('[ADMIN] Frontend origin:', window.location.origin);
     let currentTab = 'contact';
     let currentSection = 'response';
     let listenerAttached = false;

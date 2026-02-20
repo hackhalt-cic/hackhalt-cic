@@ -43,7 +43,9 @@ function verifyJWTToken(req) {
       return null;
     }
     
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'hackhalt_secret_key_2026');
+    // Use the same JWT_SECRET as the login handler
+    const secret = process.env.JWT_SECRET || 'your-secure-secret-key-change-in-production';
+    const decoded = jwt.verify(token, secret);
     console.log('[API] ✅ Token verified for:', decoded.username);
     return decoded;
   } catch (error) {

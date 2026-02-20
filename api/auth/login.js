@@ -3,23 +3,12 @@ const jwt = require('jsonwebtoken');
 const Admin = require('../../models/Admin');
 
 module.exports = async function handler(req, res) {
-  // CRITICAL: Set JSON content type FIRST to prevent HTML responses
-  res.setHeader("Content-Type", "application/json; charset=utf-8");
+  // Set JSON content type (if not already set)
+  if (!res.getHeader('Content-Type')) {
+    res.setHeader("Content-Type", "application/json; charset=utf-8");
+  }
+  
   res.setHeader("X-Content-Type-Options", "nosniff");
-  
-  // Note: CORS headers are now handled by Express middleware in api/index.js
-  // Only set these as fallback if CORS middleware hasn't already set them
-  if (!res.getHeader("Access-Control-Allow-Origin")) {
-    res.setHeader("Access-Control-Allow-Origin", "*");
-  }
-  
-  if (!res.getHeader("Access-Control-Allow-Methods")) {
-    res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
-  }
-  
-  if (!res.getHeader("Access-Control-Allow-Headers")) {
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  }
 
   // Handle preflight
   if (req.method === "OPTIONS") {
@@ -30,10 +19,12 @@ module.exports = async function handler(req, res) {
     try {
       // Ensure database connection
       if (!mongoose.connections[0].readyState) {
+        console.log('[Login] Connecting to MongoDB...');
         await mongoose.connect(process.env.MONGODB_URI);
       }
 
       const { username, password } = req.body;
+      console.log('[Login] Attempt for user:', username);
 
       if (!username || !password) {
         return res.status(400).json({ success: false, message: "Username and password are required" });
@@ -42,22 +33,26 @@ module.exports = async function handler(req, res) {
       const admin = await Admin.findOne({ username: username.trim() }).select('+password');
 
       if (!admin) {
+        console.log('[Login] User not found:', username);
         return res.status(401).json({ success: false, message: "Invalid credentials" });
       }
 
       if (!admin.isActive) {
+        console.log('[Login] Account inactive:', username);
         return res.status(401).json({ success: false, message: "Account is inactive" });
       }
 
       const isPasswordValid = await admin.comparePassword(password);
 
       if (!isPasswordValid) {
+        console.log('[Login] Invalid password for user:', username);
         admin.failedLoginAttempts = (admin.failedLoginAttempts || 0) + 1;
         admin.lastFailedLogin = new Date();
         await admin.save();
         return res.status(401).json({ success: false, message: "Invalid credentials" });
       }
 
+      console.log('[Login] Valid password for user:', username);
       admin.failedLoginAttempts = 0;
       admin.lastLogin = new Date();
       await admin.save();
@@ -83,6 +78,7 @@ module.exports = async function handler(req, res) {
       res.setHeader('Set-Cookie', `adminToken=${accessToken}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=900`);
       res.appendHeader('Set-Cookie', `refreshToken=${refreshToken}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=604800`);
 
+      console.log('[Login] Success for user:', username);
       return res.status(200).json({
         success: true,
         message: "Login successful",
@@ -95,8 +91,8 @@ module.exports = async function handler(req, res) {
         }
       });
     } catch (error) {
-      console.error('[ERROR]', error);
-      return res.status(500).json({ success: false, message: "Server error" });
+      console.error('[Login] Error:', error.message);
+      return res.status(500).json({ success: false, message: "Server error", error: error.message });
     }
   }
 

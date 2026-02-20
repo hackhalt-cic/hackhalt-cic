@@ -2,7 +2,53 @@ const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const Admin = require('../../models/Admin');
 
+// CORS Configuration
+const ALLOWED_ORIGINS = [
+  'https://hackhalt.org',
+  'https://www.hackhalt.org',
+  'https://hackhalt-cic-lemon.vercel.app',
+  'https://hackhalt-cic.vercel.app',
+  'http://localhost:5000',
+  'http://localhost:3000',
+  'http://127.0.0.1:5000',
+  'http://127.0.0.1:3000'
+];
+
+function isOriginAllowed(origin) {
+  if (!origin) return true;
+  if (ALLOWED_ORIGINS.includes(origin)) return true;
+  
+  const regexPatterns = [
+    /https:\/\/.*\.vercel\.app$/,
+    /https:\/\/.*\.hostinger\..*/,
+    /https:\/\/hackhalt-cic.*\.hostinger\.com$/
+  ];
+  
+  return regexPatterns.some(pattern => pattern.test(origin));
+}
+
+function setCORSHeaders(req, res) {
+  const origin = req.headers.origin || req.headers.referer;
+  
+  // Set CORS headers
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept');
+  res.setHeader('Access-Control-Max-Age', '86400');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  
+  if (isOriginAllowed(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin || '*');
+    console.log(`[Login CORS] ✅ Allowed origin: ${origin || 'no-origin'}`);
+  } else {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    console.log(`[Login CORS] ⚠️ Non-whitelisted origin: ${origin}`);
+  }
+}
+
 module.exports = async function handler(req, res) {
+  // Set CORS headers FIRST
+  setCORSHeaders(req, res);
+  
   // Set JSON content type (if not already set)
   if (!res.getHeader('Content-Type')) {
     res.setHeader("Content-Type", "application/json; charset=utf-8");
@@ -10,8 +56,9 @@ module.exports = async function handler(req, res) {
   
   res.setHeader("X-Content-Type-Options", "nosniff");
 
-  // Handle preflight
+  // Handle preflight OPTIONS request
   if (req.method === "OPTIONS") {
+    console.log('[Login] Handling OPTIONS preflight request');
     return res.status(200).end();
   }
 

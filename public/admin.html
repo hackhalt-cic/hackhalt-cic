@@ -540,19 +540,31 @@
     // Store auth token from login response
     function storeAuthToken(token) {
       try {
-        sessionStorage.setItem('adminToken', token);
-        console.log('[AUTH] Token stored in sessionStorage');
+        localStorage.setItem('adminToken', token);
+        console.log('[AUTH] Token stored in localStorage');
       } catch (e) {
-        console.warn('[AUTH] Failed to store token in sessionStorage:', e);
+        console.warn('[AUTH] Failed to store token in localStorage:', e);
       }
     }
 
     // Retrieve auth token from storage
     function getAuthToken() {
       try {
-        return sessionStorage.getItem('adminToken');
+        // Try localStorage first (persists across sessions)
+        let token = localStorage.getItem('adminToken');
+        if (token) {
+          console.log('[AUTH] Retrieved token from localStorage');
+          return token;
+        }
+        // Fall back to sessionStorage
+        token = sessionStorage.getItem('adminToken');
+        if (token) {
+          console.log('[AUTH] Retrieved token from sessionStorage');
+          return token;
+        }
+        return null;
       } catch (e) {
-        console.warn('[AUTH] Failed to retrieve token from sessionStorage:', e);
+        console.warn('[AUTH] Failed to retrieve token from storage:', e);
         return null;
       }
     }

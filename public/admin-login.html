@@ -590,10 +590,11 @@
         // Success - Store the access token for use in admin panel
         if (data.accessToken) {
           try {
-            sessionStorage.setItem('adminToken', data.accessToken);
-            console.log('[LOGIN] ✅ Token stored in sessionStorage for cross-domain API calls');
+            // Use localStorage which persists across sessions
+            localStorage.setItem('adminToken', data.accessToken);
+            console.log('[LOGIN] ✅ Token stored in localStorage for cross-domain API calls');
           } catch (e) {
-            console.warn('[LOGIN] Could not store token in sessionStorage:', e.message);
+            console.warn('[LOGIN] Could not store token in localStorage:', e.message);
           }
         }
         

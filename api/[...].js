@@ -61,10 +61,15 @@ module.exports = async (req, res) => {
       urlPath = '/' + urlPath;
     }
     
-    console.log('[API] URL Path:', urlPath, '| Full URL:', url);
+    // Normalize: remove /api prefix if present so we can check paths consistently
+    let normalizedPath = urlPath.startsWith('/api/') ? urlPath.substring(4) : urlPath;
+    if (normalizedPath === '') normalizedPath = '/';
+    
+    console.log('[API] Raw URL Path:', urlPath);
+    console.log('[API] Normalized Path:', normalizedPath, '| Full URL:', url);
     
     // Health check
-    if (urlPath === '/health' || urlPath === '/api/health') {
+    if (normalizedPath === '/health') {
       console.log('[API] → Health check');
       res.statusCode = 200;
       return res.end(JSON.stringify({ 
@@ -74,7 +79,7 @@ module.exports = async (req, res) => {
     }
     
     // CORS test endpoint
-    if (urlPath === '/cors-test' || urlPath === '/api/cors-test') {
+    if (normalizedPath === '/cors-test') {
       console.log('[API] → CORS test endpoint');
       res.statusCode = 200;
       return res.end(JSON.stringify({
@@ -90,7 +95,7 @@ module.exports = async (req, res) => {
     }
     
     // Login endpoint
-    if ((urlPath === '/auth/login' || urlPath === '/api/auth/login') && method === 'POST') {
+    if ((normalizedPath === '/auth/login') && method === 'POST') {
       console.log('[API] → Delegating to login handler');
       
       // Parse body first
@@ -101,9 +106,9 @@ module.exports = async (req, res) => {
     }
     
     // Submissions endpoints - Direct handling
-    if (urlPath.startsWith('/submissions') || urlPath.startsWith('/api/submissions')) {
+    if (normalizedPath.startsWith('/submissions')) {
       console.log('[API] ✅ MATCHED: submissions endpoint');
-      console.log('[API] URL Path:', urlPath);
+      console.log('[API] Normalized Path:', normalizedPath);
       console.log('[API] Method:', method);
       console.log('[API] Full URL:', url);
       
@@ -129,9 +134,9 @@ module.exports = async (req, res) => {
         console.log('[API] ✅ MongoDB already connected (state:', mongoose.connections[0].readyState, ')');
       }
       
-      // GET /api/submissions/contact
-      if ((urlPath === '/submissions/contact' || urlPath === '/api/submissions/contact') && method === 'GET') {
-        console.log('[API] 📋 GET /api/submissions/contact');
+      // GET /submissions/contact
+      if ((normalizedPath === '/submissions/contact') && method === 'GET') {
+        console.log('[API] 📋 GET /submissions/contact');
         try {
           const { purpose } = Object.fromEntries(new URL(`http://dummy${url}`).searchParams);
           console.log('[API] Purpose filter:', purpose);
@@ -168,9 +173,9 @@ module.exports = async (req, res) => {
       }
       
       // GET /api/submissions/contact/:id
-      if ((urlPath.match(/^\/submissions\/contact\/[^\/]+$/) || urlPath.match(/^\/api\/submissions\/contact\/[^\/]+$/)) && method === 'GET') {
+      if ((normalizedPath.match(/^\/submissions\/contact\/[^\/]+$/)) && method === 'GET') {
         try {
-          const id = urlPath.split('/').pop();
+          const id = normalizedPath.split('/').pop();
           console.log('[API] Fetching single contact submission:', id);
           
           const submission = await ContactSubmission.findById(id).lean();
@@ -200,7 +205,7 @@ module.exports = async (req, res) => {
       }
       
       // GET /api/submissions/blogs
-      if ((urlPath === '/submissions/blogs' || urlPath === '/api/submissions/blogs') && method === 'GET') {
+      if ((normalizedPath === '/submissions/blogs') && method === 'GET') {
         try {
           const { status } = Object.fromEntries(new URL(`http://dummy${url}`).searchParams);
           
@@ -235,9 +240,9 @@ module.exports = async (req, res) => {
       }
       
       // GET /api/submissions/blogs/:id
-      if ((urlPath.match(/^\/submissions\/blogs\/[^\/]+$/) || urlPath.match(/^\/api\/submissions\/blogs\/[^\/]+$/)) && method === 'GET') {
+      if ((normalizedPath.match(/^\/submissions\/blogs\/[^\/]+$/)) && method === 'GET') {
         try {
-          const id = urlPath.split('/').pop();
+          const id = normalizedPath.split('/').pop();
           console.log('[API] Fetching single blog submission:', id);
           
           const blog = await BlogSubmission.findById(id).lean();
@@ -271,18 +276,18 @@ module.exports = async (req, res) => {
       return res.end(JSON.stringify({
         success: false,
         message: 'Submissions endpoint not found',
-        path: urlPath
+        path: normalizedPath
       }));
     }
     
     // 404 - No route matched
-    console.log('[API] ⚠️ No matching route found for:', method, urlPath);
+    console.log('[API] ⚠️ No matching route found for:', method, normalizedPath);
     res.statusCode = 404;
     return res.end(JSON.stringify({ 
       success: false, 
       message: 'API endpoint not found',
       method: method,
-      path: urlPath,
+      path: normalizedPath,
       fullUrl: url
     }));
     

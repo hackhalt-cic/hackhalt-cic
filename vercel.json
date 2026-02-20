@@ -21,12 +21,12 @@
       "dest": "/public/images/$1"
     },
     {
-      "src": "/(admin-login|admin|blog-admin|add-blog|about|blogs|book-session|community|contact|events|legal-compliance|partners|404|index)$",
-      "dest": "/public/$1.html"
-    },
-    {
       "src": "/api/(.*)",
       "dest": "/api/[...].js"
+    },
+    {
+      "src": "^/(admin-login|admin|blog-admin|add-blog|about|blogs|book-session|community|contact|events|legal-compliance|partners|404|index)$",
+      "dest": "/public/$1.html"
     },
     {
       "src": "/(?!api)(.+)",

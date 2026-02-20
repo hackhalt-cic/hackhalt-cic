@@ -460,30 +460,38 @@
   <script src="assets/js/api-config.js"></script>
   <script src="assets/js/utils.js"></script>
   
+  <!-- Fallback: only runs if api-config.js failed to load -->
   <script>
-    // Robust fallback if api-config.js fails to load
-    // Use try-catch to avoid any redeclaration issues
-    try {
-      if (typeof BACKEND_API_URL === 'undefined' || !BACKEND_API_URL) {
-        throw new Error('not defined');
-      }
-      console.log('[LOGIN] BACKEND_API_URL from api-config.js:', BACKEND_API_URL);
-    } catch(e) {
-      // api-config.js didn't load or BACKEND_API_URL not set
-      BACKEND_API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+    // If api-config.js loaded, BACKEND_API_URL exists. If not, set it on window.
+    // NEVER re-declare BACKEND_API_URL - just use window property
+    if (typeof window.BACKEND_API_URL === 'undefined') {
+      try {
+        // Check if let-scoped BACKEND_API_URL exists (from api-config.js with let)
+        if (typeof BACKEND_API_URL !== 'undefined' && BACKEND_API_URL) {
+          window._backendUrl = BACKEND_API_URL;
+        }
+      } catch(e) {}
+    }
+    if (!window._backendUrl && typeof BACKEND_API_URL !== 'undefined') {
+      window._backendUrl = BACKEND_API_URL;
+    }
+    if (!window._backendUrl) {
+      window._backendUrl = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
         ? 'http://localhost:5000'
         : 'https://hackhalt-cic-lemon.vercel.app';
-      console.warn('[LOGIN] Using fallback BACKEND_API_URL:', BACKEND_API_URL);
     }
+    console.log('[LOGIN] Backend URL resolved to:', window._backendUrl);
+    
     if (typeof getApiUrl !== 'function') {
-      console.warn('[LOGIN] getApiUrl not available, defining fallback');
       window.getApiUrl = function(endpoint) {
         if (!endpoint.startsWith('/')) endpoint = '/' + endpoint;
-        const separator = endpoint.includes('?') ? '&' : '?';
-        return BACKEND_API_URL + endpoint + separator + '_t=' + Date.now();
+        var sep = endpoint.includes('?') ? '&' : '?';
+        return window._backendUrl + endpoint + sep + '_t=' + Date.now();
       };
     }
-    
+  </script>
+
+  <script>
     const loginForm = document.getElementById('loginForm');
     const loginBtn = document.getElementById('loginBtn');
     const errorMessage = document.getElementById('errorMessage');
@@ -529,7 +537,7 @@
         
         console.log('[LOGIN] Sending login request to:', apiUrl);
         console.log('[LOGIN] Frontend domain:', window.location.origin);
-        console.log('[LOGIN] Backend API:', BACKEND_API_URL);
+        console.log('[LOGIN] Backend API:', window._backendUrl);
         console.log('[LOGIN] Username:', username);
         
         const requestBody = JSON.stringify({ username, password });

@@ -10,10 +10,13 @@ const blogRouter = require('./routes/blog');
 
 const app = express();
 
-
+// Connection state tracking for serverless
+let isConnecting = false;
+let connectionAttempts = 0;
+const MAX_CONNECTION_ATTEMPTS = 5;
 
 // Database connection function with faster Vercel optimization
-const connectDB = async (retries = 5) => {
+const connectDB = async (retries = MAX_CONNECTION_ATTEMPTS) => {
   try {
     const mongoURI = process.env.MONGODB_URI;
     
@@ -38,12 +41,14 @@ const connectDB = async (retries = 5) => {
     });
 
     console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
+    isConnecting = false;
     return conn;
   } catch (error) {
     console.error('❌ MongoDB Connection Error:', error.message);
+    isConnecting = false;
     
     if (retries > 0) {
-      const delayMs = (6 - retries) * 2000;
+      const delayMs = (MAX_CONNECTION_ATTEMPTS - retries + 1) * 1000;
       console.log(`⏳ Retrying connection (${retries} attempts left) in ${delayMs}ms...`);
       await new Promise(resolve => setTimeout(resolve, delayMs));
       return connectDB(retries - 1);
@@ -53,11 +58,46 @@ const connectDB = async (retries = 5) => {
   }
 };
 
+// Lazy connect function - only attempt to connect if not already connected or connecting
+const ensureDBConnection = async () => {
+  // If already connected, return
+  if (mongoose.connection.readyState === 1) {
+    return;
+  }
+  
+  // If currently connecting, wait a bit and retry
+  if (isConnecting || connectionAttempts >= MAX_CONNECTION_ATTEMPTS) {
+    console.warn('[DB] Connection already in progress or max attempts reached');
+    return;
+  }
+  
+  // Try to connect
+  isConnecting = true;
+  connectionAttempts++;
+  try {
+    await connectDB();
+  } catch (error) {
+    console.error('[DB] Failed to connect after all retries:', error.message);
+    // Don't throw - allow the API to continue without DB
+  }
+};
 
-// Connect once when serverless initializes
-connectDB().catch(err => {
-  console.error('Initial MongoDB connection failed:', err.message);
-});
+// Middleware to ensure DB connection before processing requests that need it
+const ensureDBMiddleware = async (req, res, next) => {
+  // Skip health check
+  if (req.path === '/api/health') {
+    return next();
+  }
+  
+  // For other routes, try to ensure DB connection
+  try {
+    await ensureDBConnection();
+  } catch (error) {
+    console.error('[Middleware] Error ensuring DB connection:', error.message);
+  }
+  
+  next();
+};
 
 // CORS MUST be first - before all other middleware
 const corsOptions = {
@@ -118,7 +158,8 @@ app.options('*', cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-
+// Middleware to ensure DB connection for routes that need it
+app.use(ensureDBMiddleware);
 
 // Health check endpoint - MUST be before router mounts
 app.get('/api/health', (req, res) => {

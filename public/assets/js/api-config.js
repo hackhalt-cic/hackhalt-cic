@@ -13,8 +13,8 @@ const isHostinger = window.location.hostname.includes('hostinger') || window.loc
 var BACKEND_API_URL;
 
 if (isDevelopment) {
-  // Local development
-  BACKEND_API_URL = 'http://localhost:5000';
+  // Local development - use the current port (matches PORT in .env)
+  BACKEND_API_URL = window.location.origin;
 } else if (isHostinger) {
   // Production: Frontend on Hostinger, Backend on Vercel
   BACKEND_API_URL = 'https://hackhalt-cic-lemon.vercel.app';

@@ -9,6 +9,7 @@ const mongoose = require('mongoose');
 const getSecureAdminAuth = () => require('./routes/secureAdminAuth');
 const getSubmissionsRouter = () => require('./routes/submissions');
 const getBlogRouter = () => require('./routes/blog');
+const getHallOfFameRouter = () => require('./routes/hallOfFame');
 
 const app = express();
 
@@ -221,6 +222,103 @@ try {
   console.error('[ERROR] Failed to load blog routes:', error.message);
 }
 
+// Hall of Fame routes
+console.log('[INIT] Mounting /api/hall-of-fame routes...');
+try {
+  app.use('/api/hall-of-fame', getHallOfFameRouter());
+} catch (error) {
+  console.error('[ERROR] Failed to load hall-of-fame routes:', error.message);
+}
+
+// Direct contact form endpoint (redirects to submissions)
+app.post('/api/contact', async (req, res) => {
+  try {
+    const ContactSubmission = require('./models/ContactSubmission');
+    const { purpose, name, email, phone, subject, message, organization, interests, region, linkedin, experience } = req.body;
+
+    // Validation
+    if (!purpose || !name || !email) {
+      return res.status(400).json({
+        success: false,
+        error: 'Purpose, name, and email are required'
+      });
+    }
+
+    // Create new contact submission
+    const newSubmission = new ContactSubmission({
+      purpose,
+      name,
+      email,
+      phone,
+      subject,
+      message,
+      organization,
+      interests,
+      region,
+      linkedin,
+      experience
+    });
+
+    await newSubmission.save();
+    console.log('[CONTACT] New submission saved:', newSubmission._id);
+
+    res.status(201).json({
+      success: true,
+      message: 'Contact submission saved successfully',
+      data: newSubmission
+    });
+  } catch (error) {
+    console.error('[ERROR] Failed to save contact submission:', error.message);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to save contact submission',
+      message: error.message
+    });
+  }
+});
+
+// Direct booking session endpoint
+app.post('/api/book-session', async (req, res) => {
+  try {
+    const BookingSession = require('./models/BookingSession');
+    const { name, email, organisation, package: pkg, dates, message } = req.body;
+
+    // Validation
+    if (!name || !email || !pkg) {
+      return res.status(400).json({
+        success: false,
+        error: 'Name, email, and package are required'
+      });
+    }
+
+    // Create new booking
+    const newBooking = new BookingSession({
+      name,
+      email,
+      organisation,
+      package: pkg,
+      dates,
+      message
+    });
+
+    await newBooking.save();
+    console.log('[BOOKING] New session booked:', newBooking._id);
+
+    res.status(201).json({
+      success: true,
+      message: 'Booking request submitted successfully',
+      data: newBooking
+    });
+  } catch (error) {
+    console.error('[ERROR] Failed to save booking:', error.message);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to save booking',
+      message: error.message
+    });
+  }
+});
+
 // Serve static files from public folder AFTER API routes but BEFORE catch-all handlers
 // Prevent static file serving for API paths
 app.use((req, res, next) => {
@@ -246,6 +344,10 @@ app.get('/blog-admin', (req, res) => {
 
 app.get('/add-blog', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'add-blog.html'));
+});
+
+app.get('/hall-of-fame', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'hall-of-fame.html'));
 });
 
 // 404 Handler - MUST be after all routes but before error handler
@@ -316,6 +418,22 @@ app.use((err, req, res, next) => {
     </html>
   `);
 });
+
+// Start server for local development
+const PORT = process.env.PORT || 3000;
+
+// Only start server if not being imported as a module
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
+    console.log(`📁 Serving static files from: ${path.join(__dirname, 'public')}`);
+    
+    // Attempt database connection in background
+    connectDB().catch(err => {
+      console.error('Database connection failed:', err.message);
+    });
+  });
+}
 
 // Export app for Vercel and module usage
 module.exports = app;

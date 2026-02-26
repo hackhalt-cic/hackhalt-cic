@@ -7,6 +7,198 @@ const express = require('express');
 const router = express.Router();
 const ContactSubmission = require('../models/ContactSubmission');
 const BlogSubmission = require('../models/BlogSubmission');
+const MembershipSubmission = require('../models/MembershipSubmission');
+const BookingSession = require('../models/BookingSession');
+
+// ============================================
+// POST /api/submissions/contact - Create contact submission
+// ============================================
+router.post('/contact', async (req, res) => {
+  try {
+    const { purpose, name, email, phone, subject, message, organization, interests, region, linkedin, experience } = req.body;
+
+    // Validation
+    if (!purpose || !name || !email) {
+      return res.status(400).json({
+        success: false,
+        error: 'Purpose, name, and email are required'
+      });
+    }
+
+    // Create new contact submission
+    const newSubmission = new ContactSubmission({
+      purpose,
+      name,
+      email,
+      phone,
+      subject,
+      message,
+      organization,
+      interests,
+      region,
+      linkedin,
+      experience
+    });
+
+    await newSubmission.save();
+    console.log('[CONTACT] New submission saved:', newSubmission._id);
+
+    res.status(201).json({
+      success: true,
+      message: 'Contact submission saved successfully',
+      data: newSubmission
+    });
+  } catch (error) {
+    console.error('[ERROR] Failed to save contact submission:', error.message);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to save contact submission',
+      message: error.message
+    });
+  }
+});
+
+// ============================================
+// POST /api/submissions/membership - Create membership submission
+// ============================================
+router.post('/membership', async (req, res) => {
+  try {
+    const { fullName, email, phone, organization, designation, membershipTier, interests, message, agreeTerms } = req.body;
+
+    // Validation
+    if (!fullName || !email || !phone || !designation || !membershipTier || !interests) {
+      return res.status(400).json({
+        success: false,
+        error: 'Full name, email, phone, designation, membership tier, and interests are required'
+      });
+    }
+
+    // Create new membership submission
+    const newMembership = new MembershipSubmission({
+      fullName,
+      email,
+      phone,
+      organization,
+      designation,
+      membershipTier,
+      interests,
+      message,
+      agreeTerms: agreeTerms || false
+    });
+
+    await newMembership.save();
+    console.log('[MEMBERSHIP] New submission saved:', newMembership._id);
+
+    res.status(201).json({
+      success: true,
+      message: 'Membership application submitted successfully',
+      data: newMembership
+    });
+  } catch (error) {
+    console.error('[ERROR] Failed to save membership submission:', error.message);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to save membership submission',
+      message: error.message
+    });
+  }
+});
+
+// ============================================
+// GET /api/submissions/membership - Get membership submissions
+// ============================================
+router.get('/membership', async (req, res) => {
+  try {
+    const { status } = req.query;
+    const query = status ? { status } : {};
+
+    const submissions = await MembershipSubmission.find(query)
+      .sort({ submittedAt: -1 })
+      .limit(1000);
+
+    res.json({
+      success: true,
+      submissions: submissions,
+      data: submissions,
+      count: submissions.length
+    });
+  } catch (error) {
+    console.error('[ERROR] Failed to fetch membership submissions:', error.message);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch membership submissions',
+      message: error.message
+    });
+  }
+});
+
+// ============================================
+// POST /api/submissions/booking - Create booking session
+// ============================================
+router.post('/booking', async (req, res) => {
+  try {
+    const { name, email, organisation, package: pkg, dates, message } = req.body;
+
+    // Validation
+    if (!name || !email || !pkg) {
+      return res.status(400).json({
+        success: false,
+        error: 'Name, email, and package are required'
+      });
+    }
+
+    // Create new booking
+    const newBooking = new BookingSession({
+      name,
+      email,
+      organisation,
+      package: pkg,
+      dates,
+      message
+    });
+
+    await newBooking.save();
+    console.log('[BOOKING] New session booked:', newBooking._id);
+
+    res.status(201).json({
+      success: true,
+      message: 'Booking request submitted successfully',
+      data: newBooking
+    });
+  } catch (error) {
+    console.error('[ERROR] Failed to save booking:', error.message);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to save booking',
+      message: error.message
+    });
+  }
+});
+
+// ============================================
+// GET /api/submissions/booking - Get booking submissions
+// ============================================
+router.get('/booking', async (req, res) => {
+  try {
+    const bookings = await BookingSession.find()
+      .sort({ createdAt: -1 })
+      .limit(1000);
+
+    res.json({
+      success: true,
+      submissions: bookings,
+      data: bookings,
+      count: bookings.length
+    });
+  } catch (error) {
+    console.error('[ERROR] Failed to fetch bookings:', error.message);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch bookings',
+      message: error.message
+    });
+  }
+});
 
 // ============================================
 // GET /api/submissions/contact - Get contact submissions by purpose

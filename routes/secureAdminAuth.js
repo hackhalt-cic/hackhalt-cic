@@ -43,70 +43,35 @@ router.post('/login', loginLimiter, async (req, res) => {
   let responseSent = false;
   const startTime = Date.now();
   
-  // Override dangerous methods
-  const originalSend = res.send;
-  const originalSendFile = res.sendFile;
-  const originalJson = res.json;
-  
-  res.send = function(data) {
-    console.error('[LoginAPI] res.send() was called - preventing non-JSON response');
-    if (responseSent) return;
-    responseSent = true;
-    res.status(500);
-    return originalJson.call(res, {
-      success: false,
-      error: 'Internal server error'
-    });
-  };
-  
-  res.sendFile = function(filepath, options, callback) {
-    console.error('[LoginAPI] res.sendFile() was called - preventing HTML response');
-    if (responseSent) return;
-    responseSent = true;
-    res.status(500);
-    return originalJson.call(res, {
-      success: false,
-      error: 'Internal server error'
-    });
-  };
-  
+  // Safe JSON response helper - prevents double responses
   const sendJsonResponse = (statusCode, data) => {
     if (responseSent) {
       console.warn('[LoginAPI] Attempted to send response twice');
       return;
     }
     responseSent = true;
+    clearTimeout(requestTimeout);
     const duration = Date.now() - startTime;
     console.log(`[LoginAPI] Sending response (${statusCode}) after ${duration}ms`);
-    res.status(statusCode);
-    return originalJson.call(res, data);
+    res.status(statusCode).json(data);
   };
+  
+  // Set timeout for the entire request to prevent hanging on Vercel
+  const requestTimeout = setTimeout(() => {
+    if (!responseSent) {
+      console.error('[LoginAPI] Request timeout - sending error response');
+      sendJsonResponse(504, {
+        success: false,
+        error: 'Request timeout. Please try again.',
+        message: 'Server timeout'
+      });
+    }
+  }, 25000); // 25 second timeout for Vercel's 30 second limit
   
   try {
     const { username, password } = req.body;
     console.log(`[LoginAPI] Login attempt for user: ${username}`);
     console.log(`[LoginAPI] Request received at ${new Date().toISOString()}`);
-
-    // Set timeout for the entire request to prevent hanging on Vercel
-    const requestTimeout = setTimeout(() => {
-      if (!responseSent) {
-        console.error('[LoginAPI] Request timeout - sending error response');
-        responseSent = true;
-        res.status(504);
-        res.json({
-          success: false,
-          error: 'Request timeout. Please try again.',
-          message: 'Server timeout'
-        });
-      }
-    }, 25000); // 25 second timeout for Vercel's 30 second limit
-
-    // Clear timeout when response is sent
-    const originalEnd = res.end;
-    res.end = function(...args) {
-      clearTimeout(requestTimeout);
-      return originalEnd.apply(res, args);
-    };
 
     // 1. Input validation
     if (!username || !password) {
@@ -223,7 +188,7 @@ router.post('/login', loginLimiter, async (req, res) => {
       await admin.save();
     } catch (saveError) {
       console.error('[ERROR] Failed to save admin on successful login:', saveError.message);
-      return res.status(500).json({
+      return sendJsonResponse(500, {
         success: false,
         error: 'Failed to update login status',
         message: 'Server error'
@@ -245,7 +210,7 @@ router.post('/login', loginLimiter, async (req, res) => {
       );
     } catch (tokenError) {
       console.error('[ERROR] Failed to generate access token:', tokenError.message);
-      return res.status(500).json({
+      return sendJsonResponse(500, {
         success: false,
         error: 'Token generation failed',
         message: 'Server error'
@@ -262,7 +227,7 @@ router.post('/login', loginLimiter, async (req, res) => {
       );
     } catch (tokenError) {
       console.error('[ERROR] Failed to generate refresh token:', tokenError.message);
-      return res.status(500).json({
+      return sendJsonResponse(500, {
         success: false,
         error: 'Token generation failed',
         message: 'Server error'
@@ -289,9 +254,10 @@ router.post('/login', loginLimiter, async (req, res) => {
     });
 
     // 11. Return success response - JSON only
-    return res.status(200).json({
+    return sendJsonResponse(200, {
       success: true,
       message: 'Login successful',
+      accessToken,
       admin: {
         id: admin._id,
         username: admin.username,
@@ -302,7 +268,7 @@ router.post('/login', loginLimiter, async (req, res) => {
 
   } catch (error) {
     console.error('[ERROR] Login endpoint error:', error.message);
-    return res.status(500).json({
+    return sendJsonResponse(500, {
       success: false,
       error: error.message || 'Authentication service error',
       message: 'Server error'

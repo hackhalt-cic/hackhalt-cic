@@ -619,6 +619,10 @@
           <i class="fas fa-blog"></i>
           <span>View Blogs</span>
         </div>
+        <div class="nav-item" data-section="halloffame">
+          <i class="fas fa-trophy"></i>
+          <span>Hall of Fame</span>
+        </div>
         <div style="margin: 2rem 0; border-bottom: 1px solid rgba(102, 126, 234, 0.2);"></div>
         <a href="/" class="nav-item" style="text-decoration: none;">
           <i class="fas fa-arrow-left"></i>
@@ -744,6 +748,40 @@
         </div>
       </section>
 
+      <!-- Hall of Fame Section -->
+      <section id="halloffame" class="section">
+        <h2><i class="fas fa-trophy"></i> Hall of Fame Management</h2>
+
+        <div class="top-actions">
+          <button onclick="openHofForm()"><i class="fas fa-plus"></i> Add Entry</button>
+          <button class="secondary" onclick="loadHofEntries()"><i class="fas fa-sync"></i> Refresh</button>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-number" id="hofCount">0</div>
+            <div class="stat-label">Total Entries</div>
+          </div>
+        </div>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Designation</th>
+                <th>Year</th>
+                <th>Quarter</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="hofBody">
+              <tr><td colspan="5" class="no-data">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
     </main>
   </div>
 
@@ -791,6 +829,8 @@
       currentSection = section;
       if (section === 'blogs') {
         loadBlogs();
+      } else if (section === 'halloffame') {
+        loadHofEntries();
       } else {
         loadData();
       }
@@ -1141,6 +1181,28 @@
           deleteSubmission(deleteBtn.dataset.type, deleteBtn.dataset.id);
           return;
         }
+
+        // Handle Hall of Fame edit
+        const hofEditBtn = e.target.closest('.hof-edit-btn');
+        if (hofEditBtn) {
+          e.preventDefault();
+          openHofForm({
+            id: hofEditBtn.dataset.id,
+            name: hofEditBtn.dataset.name,
+            designation: hofEditBtn.dataset.designation,
+            year: hofEditBtn.dataset.year,
+            quarter: hofEditBtn.dataset.quarter
+          });
+          return;
+        }
+
+        // Handle Hall of Fame delete
+        const hofDeleteBtn = e.target.closest('.hof-delete-btn');
+        if (hofDeleteBtn) {
+          e.preventDefault();
+          deleteHofEntry(hofDeleteBtn.dataset.id);
+          return;
+        }
       });
     }
 
@@ -1442,6 +1504,160 @@
           console.log('🔍 Purpose filter changed to:', this.value);
           loadData();
         });
+      }
+    }
+
+    // ============================================
+    // Hall of Fame Management
+    // ============================================
+    async function loadHofEntries() {
+      const tbody = document.getElementById('hofBody');
+      if (!tbody) return;
+      tbody.innerHTML = '<tr><td colspan="5" class="no-data">Loading...</td></tr>';
+
+      try {
+        const resp = await apiCall(apiBase + '/api/hall-of-fame', {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (!resp.ok) throw new Error(`API Error (${resp.status})`);
+        const data = await resp.json();
+        if (!data.success) throw new Error(data.error || 'API error');
+
+        const entries = data.data || [];
+        const hofCountEl = document.getElementById('hofCount');
+        if (hofCountEl) hofCountEl.textContent = entries.length;
+
+        if (!entries.length) {
+          tbody.innerHTML = '<tr><td colspan="5" class="no-data">No Hall of Fame entries. Add one!</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = entries.map(e => `
+          <tr>
+            <td style="min-width: 150px;">${e.name}</td>
+            <td style="min-width: 200px;">${e.designation}</td>
+            <td style="min-width: 80px;">${e.year}</td>
+            <td style="min-width: 80px;">${e.quarter}</td>
+            <td style="min-width: 200px;">
+              <div class="btn-group">
+                <button class="small secondary hof-edit-btn" data-id="${e._id}" data-name="${e.name}" data-designation="${e.designation}" data-year="${e.year}" data-quarter="${e.quarter}"><i class="fas fa-edit"></i> Edit</button>
+                <button class="small danger hof-delete-btn" data-id="${e._id}"><i class="fas fa-trash"></i> Delete</button>
+              </div>
+            </td>
+          </tr>
+        `).join('');
+
+      } catch (err) {
+        console.error('❌ Error loading Hall of Fame:', err);
+        tbody.innerHTML = `<tr><td colspan="5" class="no-data">Error: ${err.message}</td></tr>`;
+      }
+    }
+
+    function openHofForm(editData) {
+      const isEdit = !!editData;
+      const currentYear = new Date().getFullYear();
+      const yearOptions = [];
+      for (let y = currentYear + 1; y >= 2024; y--) {
+        yearOptions.push(`<option value="${y}" ${(isEdit && editData.year == y) ? 'selected' : (!isEdit && y === currentYear) ? 'selected' : ''}>${y}</option>`);
+      }
+
+      openModal(`
+        <h2>${isEdit ? 'Edit' : 'Add'} Hall of Fame Entry</h2>
+        <form onsubmit="${isEdit ? `submitEditHof(event, '${editData.id}')` : 'submitHof(event)'}">
+          <div class="form-group">
+            <label>Name *</label>
+            <input type="text" id="hofName" value="${isEdit ? editData.name : ''}" required placeholder="e.g., Harsh Bardhan">
+          </div>
+          <div class="form-group">
+            <label>Designation *</label>
+            <input type="text" id="hofDesignation" value="${isEdit ? editData.designation : ''}" required placeholder="e.g., CyberSecurity Researcher, Bug Bounty Hunter">
+          </div>
+          <div class="form-group">
+            <label>Year *</label>
+            <select id="hofYear" required>${yearOptions.join('')}</select>
+          </div>
+          <div class="form-group">
+            <label>Quarter *</label>
+            <select id="hofQuarter" required>
+              <option value="Q1" ${isEdit && editData.quarter === 'Q1' ? 'selected' : ''}>Q1 (Jan - Mar)</option>
+              <option value="Q2" ${isEdit && editData.quarter === 'Q2' ? 'selected' : ''}>Q2 (Apr - Jun)</option>
+              <option value="Q3" ${isEdit && editData.quarter === 'Q3' ? 'selected' : ''}>Q3 (Jul - Sep)</option>
+              <option value="Q4" ${isEdit && editData.quarter === 'Q4' ? 'selected' : ''}>Q4 (Oct - Dec)</option>
+            </select>
+          </div>
+          <div style="display: flex; gap: 0.5rem;">
+            <button type="submit" style="flex: 1;"><i class="fas fa-save"></i> ${isEdit ? 'Save Changes' : 'Add Entry'}</button>
+            <button type="button" style="flex: 1; background: #ef4444;" onclick="closeModal()"><i class="fas fa-times"></i> Cancel</button>
+          </div>
+        </form>
+      `);
+    }
+
+    async function submitHof(e) {
+      e.preventDefault();
+      const name = document.getElementById('hofName').value;
+      const designation = document.getElementById('hofDesignation').value;
+      const year = document.getElementById('hofYear').value;
+      const quarter = document.getElementById('hofQuarter').value;
+
+      try {
+        const resp = await apiCall(apiBase + '/api/hall-of-fame', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, designation, year: parseInt(year), quarter })
+        });
+
+        const data = await resp.json();
+        if (!resp.ok) throw new Error(data.error || 'Failed to add entry');
+
+        closeModal();
+        alert('Hall of Fame entry added successfully!');
+        await loadHofEntries();
+      } catch (err) {
+        alert('Error: ' + err.message);
+      }
+    }
+
+    async function submitEditHof(e, id) {
+      e.preventDefault();
+      const name = document.getElementById('hofName').value;
+      const designation = document.getElementById('hofDesignation').value;
+      const year = document.getElementById('hofYear').value;
+      const quarter = document.getElementById('hofQuarter').value;
+
+      try {
+        const resp = await apiCall(apiBase + '/api/hall-of-fame/' + id, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, designation, year: parseInt(year), quarter })
+        });
+
+        const data = await resp.json();
+        if (!resp.ok) throw new Error(data.error || 'Failed to update entry');
+
+        closeModal();
+        alert('Entry updated successfully!');
+        await loadHofEntries();
+      } catch (err) {
+        alert('Error: ' + err.message);
+      }
+    }
+
+    async function deleteHofEntry(id) {
+      if (!confirm('Delete this Hall of Fame entry permanently?')) return;
+      try {
+        const resp = await apiCall(apiBase + '/api/hall-of-fame/' + id, {
+          method: 'DELETE'
+        });
+
+        if (!resp.ok) throw new Error(`Delete failed (${resp.status})`);
+
+        alert('Entry deleted successfully!');
+        await loadHofEntries();
+      } catch (err) {
+        alert('Delete failed: ' + err.message);
       }
     }
 

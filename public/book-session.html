@@ -234,6 +234,7 @@
     <i class="fa-solid fa-arrow-up"></i>
   </button>
 
+  <script src="assets/js/api-config.js"></script>
   <script src="assets/js/utils.js" defer></script>
   <script src="assets/js/main.js" defer></script>
   <script defer>
@@ -253,9 +254,10 @@
       submitBtn.textContent = 'Submitting...';
       
       try {
-        console.log('🚀 Sending POST to Vercel API');
-        const BACKEND_API_URL = 'https://hackhalt-cic.vercel.app'; // Change to your backend URL
-        const response = await fetch(`${BACKEND_API_URL}/api/book-session`, {
+        console.log('🚀 Sending POST to API');
+        const apiUrl = getApiUrl('/api/book-session');
+        console.log('📍 API URL:', apiUrl);
+        const response = await fetch(apiUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data)

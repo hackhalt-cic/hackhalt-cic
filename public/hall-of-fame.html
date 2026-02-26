@@ -8,17 +8,12 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <title>Legal & Compliance - HackHalt CIC</title>
+  <title>Hall of Fame - HackHalt CIC</title>
 
   <meta
     name="description"
-    content="Legal information, organizational credentials, and compliance details for HackHalt - Cyber Intelligence Council."
+    content="HackHalt CIC Hall of Fame - Recognizing security researchers and bug bounty hunters who helped identify vulnerabilities."
   />
-
-  <!-- Performance optimizations -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com" />
 
   <!-- Performance optimizations -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -90,6 +85,151 @@
       display: inline-block !important;
       opacity: 1 !important;
       visibility: visible !important;
+    }
+
+    /* Hall of Fame Styles */
+    .hof-year-section {
+      margin-bottom: 3rem;
+    }
+    .hof-year-title {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--accent, #667eea);
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 2px solid rgba(102, 126, 234, 0.3);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .hof-year-title i {
+      font-size: 1.5rem !important;
+      color: #f59e0b;
+    }
+    .hof-quarters-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+    .hof-quarter-card {
+      background: rgba(15, 20, 40, 0.8);
+      border: 1px solid rgba(102, 126, 234, 0.2);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+    .hof-quarter-card:hover {
+      border-color: rgba(102, 126, 234, 0.5);
+      box-shadow: 0 8px 32px rgba(102, 126, 234, 0.15);
+      transform: translateY(-4px);
+    }
+    .hof-quarter-header {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(0, 217, 255, 0.1));
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid rgba(102, 126, 234, 0.2);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .hof-quarter-badge {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      font-weight: 700;
+      font-size: 0.85rem;
+      padding: 0.3rem 0.75rem;
+      border-radius: 6px;
+      letter-spacing: 0.5px;
+    }
+    .hof-quarter-period {
+      color: var(--text-secondary, #94a3b8);
+      font-size: 0.85rem;
+    }
+    .hof-entries {
+      padding: 1rem 1.25rem;
+    }
+    .hof-entry {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      padding: 1rem 0;
+      border-bottom: 1px solid rgba(102, 126, 234, 0.08);
+    }
+    .hof-entry:last-child {
+      border-bottom: none;
+      padding-bottom: 0.5rem;
+    }
+    .hof-entry-icon {
+      width: 48px;
+      height: 48px;
+      min-width: 48px;
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(0, 217, 255, 0.1));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid rgba(102, 126, 234, 0.3);
+    }
+    .hof-entry-icon i {
+      font-size: 1.2rem !important;
+      color: #667eea;
+    }
+    .hof-entry-info {
+      flex: 1;
+    }
+    .hof-entry-name {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text-primary, #f1f5f9);
+      margin-bottom: 0.25rem;
+    }
+    .hof-entry-designation {
+      font-size: 0.85rem;
+      color: var(--text-secondary, #94a3b8);
+      line-height: 1.4;
+    }
+    .hof-empty {
+      padding: 1.5rem 1.25rem;
+      color: var(--text-secondary, #94a3b8);
+      font-style: italic;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+    .hof-loading {
+      text-align: center;
+      padding: 3rem;
+      color: var(--text-secondary, #94a3b8);
+    }
+    .hof-loading .spinner {
+      display: inline-block;
+      width: 2.5rem;
+      height: 2.5rem;
+      border: 3px solid rgba(102, 126, 234, 0.25);
+      border-top: 3px solid #00d9ff;
+      border-right: 3px solid #667eea;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-bottom: 1rem;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .hof-error {
+      text-align: center;
+      padding: 2rem;
+      color: #ef4444;
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      border-radius: 8px;
+    }
+
+    @media (max-width: 768px) {
+      .hof-quarters-grid {
+        grid-template-columns: 1fr;
+      }
+      .hof-year-title {
+        font-size: 1.5rem;
+      }
     }
   </style>
 
@@ -187,134 +327,36 @@
     </nav>
   </header>
 
-  <!-- ========== PAGE TITLE ========== -->
-  <section class="page-title-section">
+  <!-- ========== HERO SECTION ========== -->
+  <section class="hero-section hero-section-alt">
     <div class="container">
-      <h1>Legal & Compliance Information</h1>
-      <p>Transparency, credibility, and organizational accountability</p>
+      <div class="hero-content reveal">
+        <h1>Hall of Fame</h1>
+        <p>
+          Recognizing the security researchers and bug bounty hunters who have
+          helped us strengthen our defenses by responsibly reporting vulnerabilities.
+        </p>
+      </div>
     </div>
   </section>
 
-  <!-- ========== MAIN CONTENT ========== -->
-  <main class="main-content">
-    <section class="section">
-      <div class="container">
-        <!-- Government Recognition & Credentials -->
-        <div style="margin-bottom: 3rem;">
-          <h2 style="text-align: center; margin-bottom: 2rem; font-size: 1.8rem; color: var(--color-primary);">Government Recognition & Credentials</h2>
-          <p style="text-align: center; color: var(--color-text-muted); margin-bottom: 2rem;">Registered and recognized by national government bodies in India</p>
-          
-          <div class="registrations-grid">
-            <!-- Niti Aayog Darpan Card -->
-            <div class="reveal registration-card">
-              <div class="clean-icon">
-                <i class="fa-solid fa-certificate"></i>
-              </div>
-              <h3>Niti Aayog Darpan</h3>
-              <p class="label">Registration Number</p>
-              <p class="credential-value">DL/2025/0920083</p>
-              <p class="description">Registered with National Non-Profit Government Portal for Transparency</p>
-              <a href="https://ngodarpan.gov.in/#/" target="_blank" class="verify-link">
-                <span>Verify on Darpan</span>
-                <i class="fa-solid fa-arrow-right"></i>
-              </a>
-            </div>
-
-            <!-- Corporate Identity Number Card -->
-            <div class="reveal registration-card">
-              <div class="registration-icon">
-                <i class="fa-solid fa-globe"></i>
-              </div>
-              <h3>Corporate Identity Number</h3>
-              <p class="label">CIN</p>
-              <p class="credential-value">U94990DL2025NPL459178</p>
-              <p class="description">CIN registered with Ministry of Corporate Affairs</p>
-              <a href="https://www.mca.gov.in/" target="_blank" class="verify-link">
-                <span>Verify on MCA Portal</span>
-                <i class="fa-solid fa-arrow-right"></i>
-              </a>
-            </div>
-
-            <!-- MSME Udyam Registration Card -->
-            <div class="reveal registration-card">
-              <div class="registration-icon msme-color">
-                <i class="fa-solid fa-industry"></i>
-              </div>
-              <h3>MSME Udyam Registration</h3>
-              <p class="label">Registration Number</p>
-              <p class="credential-value">UDYAM-DL-02-0107864</p>
-              <p class="description">Registered with Ministry of Micro, Small & Medium Enterprises</p>
-              <a href="https://udyamregistration.gov.in/" target="_blank" class="verify-link">
-                <span>Verify on Udyam Portal</span>
-                <i class="fa-solid fa-arrow-right"></i>
-              </a>
-            </div>
-          </div>
-        </div>
-
-        <!-- Additional Compliance Info -->
-        <div class="compliance-section reveal">
-          <h2>Compliance & Governance</h2>
-          <div class="compliance-items">
-            <div class="compliance-item">
-              <h4><i class="fa-solid fa-check-circle"></i> Transparency</h4>
-              <p>
-                We operate with full transparency in all our activities, funded initiatives, and governance decisions. 
-                All regulatory filings are maintained and updated as per legal requirements.
-              </p>
-            </div>
-            <div class="compliance-item">
-              <h4><i class="fa-solid fa-check-circle"></i> Accountability</h4>
-              <p>
-                Our organization is accountable to government bodies, stakeholders, and the communities we serve. 
-                We follow best practices in organizational governance and financial management.
-              </p>
-            </div>
-            <div class="compliance-item">
-              <h4><i class="fa-solid fa-check-circle"></i> Data Protection</h4>
-              <p>
-                We are committed to protecting the privacy and data of all individuals and organizations we work with, 
-                complying with applicable data protection laws.
-              </p>
-            </div>
-            <div class="compliance-item">
-              <h4><i class="fa-solid fa-check-circle"></i> Public Benefit</h4>
-              <p>
-                As a Section 8 company, all our activities are directed towards public benefit and the advancement 
-                of cybersecurity awareness and practices across India.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Contact for Verification -->
-        <div class="contact-compliance reveal">
-          <h2>Questions or Need Verification?</h2>
-          <p>
-            If you need additional information about our credentials, organization status, or compliance details, 
-            please feel free to contact us.
-          </p>
-          <a href="/contact.html" class="btn btn-primary">Contact Us</a>
+  <!-- ========== HALL OF FAME SECTION ========== -->
+  <section class="section">
+    <div class="container">
+      <div id="hofContainer">
+        <div class="hof-loading">
+          <div class="spinner"></div>
+          <p>Loading Hall of Fame...</p>
         </div>
       </div>
-    </section>
-
-    <!-- CTA Section -->
-    <section class="section">
-      <div class="container" style="text-align: center;">
-        <p style="color: var(--color-text-muted); margin-bottom: 1.5rem; font-size: 1rem;">For comprehensive legal and compliance information, visit our dedicated page.</p>
-        <a href="/legal-compliance" class="btn btn-primary btn-lg" style="display: inline-block;">
-          <i class="fa-solid fa-file-lines"></i> View Full Legal & Compliance Page
-        </a>
-      </div>
-    </section>
-  </main>
+    </div>
+  </section>
 
   <!-- ========== FOOTER ========== -->
   <footer class="site-footer">
     <div class="container footer-grid">
       <div class="footer-brand">
-        <span class="footer-logo">HackHalt - Cyber Intelligence Council</span>
+        <span class="footer-logo">HackHalt - CIC</span>
         <p>
           Building a safer digital tomorrow through intelligence, collaboration,
           and continuous learning.
@@ -324,10 +366,13 @@
         <h4>Quick Links</h4>
         <ul>
           <li><a href="/">Home</a></li>
-          <li><a href="/about">About</a></li>
-          <li><a href="/blogs">Blogs</a></li>
-          <li><a href="/events">Events</a></li>
-          <li><a href="/partners">Partners</a></li>
+          <li><a href="/about.html">About</a></li>
+          <li><a href="/community.html">Community</a></li>
+          <li><a href="/blogs.html">Blogs</a></li>
+          <li><a href="/events.html">Events</a></li>
+          <li><a href="/hall-of-fame.html">Hall of Fame</a></li>
+          <li><a href="/partners.html">Partners</a></li>
+          <li><a href="/contact.html">Contact</a></li>
         </ul>
       </div>
       <div class="footer-links">
@@ -349,9 +394,6 @@
         </ul>
       </div>
     </div>
-    <div class="footer-bottom">
-      <span>© <span id="year"></span> HackHalt - Cyber Intelligence Council. All rights reserved. | CIN: U94990DL2025NPL459178 | NITI Aayog: DL/2025/0920083 | MSME: UDYAM-DL-02-0107864</span>
-    </div>
   </footer>
 
   <!-- Back to top -->
@@ -359,6 +401,111 @@
     <i class="fa-solid fa-arrow-up"></i>
   </button>
 
+  <script src="assets/js/api-config.js" defer></script>
+  <script src="assets/js/utils.js" defer></script>
   <script src="assets/js/main.js" defer></script>
+  <script>
+    // Quarter label mapping
+    const quarterLabels = {
+      'Q1': 'January - March',
+      'Q2': 'April - June',
+      'Q3': 'July - September',
+      'Q4': 'October - December'
+    };
+
+    async function loadHallOfFame() {
+      const container = document.getElementById('hofContainer');
+
+      try {
+        // Determine API base
+        let apiBase = '';
+        if (typeof BACKEND_API_URL !== 'undefined' && BACKEND_API_URL) {
+          apiBase = BACKEND_API_URL;
+        } else {
+          const hostname = window.location.hostname;
+          if (hostname === 'localhost' || hostname === '127.0.0.1') {
+            apiBase = 'http://localhost:' + (window.location.port || '3000');
+          } else {
+            apiBase = 'https://hackhalt-cic-lemon.vercel.app';
+          }
+        }
+
+        const resp = await fetch(apiBase + '/api/hall-of-fame');
+        if (!resp.ok) throw new Error(`Server error (${resp.status})`);
+
+        const data = await resp.json();
+        if (!data.success) throw new Error(data.error || 'Failed to load data');
+
+        const entries = data.data || [];
+
+        if (entries.length === 0) {
+          container.innerHTML = '<div class="hof-empty" style="padding: 3rem;">No entries yet. Check back soon!</div>';
+          return;
+        }
+
+        // Group by year then quarter
+        const grouped = {};
+        entries.forEach(entry => {
+          if (!grouped[entry.year]) grouped[entry.year] = {};
+          if (!grouped[entry.year][entry.quarter]) grouped[entry.year][entry.quarter] = [];
+          grouped[entry.year][entry.quarter].push(entry);
+        });
+
+        // Sort years descending
+        const sortedYears = Object.keys(grouped).sort((a, b) => b - a);
+        const quarters = ['Q1', 'Q2', 'Q3', 'Q4'];
+
+        let html = '';
+        sortedYears.forEach(year => {
+          html += `<div class="hof-year-section">`;
+          html += `<h2 class="hof-year-title"><i class="fas fa-trophy"></i> ${year}</h2>`;
+          html += `<div class="hof-quarters-grid">`;
+
+          quarters.forEach(q => {
+            const people = grouped[year][q] || [];
+            html += `<div class="hof-quarter-card">`;
+            html += `<div class="hof-quarter-header">`;
+            html += `<span class="hof-quarter-badge">${q}</span>`;
+            html += `<span class="hof-quarter-period">${quarterLabels[q]}</span>`;
+            html += `</div>`;
+
+            if (people.length > 0) {
+              html += `<div class="hof-entries">`;
+              people.forEach(p => {
+                html += `<div class="hof-entry">`;
+                html += `<div class="hof-entry-icon"><i class="fas fa-shield-halved"></i></div>`;
+                html += `<div class="hof-entry-info">`;
+                html += `<div class="hof-entry-name">${p.name}</div>`;
+                html += `<div class="hof-entry-designation">${p.designation}</div>`;
+                html += `</div>`;
+                html += `</div>`;
+              });
+              html += `</div>`;
+            } else {
+              html += `<div class="hof-empty">No entries for this quarter</div>`;
+            }
+
+            html += `</div>`;
+          });
+
+          html += `</div>`;
+          html += `</div>`;
+        });
+
+        container.innerHTML = html;
+
+      } catch (err) {
+        console.error('Error loading Hall of Fame:', err);
+        container.innerHTML = `<div class="hof-error"><i class="fas fa-exclamation-triangle"></i> Failed to load Hall of Fame: ${err.message}</div>`;
+      }
+    }
+
+    // Load on DOM ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', loadHallOfFame);
+    } else {
+      loadHallOfFame();
+    }
+  </script>
 </body>
 </html>

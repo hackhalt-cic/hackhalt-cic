@@ -10,6 +10,7 @@ const ContactSubmission = require('../models/ContactSubmission');
 const BlogSubmission = require('../models/BlogSubmission');
 const JoinSubmission = require('../models/JoinSubmission');
 const AmbassadorSubmission = require('../models/AmbassadorSubmission');
+const HallOfFame = require('../models/HallOfFame');
 
 // Helper function to verify JWT token from cookies or headers
 function verifyJWTToken(req) {
@@ -813,6 +814,170 @@ module.exports = async (req, res) => {
       return res.end(JSON.stringify({
         success: false,
         message: 'Blog endpoint not found',
+        path: normalizedPath
+      }));
+    }
+    
+    // Hall of Fame endpoints
+    if (normalizedPath.startsWith('/hall-of-fame')) {
+      console.log('[API] ✅ MATCHED: hall-of-fame endpoint');
+      console.log('[API] Normalized Path:', normalizedPath);
+      console.log('[API] Method:', method);
+      
+      // Initialize database if needed
+      if (mongoose.connections[0].readyState === 0) {
+        console.log('[API] 🔌 Connecting to MongoDB for Hall of Fame');
+        try {
+          await mongoose.connect(process.env.MONGODB_URI, {
+            serverSelectionTimeoutMS: 5000,
+            socketTimeoutMS: 5000
+          });
+          console.log('[API] ✅ MongoDB connected');
+        } catch (dbError) {
+          console.error('[API] ❌ Database connection failed:', dbError.message);
+          res.statusCode = 503;
+          return res.end(JSON.stringify({
+            success: false,
+            error: 'Database unavailable',
+            message: dbError.message
+          }));
+        }
+      }
+      
+      // GET /api/hall-of-fame - Public: Get all entries
+      if (normalizedPath === '/hall-of-fame' && method === 'GET') {
+        try {
+          const entries = await HallOfFame.find().sort({ year: -1, quarter: 1, createdAt: -1 }).lean();
+          res.statusCode = 200;
+          return res.end(JSON.stringify({
+            success: true,
+            data: entries
+          }));
+        } catch (error) {
+          console.error('[API] Hall of Fame fetch error:', error.message);
+          res.statusCode = 500;
+          return res.end(JSON.stringify({
+            success: false,
+            error: 'Failed to fetch Hall of Fame entries'
+          }));
+        }
+      }
+      
+      // POST /api/hall-of-fame - Admin: Add new entry
+      if (normalizedPath === '/hall-of-fame' && method === 'POST') {
+        const admin = verifyJWTToken(req);
+        if (!admin) {
+          res.statusCode = 401;
+          return res.end(JSON.stringify({ success: false, error: 'Unauthorized' }));
+        }
+        
+        try {
+          const { name, designation, year, quarter } = await parseBodySync(req);
+          
+          if (!name || !designation || !year || !quarter) {
+            res.statusCode = 400;
+            return res.end(JSON.stringify({
+              success: false,
+              error: 'Name, designation, year, and quarter are required'
+            }));
+          }
+          
+          if (!['Q1', 'Q2', 'Q3', 'Q4'].includes(quarter)) {
+            res.statusCode = 400;
+            return res.end(JSON.stringify({ success: false, error: 'Quarter must be Q1, Q2, Q3, or Q4' }));
+          }
+          
+          const newEntry = new HallOfFame({
+            name: name.trim(),
+            designation: designation.trim(),
+            year: parseInt(year, 10),
+            quarter
+          });
+          
+          await newEntry.save();
+          console.log('[API] [HOF] New entry added:', newEntry._id);
+          
+          res.statusCode = 201;
+          return res.end(JSON.stringify({
+            success: true,
+            message: 'Hall of Fame entry added',
+            data: newEntry
+          }));
+        } catch (error) {
+          console.error('[API] Hall of Fame create error:', error.message);
+          res.statusCode = 500;
+          return res.end(JSON.stringify({
+            success: false,
+            error: 'Failed to add entry',
+            message: error.message
+          }));
+        }
+      }
+      
+      // PUT /api/hall-of-fame/:id - Admin: Update entry
+      if (normalizedPath.match(/^\/hall-of-fame\/[^\/]+$/) && method === 'PUT') {
+        const admin = verifyJWTToken(req);
+        if (!admin) {
+          res.statusCode = 401;
+          return res.end(JSON.stringify({ success: false, error: 'Unauthorized' }));
+        }
+        
+        try {
+          const id = normalizedPath.split('/').pop();
+          const body = await parseBodySync(req);
+          const updateData = {};
+          
+          if (body.name) updateData.name = body.name.trim();
+          if (body.designation) updateData.designation = body.designation.trim();
+          if (body.year) updateData.year = parseInt(body.year, 10);
+          if (body.quarter && ['Q1', 'Q2', 'Q3', 'Q4'].includes(body.quarter)) updateData.quarter = body.quarter;
+          
+          const entry = await HallOfFame.findByIdAndUpdate(id, updateData, { new: true, runValidators: true });
+          if (!entry) {
+            res.statusCode = 404;
+            return res.end(JSON.stringify({ success: false, error: 'Entry not found' }));
+          }
+          
+          res.statusCode = 200;
+          return res.end(JSON.stringify({ success: true, message: 'Entry updated', data: entry }));
+        } catch (error) {
+          console.error('[API] Hall of Fame update error:', error.message);
+          res.statusCode = 500;
+          return res.end(JSON.stringify({ success: false, error: 'Failed to update entry' }));
+        }
+      }
+      
+      // DELETE /api/hall-of-fame/:id - Admin: Delete entry
+      if (normalizedPath.match(/^\/hall-of-fame\/[^\/]+$/) && method === 'DELETE') {
+        const admin = verifyJWTToken(req);
+        if (!admin) {
+          res.statusCode = 401;
+          return res.end(JSON.stringify({ success: false, error: 'Unauthorized' }));
+        }
+        
+        try {
+          const id = normalizedPath.split('/').pop();
+          const entry = await HallOfFame.findByIdAndDelete(id);
+          if (!entry) {
+            res.statusCode = 404;
+            return res.end(JSON.stringify({ success: false, error: 'Entry not found' }));
+          }
+          
+          console.log('[API] [HOF] Entry deleted:', id);
+          res.statusCode = 200;
+          return res.end(JSON.stringify({ success: true, message: 'Entry deleted' }));
+        } catch (error) {
+          console.error('[API] Hall of Fame delete error:', error.message);
+          res.statusCode = 500;
+          return res.end(JSON.stringify({ success: false, error: 'Failed to delete entry' }));
+        }
+      }
+      
+      // Unknown hall-of-fame route
+      res.statusCode = 404;
+      return res.end(JSON.stringify({
+        success: false,
+        message: 'Hall of Fame endpoint not found',
         path: normalizedPath
       }));
     }

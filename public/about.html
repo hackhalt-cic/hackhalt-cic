@@ -126,25 +126,22 @@
             <ul class="nav-submenu">
               <li><a href="/community.html">Community Overview</a></li>
               <li><a href="/events.html">Events & Outreach</a></li>
-              <li><a href="/blogs.html">Knowledge Base</a></li>
+              <li><a href="/blogs.html">Blogs</a></li>
             </ul>
           </li>
           <li class="nav-item-with-submenu">
             <a href="/blogs.html">Resources</a>
             <ul class="nav-submenu">
-              <li><a href="/blogs.html">Blog</a></li>
-              <li><a href="/blogs.html">News</a></li>
+              <li><a href="/hall-of-fame.html">Hall of Fame</a></li>
               <li><a href="/events.html">Events</a></li>
               <li><a href="/partners.html">Partners</a></li>
             </ul>
           </li>
-          <li class="mobile-only-admin"><a href="/admin-login.html" target="_blank" rel="noopener noreferrer">Admin</a></li>
           <li class="mobile-only-contact"><a href="/contact.html">Contact Us</a></li>
         </ul>
       </nav>
 
       <div class="header-actions">
-        <a href="/admin-login.html" target="_blank" rel="noopener noreferrer" class="btn btn-nav-secondary">Admin</a>
         <a href="/contact.html" class="btn btn-nav-cta">Contact Us</a>
         <div class="mobile-actions">
           <button id="nav-toggle" class="nav-toggle" aria-label="Toggle Menu">
@@ -175,20 +172,18 @@
           <ul class="mobile-submenu">
             <li><a href="/community.html">Community Overview</a></li>
             <li><a href="/events.html">Events & Outreach</a></li>
-            <li><a href="/blogs.html">Knowledge Base</a></li>
+            <li><a href="/blogs.html">Blogs</a></li>
           </ul>
         </li>
         <li class="mobile-submenu-item">
           <a href="/blogs.html" class="mobile-submenu-toggle">Resources <i class="fa-solid fa-chevron-down"></i></a>
           <ul class="mobile-submenu">
-            <li><a href="/blogs.html">Blog</a></li>
-            <li><a href="/blogs.html">News</a></li>
+            <li><a href="/hall-of-fame.html">Hall of Fame</a></li>
             <li><a href="/events.html">Events</a></li>
             <li><a href="/partners.html">Partners</a></li>
           </ul>
         </li>
         <li class="mobile-nav-divider"></li>
-        <li><a href="/admin-login.html" target="_blank" rel="noopener noreferrer">Admin</a></li>
         <li><a href="/contact.html">Contact Us</a></li>
       </ul>
     </nav>
@@ -1032,8 +1027,68 @@
     <i class="fa-solid fa-arrow-up"></i>
   </button>
 
+  <script src="assets/js/api-config.js"></script>
   <script src="assets/js/utils.js"></script>
   <script src="assets/js/main.js" defer></script>
+  <script defer>
+    // Ambassador application form handler
+    document.getElementById('memberForm')?.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const form = e.target;
+      const formData = new FormData(form);
+      const rawData = Object.fromEntries(formData);
+      
+      // Build data for API
+      const data = {
+        purpose: 'Ambassador Application',
+        name: `${rawData.firstName} ${rawData.lastName}`.trim(),
+        email: rawData.email,
+        phone: rawData.phone,
+        region: rawData.region,
+        experience: rawData.expertise,
+        message: rawData.bio || '',
+        subject: `Ambassador Application - ${rawData.region}`
+      };
+      
+      const submitBtn = form.querySelector('button[type="submit"]');
+      const originalText = submitBtn.textContent;
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Submitting...';
+      
+      try {
+        const apiUrl = getApiUrl('/api/contact');
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+          if (typeof Notification !== 'undefined' && Notification.success) {
+            Notification.success('Thank you! Your ambassador application has been submitted.', 5000);
+          } else {
+            alert('Thank you! Your ambassador application has been submitted.');
+          }
+          form.reset();
+        } else {
+          throw new Error(result.error || 'Failed to submit application');
+        }
+      } catch (error) {
+        console.error('Ambassador form error:', error);
+        if (typeof Notification !== 'undefined' && Notification.error) {
+          Notification.error('Error: ' + error.message);
+        } else {
+          alert('Error: ' + error.message);
+        }
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+      }
+    });
+  </script>
 </body>
 </html>
 

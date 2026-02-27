@@ -352,6 +352,26 @@ app.get('/hall-of-fame', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'hall-of-fame.html'));
 });
 
+app.get('/legal-compliance', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'legal-compliance.html'));
+});
+
+app.get('/privacy-policy', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'privacy-policy.html'));
+});
+
+app.get('/terms-and-conditions', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'terms-and-conditions.html'));
+});
+
+app.get('/refund-policy', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'refund-policy.html'));
+});
+
+app.get('/legal-disclaimer', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'legal-disclaimer.html'));
+});
+
 // 404 Handler - MUST be after all routes but before error handler
 app.use((req, res, next) => {
   // For API requests, ALWAYS return JSON - NEVER send HTML

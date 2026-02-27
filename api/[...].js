@@ -11,6 +11,8 @@ const BlogSubmission = require('../models/BlogSubmission');
 const JoinSubmission = require('../models/JoinSubmission');
 const AmbassadorSubmission = require('../models/AmbassadorSubmission');
 const HallOfFame = require('../models/HallOfFame');
+const BookingSession = require('../models/BookingSession');
+const MembershipSubmission = require('../models/MembershipSubmission');
 
 // Helper function to verify JWT token from cookies or headers
 function verifyJWTToken(req) {
@@ -57,8 +59,12 @@ function verifyJWTToken(req) {
       return null;
     }
     
-    // Use the same JWT_SECRET as the login handler
-    const secret = process.env.JWT_SECRET || 'your-secure-secret-key-change-in-production';
+    // Use the same JWT_SECRET as the login handler - NO hardcoded fallback
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      console.error('[API] [AUTH] JWT_SECRET environment variable is not set');
+      return null;
+    }
     console.log('[API] [AUTH] Verifying token with secret...');
     
     const decoded = jwt.verify(token, secret);
@@ -178,7 +184,360 @@ module.exports = async (req, res) => {
       return await loginHandler(req, res);
     }
     
-    // Submissions endpoints - Direct handling
+    // Auth register endpoint
+    if ((normalizedPath === '/auth/register') && method === 'POST') {
+      console.log('[API] → Delegating to register handler');
+      if (!req.body || (typeof req.body === 'object' && Object.keys(req.body).length === 0)) {
+        try {
+          req.body = await Promise.race([
+            parseBodySync(req),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('Body parse timeout')), 3000))
+          ]);
+        } catch (e) {
+          console.warn('[API] Body parse failed/timeout:', e.message);
+        }
+      }
+      const registerHandler = require('../api/auth/register');
+      return await registerHandler(req, res);
+    }
+    
+    // Auth forgot-password endpoint
+    if ((normalizedPath === '/auth/forgot-password') && method === 'POST') {
+      console.log('[API] → Delegating to forgot-password handler');
+      if (!req.body || (typeof req.body === 'object' && Object.keys(req.body).length === 0)) {
+        try {
+          req.body = await Promise.race([
+            parseBodySync(req),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('Body parse timeout')), 3000))
+          ]);
+        } catch (e) {
+          console.warn('[API] Body parse failed/timeout:', e.message);
+        }
+      }
+      const forgotPasswordHandler = require('../api/auth/forgot-password');
+      return await forgotPasswordHandler(req, res);
+    }
+    
+    // Auth reset-password endpoint
+    if ((normalizedPath === '/auth/reset-password') && method === 'POST') {
+      console.log('[API] → Delegating to reset-password handler');
+      if (!req.body || (typeof req.body === 'object' && Object.keys(req.body).length === 0)) {
+        try {
+          req.body = await Promise.race([
+            parseBodySync(req),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('Body parse timeout')), 3000))
+          ]);
+        } catch (e) {
+          console.warn('[API] Body parse failed/timeout:', e.message);
+        }
+      }
+      const resetPasswordHandler = require('../api/auth/reset-password');
+      return await resetPasswordHandler(req, res);
+    }
+    
+    // Auth verify-email endpoint
+    if ((normalizedPath === '/auth/verify-email') && method === 'POST') {
+      console.log('[API] → Delegating to verify-email handler');
+      if (!req.body || (typeof req.body === 'object' && Object.keys(req.body).length === 0)) {
+        try {
+          req.body = await Promise.race([
+            parseBodySync(req),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('Body parse timeout')), 3000))
+          ]);
+        } catch (e) {
+          console.warn('[API] Body parse failed/timeout:', e.message);
+        }
+      }
+      const verifyEmailHandler = require('../api/auth/verify-email');
+      return await verifyEmailHandler(req, res);
+    }
+    
+    // Auth/Admin profile endpoint (GET) - protected
+    if ((normalizedPath === '/auth/profile' || normalizedPath === '/admin/profile') && method === 'GET') {
+      console.log('[API] → Auth profile endpoint');
+      
+      const admin = verifyJWTToken(req);
+      if (!admin) {
+        res.statusCode = 401;
+        return res.end(JSON.stringify({ success: false, error: 'Unauthorized' }));
+      }
+      
+      // Connect to database if needed
+      if (mongoose.connections[0].readyState === 0) {
+        await mongoose.connect(process.env.MONGODB_URI, {
+          serverSelectionTimeoutMS: 5000,
+          socketTimeoutMS: 5000
+        });
+      }
+      
+      try {
+        const Admin = require('../models/Admin');
+        const adminDoc = await Admin.findById(admin.id || admin.adminId);
+        if (!adminDoc) {
+          res.statusCode = 404;
+          return res.end(JSON.stringify({ success: false, error: 'Admin not found' }));
+        }
+        
+        res.statusCode = 200;
+        return res.end(JSON.stringify({
+          success: true,
+          admin: {
+            id: adminDoc._id,
+            username: adminDoc.username,
+            email: adminDoc.email,
+            role: adminDoc.role,
+            lastLogin: adminDoc.lastLogin
+          }
+        }));
+      } catch (error) {
+        console.error('[API] Profile error:', error.message);
+        res.statusCode = 500;
+        return res.end(JSON.stringify({ success: false, error: 'Failed to fetch profile' }));
+      }
+    }
+    
+    // PUBLIC: Contact form submission endpoint
+    if (normalizedPath === '/contact' && method === 'POST') {
+      console.log('[API] ✅ MATCHED: POST /contact (public form)');
+      
+      // Parse body
+      if (!req.body || (typeof req.body === 'object' && Object.keys(req.body).length === 0)) {
+        try {
+          req.body = await Promise.race([
+            parseBodySync(req),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('Body parse timeout')), 3000))
+          ]);
+        } catch (e) {
+          console.warn('[API] Body parse failed/timeout:', e.message);
+        }
+      }
+      
+      try {
+        const { purpose, name, email, phone, subject, message, organization, interests, region, linkedin, experience } = req.body || {};
+        
+        // Validation
+        if (!purpose || !name || !email) {
+          res.statusCode = 400;
+          return res.end(JSON.stringify({
+            success: false,
+            error: 'Purpose, name, and email are required'
+          }));
+        }
+        
+        // Basic email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+          res.statusCode = 400;
+          return res.end(JSON.stringify({
+            success: false,
+            error: 'Invalid email address'
+          }));
+        }
+        
+        // Connect to database if needed
+        if (mongoose.connections[0].readyState === 0) {
+          console.log('[API] 🔌 Connecting to MongoDB for contact submission');
+          await mongoose.connect(process.env.MONGODB_URI, {
+            serverSelectionTimeoutMS: 5000,
+            socketTimeoutMS: 5000
+          });
+          console.log('[API] ✅ MongoDB connected');
+        }
+        
+        // Create new contact submission
+        const newSubmission = new ContactSubmission({
+          purpose,
+          name: name.trim(),
+          email: email.trim().toLowerCase(),
+          phone,
+          subject,
+          message,
+          organization,
+          interests,
+          region,
+          linkedin,
+          experience
+        });
+        
+        await newSubmission.save();
+        console.log('[API] ✅ Contact submission saved:', newSubmission._id);
+        
+        res.statusCode = 201;
+        return res.end(JSON.stringify({
+          success: true,
+          message: 'Contact submission saved successfully',
+          data: newSubmission
+        }));
+      } catch (error) {
+        console.error('[API] ❌ Contact submission error:', error.message);
+        res.statusCode = 500;
+        return res.end(JSON.stringify({
+          success: false,
+          error: 'Failed to save contact submission',
+          message: error.message
+        }));
+      }
+    }
+    
+    // PUBLIC: Book session endpoint
+    if (normalizedPath === '/book-session' && method === 'POST') {
+      console.log('[API] ✅ MATCHED: POST /book-session (public form)');
+      
+      // Parse body
+      if (!req.body || (typeof req.body === 'object' && Object.keys(req.body).length === 0)) {
+        try {
+          req.body = await Promise.race([
+            parseBodySync(req),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('Body parse timeout')), 3000))
+          ]);
+        } catch (e) {
+          console.warn('[API] Body parse failed/timeout:', e.message);
+        }
+      }
+      
+      try {
+        const { name, email, organisation, package: pkg, dates, message } = req.body || {};
+        
+        // Validation
+        if (!name || !email || !pkg) {
+          res.statusCode = 400;
+          return res.end(JSON.stringify({
+            success: false,
+            error: 'Name, email, and package are required'
+          }));
+        }
+        
+        // Basic email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+          res.statusCode = 400;
+          return res.end(JSON.stringify({
+            success: false,
+            error: 'Invalid email address'
+          }));
+        }
+        
+        // Connect to database if needed
+        if (mongoose.connections[0].readyState === 0) {
+          console.log('[API] 🔌 Connecting to MongoDB for booking');
+          await mongoose.connect(process.env.MONGODB_URI, {
+            serverSelectionTimeoutMS: 5000,
+            socketTimeoutMS: 5000
+          });
+          console.log('[API] ✅ MongoDB connected');
+        }
+        
+        // Create new booking
+        const newBooking = new BookingSession({
+          name: name.trim(),
+          email: email.trim().toLowerCase(),
+          organisation,
+          package: pkg,
+          dates,
+          message
+        });
+        
+        await newBooking.save();
+        console.log('[API] ✅ Booking saved:', newBooking._id);
+        
+        res.statusCode = 201;
+        return res.end(JSON.stringify({
+          success: true,
+          message: 'Booking request submitted successfully',
+          data: newBooking
+        }));
+      } catch (error) {
+        console.error('[API] ❌ Booking error:', error.message);
+        res.statusCode = 500;
+        return res.end(JSON.stringify({
+          success: false,
+          error: 'Failed to save booking',
+          message: error.message
+        }));
+      }
+    }
+    
+    // PUBLIC: Membership form submission (no auth required)
+    if (normalizedPath === '/submissions/membership' && method === 'POST') {
+      console.log('[API] ✅ MATCHED: POST /submissions/membership (public form)');
+      
+      // Parse body
+      if (!req.body || (typeof req.body === 'object' && Object.keys(req.body).length === 0)) {
+        try {
+          req.body = await Promise.race([
+            parseBodySync(req),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('Body parse timeout')), 3000))
+          ]);
+        } catch (e) {
+          console.warn('[API] Body parse failed/timeout:', e.message);
+        }
+      }
+      
+      try {
+        const { fullName, email, phone, organization, designation, membershipTier, interests, message, agreeTerms } = req.body || {};
+        
+        // Validation
+        if (!fullName || !email || !phone || !designation || !membershipTier || !interests) {
+          res.statusCode = 400;
+          return res.end(JSON.stringify({
+            success: false,
+            error: 'Full name, email, phone, designation, membership tier, and interests are required'
+          }));
+        }
+        
+        // Basic email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+          res.statusCode = 400;
+          return res.end(JSON.stringify({
+            success: false,
+            error: 'Invalid email address'
+          }));
+        }
+        
+        // Connect to database if needed
+        if (mongoose.connections[0].readyState === 0) {
+          console.log('[API] \ud83d\udd0c Connecting to MongoDB for membership submission');
+          await mongoose.connect(process.env.MONGODB_URI, {
+            serverSelectionTimeoutMS: 5000,
+            socketTimeoutMS: 5000
+          });
+          console.log('[API] \u2705 MongoDB connected');
+        }
+        
+        const newMembership = new MembershipSubmission({
+          fullName: fullName.trim(),
+          email: email.trim().toLowerCase(),
+          phone,
+          organization,
+          designation,
+          membershipTier,
+          interests,
+          message,
+          agreeTerms: agreeTerms || false
+        });
+        
+        await newMembership.save();
+        console.log('[API] \u2705 Membership submission saved:', newMembership._id);
+        
+        res.statusCode = 201;
+        return res.end(JSON.stringify({
+          success: true,
+          message: 'Membership application submitted successfully',
+          data: newMembership
+        }));
+      } catch (error) {
+        console.error('[API] \u274c Membership submission error:', error.message);
+        res.statusCode = 500;
+        return res.end(JSON.stringify({
+          success: false,
+          error: 'Failed to save membership submission',
+          message: error.message
+        }));
+      }
+    }
+    
+    // Submissions endpoints - Direct handling (admin, auth required)
     if (normalizedPath.startsWith('/submissions')) {
       console.log('[API] ✅ MATCHED: submissions endpoint');
       console.log('[API] Normalized Path:', normalizedPath);
@@ -603,6 +962,118 @@ module.exports = async (req, res) => {
             error: 'Failed to delete ambassador submission',
             message: error.message
           }));
+        }
+      }
+      
+      // GET /submissions/membership
+      if ((normalizedPath === '/submissions/membership') && method === 'GET') {
+        try {
+          const { status } = Object.fromEntries(new URL(`http://dummy${url}`).searchParams);
+          const query = status ? { status } : {};
+          
+          console.log('[API] Fetching membership submissions with query:', query);
+          const submissions = await MembershipSubmission.find(query)
+            .sort({ submittedAt: -1 })
+            .limit(1000)
+            .lean();
+          
+          res.statusCode = 200;
+          return res.end(JSON.stringify({
+            success: true,
+            submissions: submissions,
+            data: submissions,
+            count: submissions.length
+          }));
+        } catch (error) {
+          console.error('[API] Membership submissions error:', error.message);
+          res.statusCode = 500;
+          return res.end(JSON.stringify({
+            success: false,
+            error: 'Failed to fetch membership submissions',
+            message: error.message
+          }));
+        }
+      }
+      
+      // GET /submissions/membership/:id
+      if ((normalizedPath.match(/^\/submissions\/membership\/[^\/]+$/)) && method === 'GET') {
+        try {
+          const id = normalizedPath.split('/').pop();
+          const submission = await MembershipSubmission.findById(id).lean();
+          
+          if (!submission) {
+            res.statusCode = 404;
+            return res.end(JSON.stringify({ success: false, error: 'Membership submission not found' }));
+          }
+          
+          res.statusCode = 200;
+          return res.end(JSON.stringify({ success: true, data: submission }));
+        } catch (error) {
+          console.error('[API] Membership submission error:', error.message);
+          res.statusCode = 500;
+          return res.end(JSON.stringify({ success: false, error: 'Failed to fetch membership submission' }));
+        }
+      }
+      
+      // DELETE /submissions/membership/:id
+      if ((normalizedPath.match(/^\/submissions\/membership\/[^\/]+$/)) && method === 'DELETE') {
+        try {
+          const id = normalizedPath.split('/').pop();
+          const result = await MembershipSubmission.findByIdAndDelete(id);
+          
+          if (!result) {
+            res.statusCode = 404;
+            return res.end(JSON.stringify({ success: false, error: 'Membership submission not found' }));
+          }
+          
+          res.statusCode = 200;
+          return res.end(JSON.stringify({ success: true, message: 'Membership submission deleted', data: result }));
+        } catch (error) {
+          console.error('[API] Membership deletion error:', error.message);
+          res.statusCode = 500;
+          return res.end(JSON.stringify({ success: false, error: 'Failed to delete membership submission' }));
+        }
+      }
+      
+      // GET /submissions/booking
+      if ((normalizedPath === '/submissions/booking') && method === 'GET') {
+        try {
+          const bookings = await BookingSession.find({})
+            .sort({ createdAt: -1 })
+            .limit(1000)
+            .lean();
+          
+          res.statusCode = 200;
+          return res.end(JSON.stringify({
+            success: true,
+            submissions: bookings,
+            data: bookings,
+            count: bookings.length
+          }));
+        } catch (error) {
+          console.error('[API] Booking submissions error:', error.message);
+          res.statusCode = 500;
+          return res.end(JSON.stringify({ success: false, error: 'Failed to fetch bookings' }));
+        }
+      }
+      
+      // DELETE /submissions/booking/:id
+      if ((normalizedPath.match(/^\/submissions\/booking\/[^\/]+$/)) && method === 'DELETE') {
+        try {
+          const id = normalizedPath.split('/').pop();
+          const result = await BookingSession.findByIdAndDelete(id);
+          
+          if (!result) {
+            res.statusCode = 404;
+            return res.end(JSON.stringify({ success: false, error: 'Booking not found' }));
+          }
+          
+          res.statusCode = 200;
+          return res.end(JSON.stringify({ success: true, message: 'Booking deleted', data: result }));
+        } catch (error) {
+          console.error('[API] Booking deletion error:', error.message);
+          res.statusCode = 500;
+          return res.end(JSON.stringify({ success: false, error: 'Failed to delete booking' }));
         }
       }
       

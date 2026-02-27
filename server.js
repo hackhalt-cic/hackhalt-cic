@@ -372,6 +372,10 @@ app.get('/legal-disclaimer', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'legal-disclaimer.html'));
 });
 
+app.get('/framework', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'framework.html'));
+});
+
 // 404 Handler - MUST be after all routes but before error handler
 app.use((req, res, next) => {
   // For API requests, ALWAYS return JSON - NEVER send HTML

@@ -9,6 +9,10 @@
     {
       "src": "public/**/*",
       "use": "@vercel/static"
+    },
+    {
+      "src": "framework-public/**/*",
+      "use": "@vercel/static"
     }
   ],
   "routes": [

@@ -3,369 +3,579 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover" />
-  <meta name="theme-color" content="#020617" media="(prefers-color-scheme: dark)" />
-  <meta name="theme-color" content="#f9fafb" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#0a0f0a" />
   <title>OSINT Framework - HackHalt Cyber Intelligence Council</title>
   <meta name="description" content="HackHalt OSINT Framework - A comprehensive collection of OSINT tools organized in an interactive tree structure for cybersecurity professionals." />
   <meta name="keywords" content="OSINT, framework, cybersecurity, intelligence, tools, HackHalt" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 
   <style>
+    /* ===== CSS VARIABLES - GREEN TERMINAL OSINT THEME ===== */
     :root {
-      --fw-bg: #1a0a2e;
-      --fw-bg-secondary: #16082b;
-      --fw-text: #e2e8f0;
-      --fw-text-muted: #94a3b8;
-      --fw-accent: #00d9ff;
-      --fw-accent-hover: #00b8d9;
-      --fw-node-bg: transparent;
-      --fw-node-hover: rgba(0, 217, 255, 0.08);
-      --fw-line: #334155;
-      --fw-tag-t: #f59e0b;
-      --fw-tag-r: #ef4444;
-      --fw-tag-m: #8b5cf6;
-      --fw-tag-d: #22c55e;
-      --fw-link: #00d9ff;
-      --fw-header-bg: rgba(26, 10, 46, 0.95);
-      --fw-search-bg: #0f172a;
-      --fw-search-border: #334155;
-      --fw-border-radius: 6px;
+      --bg-primary: #0a0f0a;
+      --bg-secondary: #0d1410;
+      --bg-tertiary: #111a14;
+      --bg-card: #0f1a12;
+      --bg-hover: rgba(0, 255, 65, 0.06);
+      --bg-active: rgba(0, 255, 65, 0.10);
+      --green-primary: #00ff41;
+      --green-dim: #00cc33;
+      --green-bright: #33ff66;
+      --green-muted: #1a6b2a;
+      --green-glow: 0 0 10px rgba(0, 255, 65, 0.3);
+      --green-glow-strong: 0 0 20px rgba(0, 255, 65, 0.4), 0 0 40px rgba(0, 255, 65, 0.1);
+      --text-primary: #c8e6c9;
+      --text-secondary: #81c784;
+      --text-muted: #4a7a4f;
+      --border-color: #1a3d1f;
+      --border-glow: #0d2e12;
+      --tag-t: #42a5f5;
+      --tag-t-bg: rgba(66, 165, 245, 0.12);
+      --tag-r: #ffa726;
+      --tag-r-bg: rgba(255, 167, 38, 0.12);
+      --tag-m: #ce93d8;
+      --tag-m-bg: rgba(206, 147, 216, 0.12);
+      --tag-d: #ef5350;
+      --tag-d-bg: rgba(239, 83, 80, 0.12);
+      --font-mono: 'Fira Code', 'JetBrains Mono', 'Cascadia Code', 'Consolas', monospace;
+      --radius: 6px;
+      --radius-lg: 10px;
+      --transition: 0.2s ease;
+      --header-height: 64px;
     }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    /* ===== RESET & BASE ===== */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: var(--fw-bg);
-      color: var(--fw-text);
+      font-family: var(--font-mono);
+      background: var(--bg-primary);
+      color: var(--text-primary);
       min-height: 100vh;
       overflow-x: hidden;
+      line-height: 1.6;
     }
 
-    /* Header */
+    /* Subtle scanline overlay */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 9999;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 0, 0, 0.03) 2px,
+        rgba(0, 0, 0, 0.03) 4px
+      );
+    }
+
+    /* ===== SCROLLBAR ===== */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg-primary); }
+    ::-webkit-scrollbar-thumb { background: var(--green-muted); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--green-dim); }
+
+    /* ===== HEADER ===== */
     .fw-header {
       position: sticky;
       top: 0;
       z-index: 100;
-      background: var(--fw-header-bg);
+      background: rgba(10, 15, 10, 0.92);
       backdrop-filter: blur(20px);
-      border-bottom: 1px solid rgba(0, 217, 255, 0.15);
-      padding: 12px 24px;
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border-color);
+      height: var(--header-height);
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
     }
     .fw-header-inner {
       max-width: 1600px;
+      width: 100%;
       margin: 0 auto;
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 12px;
+      gap: 20px;
     }
     .fw-brand {
       display: flex;
       align-items: center;
       gap: 12px;
       text-decoration: none;
-      color: var(--fw-text);
+      color: var(--text-primary);
+      flex-shrink: 0;
     }
     .fw-brand img {
-      width: 36px;
-      height: 36px;
-      border-radius: 8px;
+      width: 34px;
+      height: 34px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
     }
     .fw-brand-text {
       display: flex;
       flex-direction: column;
+      line-height: 1.2;
     }
     .fw-brand-title {
-      font-size: 1.1rem;
+      font-size: 0.95rem;
       font-weight: 700;
-      color: var(--fw-accent);
-      letter-spacing: 1px;
+      color: var(--green-primary);
+      letter-spacing: 2px;
+      text-shadow: var(--green-glow);
     }
     .fw-brand-subtitle {
-      font-size: 0.7rem;
-      color: var(--fw-text-muted);
+      font-size: 0.6rem;
+      color: var(--text-muted);
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 1px;
     }
     .fw-title {
-      font-size: 1.6rem;
-      font-weight: 700;
-      text-align: center;
-      flex: 1;
-      min-width: 200px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      margin-left: auto;
     }
-    .fw-header-actions {
+    .fw-title span {
+      color: var(--green-primary);
+      text-shadow: var(--green-glow);
+    }
+    .fw-header-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-left: auto;
+    }
+    .fw-back-link {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: color var(--transition);
+      white-space: nowrap;
+    }
+    .fw-back-link:hover { color: var(--green-primary); }
+
+    /* ===== TERMINAL SEARCH BAR ===== */
+    .fw-search-bar {
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--border-color);
+      padding: 12px 24px;
+    }
+    .fw-search-inner {
+      max-width: 1600px;
+      margin: 0 auto;
       display: flex;
       align-items: center;
       gap: 12px;
+      flex-wrap: wrap;
     }
-    .fw-search-wrap {
-      position: relative;
+    .fw-terminal-prompt {
+      display: flex;
+      align-items: center;
+      flex: 1;
+      min-width: 260px;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 0;
+      overflow: hidden;
+      transition: border-color var(--transition), box-shadow var(--transition);
     }
-    .fw-search {
-      background: var(--fw-search-bg);
-      border: 1px solid var(--fw-search-border);
-      border-radius: 20px;
-      padding: 8px 16px 8px 36px;
-      color: var(--fw-text);
-      font-size: 0.85rem;
-      width: 220px;
+    .fw-terminal-prompt:focus-within {
+      border-color: var(--green-primary);
+      box-shadow: var(--green-glow);
+    }
+    .fw-prompt-prefix {
+      padding: 10px 0 10px 14px;
+      color: var(--green-primary);
+      font-size: 0.82rem;
+      font-weight: 600;
+      white-space: nowrap;
+      user-select: none;
+      text-shadow: var(--green-glow);
+    }
+    .fw-search-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      padding: 10px 14px 10px 8px;
       outline: none;
-      transition: border-color 0.2s, width 0.3s;
+      caret-color: var(--green-primary);
     }
-    .fw-search:focus {
-      border-color: var(--fw-accent);
-      width: 280px;
+    .fw-search-input::placeholder {
+      color: var(--text-muted);
     }
-    .fw-search-icon {
-      position: absolute;
-      left: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--fw-text-muted);
-      font-size: 0.8rem;
+    .fw-action-btns {
+      display: flex;
+      gap: 8px;
     }
     .fw-btn {
       background: transparent;
-      border: 1px solid var(--fw-line);
-      color: var(--fw-text);
-      padding: 8px 14px;
-      border-radius: 20px;
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 500;
+      padding: 8px 16px;
+      border-radius: var(--radius);
       cursor: pointer;
-      font-size: 0.8rem;
-      transition: all 0.2s;
+      transition: all var(--transition);
       white-space: nowrap;
-    }
-    .fw-btn:hover {
-      border-color: var(--fw-accent);
-      color: var(--fw-accent);
-    }
-    .fw-back-link {
-      color: var(--fw-text-muted);
-      text-decoration: none;
-      font-size: 0.85rem;
       display: flex;
       align-items: center;
       gap: 6px;
-      transition: color 0.2s;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
-    .fw-back-link:hover { color: var(--fw-accent); }
+    .fw-btn:hover {
+      border-color: var(--green-primary);
+      color: var(--green-primary);
+      box-shadow: var(--green-glow);
+      text-shadow: var(--green-glow);
+    }
+    .fw-btn:active {
+      background: rgba(0, 255, 65, 0.08);
+    }
 
-    /* Legend */
-    .fw-legend {
-      position: fixed;
-      top: 80px;
-      right: 20px;
-      background: rgba(15, 23, 42, 0.9);
-      backdrop-filter: blur(10px);
-      border: 1px solid var(--fw-line);
-      border-radius: 8px;
-      padding: 14px 18px;
-      font-size: 0.78rem;
-      z-index: 90;
-      line-height: 1.8;
+    /* ===== LEGEND BAR ===== */
+    .fw-legend-bar {
+      background: var(--bg-tertiary);
+      border-bottom: 1px solid var(--border-color);
+      padding: 8px 24px;
+      overflow-x: auto;
     }
-    .fw-legend-title {
-      font-weight: 600;
-      margin-bottom: 6px;
-      color: var(--fw-accent);
-      font-size: 0.82rem;
+    .fw-legend-inner {
+      max-width: 1600px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      white-space: nowrap;
     }
-    .fw-legend span {
-      margin-right: 4px;
+    .fw-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .fw-legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .fw-legend-dot--category { background: #ffc107; box-shadow: 0 0 6px rgba(255, 193, 7, 0.4); }
+    .fw-legend-dot--tool { background: var(--green-primary); box-shadow: 0 0 6px rgba(0, 255, 65, 0.4); }
+    .fw-legend-tag {
       font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 0.62rem;
+      letter-spacing: 0.3px;
+    }
+    .fw-legend-tag--t { color: var(--tag-t); background: var(--tag-t-bg); }
+    .fw-legend-tag--d { color: var(--tag-d); background: var(--tag-d-bg); }
+    .fw-legend-tag--r { color: var(--tag-r); background: var(--tag-r-bg); }
+    .fw-legend-tag--m { color: var(--tag-m); background: var(--tag-m-bg); }
+
+    /* ===== STATS BAR ===== */
+    .fw-stats-bar {
+      padding: 10px 24px;
+      border-bottom: 1px solid var(--border-color);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+    .fw-stats-inner {
+      max-width: 1600px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+    .fw-stat {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .fw-stat-value {
+      color: var(--green-primary);
+      font-weight: 700;
+      text-shadow: var(--green-glow);
+    }
+    .fw-stat-label {
+      color: var(--text-muted);
+    }
+    .fw-search-status {
+      margin-left: auto;
+      color: var(--green-dim);
+      display: none;
+    }
+    .fw-search-status.active {
+      display: flex;
     }
 
-    /* Tree Container */
+    /* ===== MAIN CONTAINER ===== */
     .fw-container {
       max-width: 1600px;
       margin: 0 auto;
-      padding: 30px 24px 60px;
+      padding: 16px 24px 60px;
     }
 
-    /* Tree Styles */
+    /* ===== LOADING STATE ===== */
+    .fw-loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 20px;
+      gap: 16px;
+    }
+    .fw-loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--border-color);
+      border-top-color: var(--green-primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .fw-loading-text {
+      color: var(--text-muted);
+      font-size: 0.82rem;
+    }
+    .fw-loading-text span {
+      color: var(--green-primary);
+      animation: blink 1s step-end infinite;
+    }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    /* ===== TREE / ACCORDION ===== */
     .fw-tree {
       list-style: none;
-      padding-left: 0;
     }
     .fw-tree ul {
       list-style: none;
-      padding-left: 24px;
+      padding-left: 0;
       margin: 0;
-      position: relative;
-    }
-    .fw-tree ul::before {
-      content: '';
-      position: absolute;
-      left: 11px;
-      top: 0;
-      bottom: 10px;
-      width: 1px;
-      background: var(--fw-line);
-    }
-    .fw-tree li {
-      position: relative;
-      margin: 0;
-      padding: 2px 0;
-    }
-    .fw-tree ul > li::before {
-      content: '';
-      position: absolute;
-      left: -13px;
-      top: 16px;
-      width: 13px;
-      height: 1px;
-      background: var(--fw-line);
     }
 
-    /* Node */
-    .fw-node {
-      display: inline-flex;
+    /* Category (folder) item */
+    .fw-category {
+      margin-bottom: 2px;
+    }
+    .fw-category-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: background var(--transition);
+      user-select: none;
+      border: 1px solid transparent;
+    }
+    .fw-category-header:hover {
+      background: var(--bg-hover);
+      border-color: var(--border-color);
+    }
+    .fw-category-header.active {
+      background: var(--bg-active);
+      border-color: rgba(0, 255, 65, 0.15);
+    }
+    .fw-category-arrow {
+      color: var(--text-muted);
+      font-size: 0.7rem;
+      width: 16px;
+      text-align: center;
+      transition: transform 0.25s ease;
+      flex-shrink: 0;
+    }
+    .fw-category-header.active .fw-category-arrow {
+      transform: rotate(90deg);
+      color: var(--green-primary);
+    }
+    .fw-category-icon {
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+    .fw-category-name {
+      font-size: 0.84rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      flex: 1;
+    }
+    .fw-category-count {
+      font-size: 0.62rem;
+      font-weight: 700;
+      color: var(--green-dim);
+      background: rgba(0, 255, 65, 0.08);
+      border: 1px solid rgba(0, 255, 65, 0.15);
+      padding: 2px 8px;
+      border-radius: 10px;
+      flex-shrink: 0;
+    }
+
+    /* Category children container */
+    .fw-category-children {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s ease;
+      padding-left: 20px;
+      border-left: 1px solid var(--border-color);
+      margin-left: 21px;
+    }
+    .fw-category-children.open {
+      max-height: 5000px;
+    }
+
+    /* Nested depth styling */
+    .fw-category-children .fw-category-children {
+      margin-left: 18px;
+    }
+
+    /* Tool (leaf) item */
+    .fw-tool {
+      display: flex;
       align-items: center;
       gap: 8px;
-      padding: 5px 12px;
-      border-radius: var(--fw-border-radius);
-      cursor: default;
-      transition: background 0.15s;
-      user-select: none;
-      font-size: 0.88rem;
+      padding: 7px 14px;
+      border-radius: var(--radius);
+      transition: background var(--transition);
+      margin: 1px 0;
     }
-    .fw-node:hover {
-      background: var(--fw-node-hover);
+    .fw-tool:hover {
+      background: var(--bg-hover);
     }
-    .fw-node-toggle {
-      cursor: pointer;
-    }
-
-    /* Node dot / icon */
-    .fw-dot {
-      width: 10px;
-      height: 10px;
+    .fw-tool-dot {
+      width: 6px;
+      height: 6px;
       border-radius: 50%;
-      background: var(--fw-accent);
-      flex-shrink: 0;
-      transition: background 0.2s;
-    }
-    .fw-node-toggle .fw-dot {
-      background: #fff;
-    }
-    .fw-node-toggle[data-expanded="false"] .fw-dot {
-      background: var(--fw-accent);
-    }
-
-    /* Collapse indicator */
-    .fw-caret {
-      font-size: 0.65rem;
-      color: var(--fw-text-muted);
-      transition: transform 0.2s;
-      margin-right: 2px;
+      background: var(--green-primary);
+      box-shadow: 0 0 6px rgba(0, 255, 65, 0.4);
       flex-shrink: 0;
     }
-    .fw-node-toggle[data-expanded="true"] .fw-caret {
-      transform: rotate(90deg);
-    }
-
-    /* Node label */
-    .fw-label {
-      color: var(--fw-text);
-    }
-    .fw-node-toggle .fw-label {
-      font-weight: 500;
-    }
-
-    /* External links */
-    .fw-link {
-      color: var(--fw-link);
+    .fw-tool-link {
+      color: var(--green-dim);
       text-decoration: none;
-      transition: color 0.15s;
+      font-size: 0.8rem;
+      font-weight: 400;
+      transition: color var(--transition), text-shadow var(--transition);
+      word-break: break-word;
     }
-    .fw-link:hover {
-      color: #fff;
-      text-decoration: underline;
+    .fw-tool-link:hover {
+      color: var(--green-primary);
+      text-shadow: var(--green-glow);
     }
-    .fw-external-icon {
-      font-size: 0.65rem;
+    .fw-tool-label {
+      color: var(--text-secondary);
+      font-size: 0.8rem;
+    }
+    .fw-tool-external {
+      font-size: 0.55rem;
+      color: var(--text-muted);
+      opacity: 0;
+      transition: opacity var(--transition);
       margin-left: 2px;
-      opacity: 0.6;
+      flex-shrink: 0;
+    }
+    .fw-tool:hover .fw-tool-external {
+      opacity: 1;
     }
 
     /* Tags */
     .fw-tag {
-      font-size: 0.65rem;
+      font-size: 0.58rem;
       font-weight: 700;
-      padding: 1px 5px;
+      padding: 1px 6px;
       border-radius: 3px;
-      margin-left: 4px;
-      vertical-align: middle;
+      letter-spacing: 0.5px;
+      flex-shrink: 0;
+      text-transform: uppercase;
     }
-    .fw-tag-t { color: var(--fw-tag-t); }
-    .fw-tag-r { color: var(--fw-tag-r); }
-    .fw-tag-m { color: var(--fw-tag-m); }
-    .fw-tag-d { color: var(--fw-tag-d); }
+    .fw-tag-t { color: var(--tag-t); background: var(--tag-t-bg); }
+    .fw-tag-r { color: var(--tag-r); background: var(--tag-r-bg); }
+    .fw-tag-m { color: var(--tag-m); background: var(--tag-m-bg); }
+    .fw-tag-d { color: var(--tag-d); background: var(--tag-d-bg); }
 
-    /* Collapsed children */
-    .fw-children-hidden {
-      display: none;
-    }
-
-    /* Search highlight */
-    .fw-highlight {
-      background: rgba(0, 217, 255, 0.2);
-      border-radius: 3px;
-      padding: 0 2px;
-    }
+    /* Search hidden */
     .fw-search-hidden {
-      display: none;
+      display: none !important;
     }
 
-    /* Stats bar */
-    .fw-stats {
+    /* Search matched highlight */
+    .fw-match mark {
+      background: rgba(0, 255, 65, 0.2);
+      color: var(--green-primary);
+      border-radius: 2px;
+      padding: 0 1px;
+    }
+
+    /* ===== FOOTER ===== */
+    .fw-footer {
+      border-top: 1px solid var(--border-color);
+      padding: 20px 24px;
       text-align: center;
-      padding: 12px;
-      color: var(--fw-text-muted);
-      font-size: 0.78rem;
-      border-bottom: 1px solid rgba(0, 217, 255, 0.08);
+      font-size: 0.68rem;
+      color: var(--text-muted);
+    }
+    .fw-footer a {
+      color: var(--green-dim);
+      text-decoration: none;
+    }
+    .fw-footer a:hover {
+      color: var(--green-primary);
+      text-shadow: var(--green-glow);
     }
 
-    /* Responsive */
+    /* ===== RESPONSIVE ===== */
     @media (max-width: 900px) {
-      .fw-legend { display: none; }
-      .fw-title { font-size: 1.2rem; }
-      .fw-search { width: 160px; }
-      .fw-search:focus { width: 200px; }
-      .fw-header-inner { gap: 8px; }
-    }
-    @media (max-width: 600px) {
-      .fw-header { padding: 10px 12px; }
-      .fw-container { padding: 16px 10px 40px; }
-      .fw-title { font-size: 1rem; order: 3; flex-basis: 100%; }
-      .fw-tree ul { padding-left: 16px; }
-      .fw-node { font-size: 0.82rem; padding: 4px 8px; }
-      .fw-search { width: 140px; }
-      .fw-search:focus { width: 180px; }
-      .fw-btn { padding: 6px 10px; font-size: 0.75rem; }
+      .fw-header-inner { gap: 12px; }
+      .fw-brand-text { display: none; }
+      .fw-title { font-size: 0.95rem; }
+      .fw-search-inner { gap: 8px; }
+      .fw-legend-inner { gap: 14px; font-size: 0.62rem; }
     }
 
-    /* Smooth animations */
-    .fw-tree li {
-      animation: fadeIn 0.15s ease;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateX(-5px); }
-      to { opacity: 1; transform: translateX(0); }
+    @media (max-width: 640px) {
+      .fw-header { padding: 0 14px; height: 54px; }
+      .fw-title { display: none; }
+      .fw-brand-text { display: flex; }
+      .fw-search-bar { padding: 10px 14px; }
+      .fw-terminal-prompt { min-width: 0; }
+      .fw-prompt-prefix { font-size: 0.72rem; padding-left: 10px; }
+      .fw-search-input { font-size: 0.75rem; padding: 8px 10px 8px 6px; }
+      .fw-action-btns { width: 100%; }
+      .fw-btn { flex: 1; justify-content: center; padding: 7px 10px; font-size: 0.65rem; }
+      .fw-legend-bar { padding: 6px 14px; }
+      .fw-stats-bar { padding: 8px 14px; }
+      .fw-container { padding: 10px 10px 40px; }
+      .fw-category-header { padding: 8px 10px; gap: 8px; }
+      .fw-category-name { font-size: 0.78rem; }
+      .fw-category-children { padding-left: 14px; margin-left: 15px; }
+      .fw-tool { padding: 6px 10px; }
+      .fw-tool-link, .fw-tool-label { font-size: 0.74rem; }
     }
 
-    /* Scrollbar */
-    ::-webkit-scrollbar { width: 8px; }
-    ::-webkit-scrollbar-track { background: var(--fw-bg); }
-    ::-webkit-scrollbar-thumb { background: var(--fw-line); border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: var(--fw-accent); }
+    @media (max-width: 400px) {
+      .fw-btn .btn-text { display: none; }
+      .fw-legend-inner { gap: 10px; }
+      .fw-stats-inner { gap: 14px; flex-wrap: wrap; }
+    }
   </style>
 </head>
 <body>
@@ -380,786 +590,380 @@
           <span class="fw-brand-subtitle">Cyber Intelligence Council</span>
         </div>
       </a>
-      <h1 class="fw-title">OSINT Framework</h1>
-      <div class="fw-header-actions">
-        <div class="fw-search-wrap">
-          <i class="fa-solid fa-magnifying-glass fw-search-icon"></i>
-          <input type="text" class="fw-search" id="fwSearch" placeholder="Search tools..." autocomplete="off" />
-        </div>
-        <button class="fw-btn" id="btnExpandAll" title="Expand All"><i class="fa-solid fa-expand"></i> Expand</button>
-        <button class="fw-btn" id="btnCollapseAll" title="Collapse All"><i class="fa-solid fa-compress"></i> Collapse</button>
-        <a href="/" class="fw-back-link"><i class="fa-solid fa-arrow-left"></i> Back to HackHalt</a>
+      <div class="fw-title"><span>&gt;_</span> OSINT Framework</div>
+      <div class="fw-header-right">
+        <a href="/" class="fw-back-link">
+          <i class="fa-solid fa-arrow-left"></i> Home
+        </a>
       </div>
     </div>
   </header>
 
-  <!-- Legend -->
-  <aside class="fw-legend" id="fwLegend">
-    <div class="fw-legend-title">Legend</div>
-    <div><span class="fw-tag-t">(T)</span> - Must be installed &amp; run locally</div>
-    <div><span class="fw-tag-d">(D)</span> - Google Dork</div>
-    <div><span class="fw-tag-r">(R)</span> - Requires registration</div>
-    <div><span class="fw-tag-m">(M)</span> - URL must be edited manually</div>
-  </aside>
+  <!-- Terminal Search Bar -->
+  <div class="fw-search-bar">
+    <div class="fw-search-inner">
+      <div class="fw-terminal-prompt">
+        <span class="fw-prompt-prefix">~/osint $</span>
+        <input type="text" class="fw-search-input" id="fwSearch" placeholder="search tools..." autocomplete="off" spellcheck="false" />
+      </div>
+      <div class="fw-action-btns">
+        <button class="fw-btn" id="btnExpandAll" title="Expand All">
+          <i class="fa-solid fa-angles-down"></i>
+          <span class="btn-text">Expand All</span>
+        </button>
+        <button class="fw-btn" id="btnCollapseAll" title="Collapse All">
+          <i class="fa-solid fa-angles-up"></i>
+          <span class="btn-text">Collapse All</span>
+        </button>
+      </div>
+    </div>
+  </div>
 
-  <!-- Stats -->
-  <div class="fw-stats" id="fwStats"></div>
+  <!-- Legend Bar -->
+  <div class="fw-legend-bar">
+    <div class="fw-legend-inner">
+      <div class="fw-legend-item">
+        <span class="fw-legend-dot fw-legend-dot--category"></span>
+        <span>Category</span>
+      </div>
+      <div class="fw-legend-item">
+        <span class="fw-legend-dot fw-legend-dot--tool"></span>
+        <span>Tool / Link</span>
+      </div>
+      <div class="fw-legend-item">
+        <span class="fw-legend-tag fw-legend-tag--t">T</span>
+        <span>CLI / Local Tool</span>
+      </div>
+      <div class="fw-legend-item">
+        <span class="fw-legend-tag fw-legend-tag--d">D</span>
+        <span>Google Dork</span>
+      </div>
+      <div class="fw-legend-item">
+        <span class="fw-legend-tag fw-legend-tag--r">R</span>
+        <span>Registration Required</span>
+      </div>
+      <div class="fw-legend-item">
+        <span class="fw-legend-tag fw-legend-tag--m">M</span>
+        <span>Manual URL Edit</span>
+      </div>
+    </div>
+  </div>
 
-  <!-- Tree -->
+  <!-- Stats Bar -->
+  <div class="fw-stats-bar">
+    <div class="fw-stats-inner">
+      <div class="fw-stat">
+        <span class="fw-stat-value" id="statCategories">--</span>
+        <span class="fw-stat-label">categories</span>
+      </div>
+      <div class="fw-stat">
+        <span class="fw-stat-value" id="statTools">--</span>
+        <span class="fw-stat-label">tools</span>
+      </div>
+      <div class="fw-search-status" id="searchStatus">
+        <span class="fw-stat-value" id="statMatches">0</span>
+        <span class="fw-stat-label">&nbsp;matches found</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tree Container -->
   <main class="fw-container">
-    <ul class="fw-tree" id="fwTree"></ul>
+    <div id="fwLoading" class="fw-loading">
+      <div class="fw-loading-spinner"></div>
+      <div class="fw-loading-text">Loading OSINT Framework<span>_</span></div>
+    </div>
+    <ul class="fw-tree" id="fwTree" style="display:none;"></ul>
   </main>
 
-  <!-- Framework Data & Logic -->
+  <!-- Footer -->
+  <footer class="fw-footer">
+    <a href="/">&copy; HackHalt CIC</a> &mdash; OSINT Framework
+  </footer>
+
+  <!-- App Logic -->
   <script>
-    /**
-     * OSINT Framework Data
-     * Structure: { name, url?, tags?[], children?[] }
-     * Tags: T = local tool, R = registration required, M = manual URL edit, D = Google Dork
-     * 
-     * To add/remove tools: simply edit this data structure.
-     */
-    const FRAMEWORK_DATA = {
-      name: "OSINT Framework",
-      children: [
-        {
-          name: "Username",
-          children: [
-            {
-              name: "Username Search Engines",
-              children: [
-                { name: "Namechk", url: "https://namechk.com/" },
-                { name: "KnowEm", url: "https://knowem.com/" },
-                { name: "WhatsMyName", url: "https://whatsmyname.app/" },
-                { name: "NameCheckup", url: "https://namecheckup.com/" },
-                { name: "UserRecon", url: "https://github.com/wishihab/userrecon", tags: ["T"] },
-                { name: "Sherlock", url: "https://github.com/sherlock-project/sherlock", tags: ["T"] },
-                { name: "Maigret", url: "https://github.com/soxoj/maigret", tags: ["T"] }
-              ]
-            },
-            {
-              name: "Specific Sites",
-              children: [
-                { name: "Reddit", url: "https://www.reddit.com/user/" , tags: ["M"] },
-                { name: "GitHub", url: "https://github.com/", tags: ["M"] },
-                { name: "Twitter/X", url: "https://twitter.com/", tags: ["M"] },
-                { name: "LinkedIn", url: "https://www.linkedin.com/in/", tags: ["M"] },
-                { name: "Instagram", url: "https://www.instagram.com/", tags: ["M"] },
-                { name: "Facebook", url: "https://www.facebook.com/", tags: ["M"] },
-                { name: "Steam", url: "https://steamcommunity.com/id/", tags: ["M"] },
-                { name: "Keybase", url: "https://keybase.io/", tags: ["M"] }
-              ]
-            }
-          ]
-        },
-        {
-          name: "Email Search",
-          children: [
-            {
-              name: "Common Email Formats",
-              children: [
-                { name: "Email Format", url: "https://www.email-format.com/" },
-                { name: "Hunter.io", url: "https://hunter.io/", tags: ["R"] },
-                { name: "Snov.io", url: "https://snov.io/", tags: ["R"] }
-              ]
-            },
-            {
-              name: "Email Verification",
-              children: [
-                { name: "Verify Email Address", url: "https://verify-email.org/" },
-                { name: "Email Hippo", url: "https://tools.emailhippo.com/" },
-                { name: "Hunter Email Verifier", url: "https://hunter.io/email-verifier", tags: ["R"] }
-              ]
-            },
-            {
-              name: "Breach Data",
-              children: [
-                { name: "Have I Been Pwned", url: "https://haveibeenpwned.com/" },
-                { name: "DeHashed", url: "https://dehashed.com/", tags: ["R"] },
-                { name: "Intelligence X", url: "https://intelx.io/", tags: ["R"] },
-                { name: "LeakCheck", url: "https://leakcheck.io/", tags: ["R"] }
-              ]
-            },
-            {
-              name: "Mail Blacklists",
-              children: [
-                { name: "MX Toolbox", url: "https://mxtoolbox.com/blacklists.aspx" },
-                { name: "MultiRBL", url: "http://multirbl.valli.org/" }
-              ]
-            },
-            { name: "Sylva Identity Discovery", url: "https://sylva.fyi/", tags: ["T"] },
-            { name: "ThatsThem", url: "https://thatsthem.com/" },
-            { name: "Hunter", url: "https://hunter.io/", tags: ["R"] },
-            { name: "Email to Address (R)", url: "https://thatsthem.com/reverse-email-lookup" },
-            { name: "VoilaNorbert", url: "https://www.voilanorbert.com/", tags: ["R"] },
-            { name: "GHunt", url: "https://github.com/mxrch/GHunt", tags: ["T"] },
-            { name: "OSINT Industries", url: "https://osint.industries/", tags: ["R"] },
-            { name: "theHarvester", url: "https://github.com/laramies/theHarvester", tags: ["T"] },
-            { name: "Infoga", url: "https://github.com/m4ll0k/Infoga", tags: ["T"] },
-            { name: "Skymem", url: "https://www.skymem.info/" },
-            { name: "Epieos", url: "https://epieos.com/" }
-          ]
-        },
-        {
-          name: "Email Address",
-          children: [
-            { name: "Hunter.io", url: "https://hunter.io/", tags: ["R"] },
-            { name: "Phonebook.cz", url: "https://phonebook.cz/" },
-            { name: "Snov.io Email Finder", url: "https://snov.io/email-finder", tags: ["R"] }
-          ]
-        },
-        {
-          name: "Domain Name",
-          children: [
-            {
-              name: "WHOIS",
-              children: [
-                { name: "ICANN WHOIS", url: "https://lookup.icann.org/" },
-                { name: "Whois.domaintools.com", url: "https://whois.domaintools.com/" },
-                { name: "ViewDNS WHOIS", url: "https://viewdns.info/whois/" },
-                { name: "WhoisXML API", url: "https://www.whoisxmlapi.com/", tags: ["R"] }
-              ]
-            },
-            {
-              name: "Subdomains",
-              children: [
-                { name: "Sublist3r", url: "https://github.com/aboul3la/Sublist3r", tags: ["T"] },
-                { name: "crt.sh", url: "https://crt.sh/" },
-                { name: "DNSDumpster", url: "https://dnsdumpster.com/" },
-                { name: "Amass", url: "https://github.com/owasp-amass/amass", tags: ["T"] },
-                { name: "Subfinder", url: "https://github.com/projectdiscovery/subfinder", tags: ["T"] }
-              ]
-            },
-            {
-              name: "DNS Records",
-              children: [
-                { name: "SecurityTrails", url: "https://securitytrails.com/", tags: ["R"] },
-                { name: "ViewDNS", url: "https://viewdns.info/" },
-                { name: "DNSlytics", url: "https://dnslytics.com/" },
-                { name: "Complete DNS", url: "https://completedns.com/" }
-              ]
-            },
-            {
-              name: "Website Analysis",
-              children: [
-                { name: "BuiltWith", url: "https://builtwith.com/" },
-                { name: "Wappalyzer", url: "https://www.wappalyzer.com/" },
-                { name: "Netcraft", url: "https://www.netcraft.com/" },
-                { name: "Shodan", url: "https://www.shodan.io/", tags: ["R"] },
-                { name: "Censys", url: "https://search.censys.io/", tags: ["R"] },
-                { name: "URLScan", url: "https://urlscan.io/" }
-              ]
-            },
-            {
-              name: "Web History",
-              children: [
-                { name: "Wayback Machine", url: "https://web.archive.org/" },
-                { name: "Archive.today", url: "https://archive.ph/" },
-                { name: "CachedView", url: "https://cachedview.nl/" }
-              ]
-            }
-          ]
-        },
-        {
-          name: "IP / MAC Address",
-          children: [
-            {
-              name: "IP Lookup",
-              children: [
-                { name: "IPinfo.io", url: "https://ipinfo.io/" },
-                { name: "WhatIsMyIPAddress", url: "https://whatismyipaddress.com/" },
-                { name: "AbuseIPDB", url: "https://www.abuseipdb.com/" },
-                { name: "IPVoid", url: "https://www.ipvoid.com/" },
-                { name: "Shodan", url: "https://www.shodan.io/", tags: ["R"] },
-                { name: "Censys", url: "https://search.censys.io/", tags: ["R"] },
-                { name: "GreyNoise", url: "https://www.greynoise.io/", tags: ["R"] }
-              ]
-            },
-            {
-              name: "GeoIP",
-              children: [
-                { name: "MaxMind GeoIP", url: "https://www.maxmind.com/en/geoip-demo" },
-                { name: "DB-IP", url: "https://db-ip.com/" },
-                { name: "IP2Location", url: "https://www.ip2location.com/demo" }
-              ]
-            },
-            {
-              name: "MAC Address Lookup",
-              children: [
-                { name: "MAC Vendors", url: "https://macvendors.com/" },
-                { name: "Wireshark OUI Lookup", url: "https://www.wireshark.org/tools/oui-lookup.html" }
-              ]
-            }
-          ]
-        },
-        {
-          name: "Images / Videos / Docs",
-          children: [
-            {
-              name: "Reverse Image Search",
-              children: [
-                { name: "Google Images", url: "https://images.google.com/" },
-                { name: "TinEye", url: "https://tineye.com/" },
-                { name: "Yandex Images", url: "https://yandex.com/images/" },
-                { name: "Bing Visual Search", url: "https://www.bing.com/visualsearch" },
-                { name: "PimEyes", url: "https://pimeyes.com/", tags: ["R"] }
-              ]
-            },
-            {
-              name: "EXIF / Metadata",
-              children: [
-                { name: "Jeffrey's EXIF Viewer", url: "http://exif.regex.info/exif.cgi" },
-                { name: "ExifTool", url: "https://exiftool.org/", tags: ["T"] },
-                { name: "Metadata2Go", url: "https://www.metadata2go.com/" },
-                { name: "FotoForensics", url: "https://fotoforensics.com/" }
-              ]
-            },
-            {
-              name: "Video Analysis",
-              children: [
-                { name: "InVID Verification Plugin", url: "https://www.invid-project.eu/tools-and-services/invid-verification-plugin/" },
-                { name: "YouTube Metadata", url: "https://mattw.io/youtube-metadata/" },
-                { name: "Amnesty YouTube Dataviewer", url: "https://citizenevidence.amnestyusa.org/" }
-              ]
-            },
-            {
-              name: "Document Analysis",
-              children: [
-                { name: "FOCA", url: "https://github.com/ElevenPaths/FOCA", tags: ["T"] },
-                { name: "Metagoofil", url: "https://github.com/laramies/metagoofil", tags: ["T"] }
-              ]
-            }
-          ]
-        },
-        {
-          name: "Social Networks",
-          children: [
-            {
-              name: "Facebook",
-              children: [
-                { name: "Facebook Search", url: "https://www.facebook.com/search", tags: ["R"] },
-                { name: "Lookup-ID", url: "https://lookup-id.com/" },
-                { name: "StalkFace", url: "https://stalkface.com/en/" },
-                { name: "fb-sleep-stats", url: "https://github.com/sqren/fb-sleep-stats", tags: ["T"] }
-              ]
-            },
-            {
-              name: "Twitter / X",
-              children: [
-                { name: "TweetDeck", url: "https://tweetdeck.twitter.com/", tags: ["R"] },
-                { name: "Twint", url: "https://github.com/twintproject/twint", tags: ["T"] },
-                { name: "Social Bearing", url: "https://socialbearing.com/" },
-                { name: "Twitonomy", url: "https://www.twitonomy.com/", tags: ["R"] },
-                { name: "Nitter", url: "https://nitter.net/" }
-              ]
-            },
-            {
-              name: "Instagram",
-              children: [
-                { name: "Picuki", url: "https://www.picuki.com/" },
-                { name: "ImgInn", url: "https://imginn.com/" },
-                { name: "Osintgram", url: "https://github.com/Datalux/Osintgram", tags: ["T"] }
-              ]
-            },
-            {
-              name: "LinkedIn",
-              children: [
-                { name: "LinkedIn Search", url: "https://www.linkedin.com/search/", tags: ["R"] },
-                { name: "CrossLinked", url: "https://github.com/m8sec/CrossLinked", tags: ["T"] },
-                { name: "LinkedIn Dorks", url: "https://google.com/search?q=site:linkedin.com", tags: ["D"] }
-              ]
-            },
-            {
-              name: "Reddit",
-              children: [
-                { name: "Reddit User Analyzer", url: "https://reddit-user-analyser.netlify.app/" },
-                { name: "Pushshift API", url: "https://api.pushshift.io/" },
-                { name: "SocialGrep", url: "https://socialgrep.com/" }
-              ]
-            },
-            {
-              name: "TikTok",
-              children: [
-                { name: "TikTok Search", url: "https://www.tiktok.com/search" },
-                { name: "Tikbuddy", url: "https://app.tikbuddy.com/" }
-              ]
-            }
-          ]
-        },
-        {
-          name: "Instant Messaging",
-          children: [
-            { name: "Telegram Search", url: "https://lyzem.com/" },
-            { name: "Signal", url: "https://signal.org/" },
-            { name: "Discord Lookup", url: "https://discord.id/" },
-            { name: "Skype Resolver", url: "https://webresolver.nl/" }
-          ]
-        },
-        {
-          name: "People Search Engines",
-          children: [
-            { name: "Pipl", url: "https://pipl.com/", tags: ["R"] },
-            { name: "Spokeo", url: "https://www.spokeo.com/" },
-            { name: "ThatsThem", url: "https://thatsthem.com/" },
-            { name: "WhitePages", url: "https://www.whitepages.com/" },
-            { name: "TruePeopleSearch", url: "https://www.truepeoplesearch.com/" },
-            { name: "FastPeopleSearch", url: "https://www.fastpeoplesearch.com/" },
-            { name: "BeenVerified", url: "https://www.beenverified.com/", tags: ["R"] },
-            { name: "Webmii", url: "https://webmii.com/" },
-            { name: "PeekYou", url: "https://www.peekyou.com/" }
-          ]
-        },
-        {
-          name: "Dating",
-          children: [
-            { name: "Profile Searcher", url: "https://www.profilesearcher.com/" },
-            { name: "Tinder Profile Search", url: "https://google.com/search?q=site:tinder.com", tags: ["D"] }
-          ]
-        },
-        {
-          name: "Telephone Numbers",
-          children: [
-            { name: "TrueCaller", url: "https://www.truecaller.com/" },
-            { name: "CallerID Test", url: "https://calleridtest.com/" },
-            { name: "PhoneInfoga", url: "https://github.com/sundowndev/phoneinfoga", tags: ["T"] },
-            { name: "NumVerify", url: "https://numverify.com/" },
-            { name: "SpyDialer", url: "https://spydialer.com/" },
-            { name: "Sync.me", url: "https://sync.me/" }
-          ]
-        },
-        {
-          name: "Public Records",
-          children: [
-            { name: "PACER", url: "https://pacer.uscourts.gov/", tags: ["R"] },
-            { name: "RECAP Archive", url: "https://www.courtlistener.com/recap/" },
-            { name: "OpenCorporates", url: "https://opencorporates.com/" },
-            { name: "SEC EDGAR", url: "https://www.sec.gov/cgi-bin/browse-edgar" },
-            { name: "Investigative Dashboard", url: "https://investigativedashboard.org/" },
-            { name: "Offshore Leaks DB", url: "https://offshoreleaks.icij.org/" }
-          ]
-        },
-        {
-          name: "Business Records",
-          children: [
-            { name: "OpenCorporates", url: "https://opencorporates.com/" },
-            { name: "Crunchbase", url: "https://www.crunchbase.com/", tags: ["R"] },
-            { name: "GLEIF", url: "https://search.gleif.org/" },
-            { name: "Companies House (UK)", url: "https://find-and-update.company-information.service.gov.uk/" },
-            { name: "Corporation Wiki", url: "https://www.corporationwiki.com/" },
-            { name: "Annual Reports", url: "https://www.annualreports.com/" }
-          ]
-        },
-        {
-          name: "Transportation",
-          children: [
-            {
-              name: "Flight Tracking",
-              children: [
-                { name: "FlightRadar24", url: "https://www.flightradar24.com/" },
-                { name: "FlightAware", url: "https://flightaware.com/" },
-                { name: "ADS-B Exchange", url: "https://globe.adsbexchange.com/" },
-                { name: "Planespotters", url: "https://www.planespotters.net/" }
-              ]
-            },
-            {
-              name: "Ship Tracking",
-              children: [
-                { name: "MarineTraffic", url: "https://www.marinetraffic.com/" },
-                { name: "VesselFinder", url: "https://www.vesselfinder.com/" }
-              ]
-            },
-            {
-              name: "Vehicle Records",
-              children: [
-                { name: "Carfax", url: "https://www.carfax.com/", tags: ["R"] },
-                { name: "AutoCheck", url: "https://www.autocheck.com/", tags: ["R"] },
-                { name: "VINDecoder", url: "https://www.vindecoder.net/" }
-              ]
-            }
-          ]
-        },
-        {
-          name: "Geolocation Tools / Maps",
-          children: [
-            { name: "Google Maps", url: "https://maps.google.com/" },
-            { name: "Google Earth", url: "https://earth.google.com/web/" },
-            { name: "Bing Maps", url: "https://www.bing.com/maps/" },
-            { name: "OpenStreetMap", url: "https://www.openstreetmap.org/" },
-            { name: "Mapillary", url: "https://www.mapillary.com/" },
-            { name: "Wikimapia", url: "https://wikimapia.org/" },
-            { name: "GeoGuessr", url: "https://www.geoguessr.com/" },
-            { name: "SunCalc", url: "https://www.suncalc.org/" },
-            { name: "Sentinel Hub", url: "https://apps.sentinel-hub.com/eo-browser/", tags: ["R"] },
-            { name: "KartaView", url: "https://kartaview.org/" }
-          ]
-        },
-        {
-          name: "Search Engines",
-          children: [
-            { name: "Google", url: "https://www.google.com/" },
-            { name: "Bing", url: "https://www.bing.com/" },
-            { name: "DuckDuckGo", url: "https://duckduckgo.com/" },
-            { name: "Yandex", url: "https://yandex.com/" },
-            { name: "Baidu", url: "https://www.baidu.com/" },
-            { name: "Startpage", url: "https://www.startpage.com/" },
-            { name: "Searx", url: "https://searx.space/", tags: ["T"] },
-            {
-              name: "Google Dorking",
-              children: [
-                { name: "Google Hacking DB", url: "https://www.exploit-db.com/google-hacking-database" },
-                { name: "DorkSearch", url: "https://dorksearch.com/" },
-                { name: "Google Advanced Search", url: "https://www.google.com/advanced_search" }
-              ]
-            }
-          ]
-        },
-        {
-          name: "Forums / Blogs / IRC",
-          children: [
-            { name: "BoardReader", url: "https://boardreader.com/" },
-            { name: "Google Groups", url: "https://groups.google.com/" },
-            { name: "Technorati", url: "https://technorati.com/" },
-            { name: "Reddit Search", url: "https://www.reddit.com/search/" },
-            { name: "IRC Search", url: "https://search.mibbit.com/" }
-          ]
-        },
-        {
-          name: "Archives",
-          children: [
-            { name: "Wayback Machine", url: "https://web.archive.org/" },
-            { name: "Archive.today", url: "https://archive.ph/" },
-            { name: "Google Cache", url: "https://google.com/search?q=cache:", tags: ["M"] },
-            { name: "Cached Pages", url: "https://cachedview.nl/" }
-          ]
-        },
-        {
-          name: "Language Translation",
-          children: [
-            { name: "Google Translate", url: "https://translate.google.com/" },
-            { name: "DeepL Translator", url: "https://www.deepl.com/translator" },
-            { name: "Yandex Translate", url: "https://translate.yandex.com/" }
-          ]
-        },
-        {
-          name: "Metadata",
-          children: [
-            { name: "ExifTool", url: "https://exiftool.org/", tags: ["T"] },
-            { name: "FOCA", url: "https://github.com/ElevenPaths/FOCA", tags: ["T"] },
-            { name: "Metagoofil", url: "https://github.com/laramies/metagoofil", tags: ["T"] },
-            { name: "Jeffrey's EXIF Viewer", url: "http://exif.regex.info/exif.cgi" },
-            { name: "Metadata2Go", url: "https://www.metadata2go.com/" }
-          ]
-        },
-        {
-          name: "Mobile Emulation",
-          children: [
-            { name: "Chrome DevTools", url: "https://developer.chrome.com/docs/devtools/" },
-            { name: "BrowserStack", url: "https://www.browserstack.com/", tags: ["R"] },
-            { name: "Responsinator", url: "https://www.responsinator.com/" }
-          ]
-        },
-        {
-          name: "Terrorism",
-          children: [
-            { name: "START GTD", url: "https://www.start.umd.edu/gtd/" },
-            { name: "TRAC", url: "https://www.trackingterrorism.org/" },
-            { name: "Jihadology", url: "https://jihadology.net/" }
-          ]
-        },
-        {
-          name: "Dark Web",
-          children: [
-            { name: "Tor Project", url: "https://www.torproject.org/", tags: ["T"] },
-            { name: "Ahmia Search", url: "https://ahmia.fi/" },
-            { name: "OnionScan", url: "https://github.com/s-rah/onionscan", tags: ["T"] },
-            { name: "Dark.fail", url: "https://dark.fail/" },
-            { name: "Hunchly Dark Web Tracker", url: "https://www.hunch.ly/darkweb-osint/", tags: ["R"] }
-          ]
-        },
-        {
-          name: "Digital Currency",
-          children: [
-            { name: "Blockchain Explorer", url: "https://www.blockchain.com/explorer" },
-            { name: "Etherscan", url: "https://etherscan.io/" },
-            { name: "Wallet Explorer", url: "https://www.walletexplorer.com/" },
-            { name: "Chainalysis", url: "https://www.chainalysis.com/", tags: ["R"] },
-            { name: "BitcoinAbuse", url: "https://www.bitcoinabuse.com/" },
-            { name: "Crystal Blockchain", url: "https://crystalblockchain.com/", tags: ["R"] }
-          ]
-        },
-        {
-          name: "Classifieds",
-          children: [
-            { name: "Craigslist", url: "https://www.craigslist.org/" },
-            { name: "Gumtree", url: "https://www.gumtree.com/" },
-            { name: "SearchTempest", url: "https://www.searchtempest.com/" }
-          ]
-        },
-        {
-          name: "Encoding / Decoding",
-          children: [
-            { name: "CyberChef", url: "https://gchq.github.io/CyberChef/" },
-            { name: "Base64Decode", url: "https://www.base64decode.org/" },
-            { name: "URL Decoder", url: "https://www.urldecoder.org/" },
-            { name: "JWT.io", url: "https://jwt.io/" }
-          ]
-        },
-        {
-          name: "Tools",
-          children: [
-            { name: "SpiderFoot", url: "https://github.com/smicallef/spiderfoot", tags: ["T"] },
-            { name: "Maltego", url: "https://www.maltego.com/", tags: ["R"] },
-            { name: "Recon-ng", url: "https://github.com/lanmaster53/recon-ng", tags: ["T"] },
-            { name: "theHarvester", url: "https://github.com/laramies/theHarvester", tags: ["T"] },
-            { name: "OSINT Framework", url: "https://osintframework.com/" },
-            { name: "Hunchly", url: "https://www.hunch.ly/", tags: ["R"] },
-            { name: "Buscador VM", url: "https://inteltechniques.com/buscador/", tags: ["T"] }
-          ]
-        },
-        {
-          name: "AI Tools",
-          children: [
-            { name: "ChatGPT", url: "https://chat.openai.com/", tags: ["R"] },
-            { name: "Claude", url: "https://claude.ai/", tags: ["R"] },
-            { name: "Perplexity AI", url: "https://www.perplexity.ai/" },
-            { name: "Google Bard", url: "https://bard.google.com/", tags: ["R"] }
-          ]
-        },
-        {
-          name: "Malicious File Analysis",
-          children: [
-            { name: "VirusTotal", url: "https://www.virustotal.com/" },
-            { name: "Hybrid Analysis", url: "https://www.hybrid-analysis.com/" },
-            { name: "ANY.RUN", url: "https://any.run/", tags: ["R"] },
-            { name: "Joe Sandbox", url: "https://www.joesandbox.com/", tags: ["R"] },
-            { name: "MalShare", url: "https://malshare.com/", tags: ["R"] },
-            { name: "URLhaus", url: "https://urlhaus.abuse.ch/" }
-          ]
-        },
-        {
-          name: "Exploits & Advisories",
-          children: [
-            { name: "Exploit-DB", url: "https://www.exploit-db.com/" },
-            { name: "CVE Details", url: "https://www.cvedetails.com/" },
-            { name: "NVD (NIST)", url: "https://nvd.nist.gov/" },
-            { name: "Rapid7 Vulndb", url: "https://www.rapid7.com/db/" },
-            { name: "Packet Storm Security", url: "https://packetstormsecurity.com/" },
-            { name: "VulnHub", url: "https://www.vulnhub.com/" }
-          ]
-        },
-        {
-          name: "Threat Intelligence",
-          children: [
-            { name: "AlienVault OTX", url: "https://otx.alienvault.com/" },
-            { name: "MITRE ATT&CK", url: "https://attack.mitre.org/" },
-            { name: "ThreatCrowd", url: "https://www.threatcrowd.org/" },
-            { name: "VirusTotal", url: "https://www.virustotal.com/" },
-            { name: "ThreatMiner", url: "https://www.threatminer.org/" },
-            { name: "IBM X-Force Exchange", url: "https://exchange.xforce.ibmcloud.com/", tags: ["R"] },
-            { name: "Pulsedive", url: "https://pulsedive.com/" }
-          ]
-        },
-        {
-          name: "OpSec",
-          children: [
-            { name: "EFF Surveillance Self-Defense", url: "https://ssd.eff.org/" },
-            { name: "PrivacyTools.io", url: "https://www.privacyguides.org/" },
-            { name: "Tails OS", url: "https://tails.boum.org/", tags: ["T"] },
-            { name: "Whonix", url: "https://www.whonix.org/", tags: ["T"] },
-            { name: "VPN Comparison", url: "https://www.safetydetectives.com/best-vpns/" }
-          ]
-        },
-        {
-          name: "Documentation / Evidence Capture",
-          children: [
-            { name: "Hunchly", url: "https://www.hunch.ly/", tags: ["R"] },
-            { name: "Greenshot", url: "https://getgreenshot.org/", tags: ["T"] },
-            { name: "Wayback Machine Save", url: "https://web.archive.org/save" },
-            { name: "Archive.today", url: "https://archive.ph/" },
-            { name: "SingleFile", url: "https://github.com/gildas-lormeau/SingleFile", tags: ["T"] }
-          ]
-        },
-        {
-          name: "Training",
-          children: [
-            { name: "Games", children: [
-              { name: "GeoGuessr", url: "https://www.geoguessr.com/" },
-              { name: "Sourcing Games", url: "https://sourcing.games/" },
-              { name: "Quiztime", url: "https://twitter.com/quaborern" }
-            ]},
-            { name: "Forensic OSINT KB Guides", url: "https://start.me/p/BnrMKd/01-osint" },
-            { name: "Open Source Intelligence Techniques", url: "https://inteltechniques.com/book1.html" },
-            { name: "Plessas OSINT", url: "https://www.youtube.com/c/Plessas" },
-            { name: "SANS OSINT Summit", url: "https://www.sans.org/cyber-security-training-events/" },
-            { name: "Bellingcat Guides", url: "https://www.bellingcat.com/category/resources/how-tos/" },
-            { name: "OSINT Dojo", url: "https://www.osintdojo.com/" }
-          ]
+    (function() {
+      'use strict';
+
+      // ===== STATE =====
+      let frameworkData = null;
+      let totalTools = 0;
+      let totalCategories = 0;
+
+      // ===== COUNT ITEMS =====
+      function countItems(node) {
+        if (node.children && node.children.length > 0) {
+          totalCategories++;
+          node.children.forEach(countItems);
+        } else if (node.url) {
+          totalTools++;
         }
-      ]
-    };
-
-    // ---- Tree Renderer ----
-    let totalTools = 0;
-    let totalCategories = 0;
-
-    function countItems(node) {
-      if (node.children && node.children.length > 0) {
-        totalCategories++;
-        node.children.forEach(countItems);
-      } else if (node.url) {
-        totalTools++;
-      }
-    }
-
-    function renderTags(tags) {
-      if (!tags || tags.length === 0) return '';
-      return tags.map(t => `<span class="fw-tag fw-tag-${t.toLowerCase()}">(${t})</span>`).join('');
-    }
-
-    function renderNode(node, depth = 0) {
-      const hasChildren = node.children && node.children.length > 0;
-      const isRoot = depth === 0 && !node.url;
-      const expanded = depth < 1; // Only root level expanded by default
-
-      let html = '<li>';
-
-      if (hasChildren) {
-        html += `<div class="fw-node fw-node-toggle" data-expanded="${expanded}" onclick="toggleNode(this)">`;
-        html += `<i class="fa-solid fa-caret-right fw-caret"></i>`;
-        html += `<span class="fw-dot"></span>`;
-        html += `<span class="fw-label">${node.name}</span>`;
-        html += renderTags(node.tags);
-        html += `</div>`;
-        html += `<ul class="${expanded ? '' : 'fw-children-hidden'}">`;
-        node.children.forEach(child => {
-          html += renderNode(child, depth + 1);
-        });
-        html += '</ul>';
-      } else if (node.url) {
-        html += `<div class="fw-node">`;
-        html += `<span class="fw-dot"></span>`;
-        html += `<a class="fw-link" href="${node.url}" target="_blank" rel="noopener noreferrer">${node.name}</a>`;
-        html += renderTags(node.tags);
-        html += `<i class="fa-solid fa-arrow-up-right-from-square fw-external-icon"></i>`;
-        html += `</div>`;
-      } else {
-        html += `<div class="fw-node">`;
-        html += `<span class="fw-dot"></span>`;
-        html += `<span class="fw-label">${node.name}</span>`;
-        html += renderTags(node.tags);
-        html += `</div>`;
       }
 
-      html += '</li>';
-      return html;
-    }
-
-    function toggleNode(el) {
-      const expanded = el.getAttribute('data-expanded') === 'true';
-      el.setAttribute('data-expanded', !expanded);
-      const childList = el.nextElementSibling;
-      if (childList) {
-        childList.classList.toggle('fw-children-hidden', expanded);
-      }
-    }
-
-    function setAllNodes(expand) {
-      document.querySelectorAll('.fw-node-toggle').forEach(el => {
-        el.setAttribute('data-expanded', expand);
-        const childList = el.nextElementSibling;
-        if (childList) {
-          childList.classList.toggle('fw-children-hidden', !expand);
-        }
-      });
-    }
-
-    // Search
-    function searchTree(query) {
-      const allNodes = document.querySelectorAll('.fw-tree li');
-      if (!query) {
-        allNodes.forEach(li => {
-          li.classList.remove('fw-search-hidden');
-          li.querySelectorAll('.fw-highlight').forEach(h => {
-            h.outerHTML = h.textContent;
+      // Count tools in a specific node (for badges)
+      function countToolsIn(node) {
+        let count = 0;
+        if (node.children) {
+          node.children.forEach(child => {
+            if (child.children && child.children.length > 0) {
+              count += countToolsIn(child);
+            } else if (child.url || child.name) {
+              count++;
+            }
           });
-        });
-        return;
+        }
+        return count;
       }
 
-      const lowerQ = query.toLowerCase();
+      // ===== RENDER TAGS =====
+      function renderTags(tags) {
+        if (!tags || tags.length === 0) return '';
+        return tags.map(t => {
+          const key = t.toLowerCase();
+          return `<span class="fw-tag fw-tag-${key}">${t}</span>`;
+        }).join('');
+      }
 
-      allNodes.forEach(li => {
-        const nodeDiv = li.querySelector('.fw-node');
-        if (!nodeDiv) return;
-        const text = nodeDiv.textContent.toLowerCase();
-        const match = text.includes(lowerQ);
+      // ===== RENDER NODE =====
+      function renderNode(node, depth = 0) {
+        const hasChildren = node.children && node.children.length > 0;
 
-        if (match) {
-          li.classList.remove('fw-search-hidden');
-          // Expand all parents
-          let parent = li.parentElement;
-          while (parent) {
-            if (parent.classList.contains('fw-children-hidden')) {
-              parent.classList.remove('fw-children-hidden');
-              const toggle = parent.previousElementSibling;
-              if (toggle && toggle.classList.contains('fw-node-toggle')) {
-                toggle.setAttribute('data-expanded', 'true');
-              }
-            }
-            parent = parent.parentElement;
-          }
+        if (hasChildren) {
+          const toolCount = countToolsIn(node);
+          const isTopLevel = depth === 0;
+          let childrenHTML = '';
+          node.children.forEach(child => {
+            childrenHTML += renderNode(child, depth + 1);
+          });
+
+          return `
+            <li class="fw-category" data-name="${escapeAttr(node.name.toLowerCase())}">
+              <div class="fw-category-header" onclick="window.__fw.toggle(this)" role="button" tabindex="0">
+                <span class="fw-category-arrow"><i class="fa-solid fa-chevron-right"></i></span>
+                <span class="fw-category-icon">${isTopLevel ? '&#128193;' : '&#128194;'}</span>
+                <span class="fw-category-name">${escapeHTML(node.name)}</span>
+                ${renderTags(node.tags)}
+                <span class="fw-category-count">${toolCount}</span>
+              </div>
+              <div class="fw-category-children">
+                <ul>${childrenHTML}</ul>
+              </div>
+            </li>`;
+        } else if (node.url) {
+          return `
+            <li class="fw-tool" data-name="${escapeAttr(node.name.toLowerCase())}">
+              <span class="fw-tool-dot"></span>
+              <a class="fw-tool-link" href="${escapeAttr(node.url)}" target="_blank" rel="noopener noreferrer">${escapeHTML(node.name)}</a>
+              ${renderTags(node.tags)}
+              <i class="fa-solid fa-arrow-up-right-from-square fw-tool-external"></i>
+            </li>`;
         } else {
-          // Hide only if no children match
-          const childLinks = li.querySelectorAll(':scope > ul li');
-          const hasChildMatch = Array.from(childLinks).some(child => {
-            const childNode = child.querySelector('.fw-node');
-            return childNode && childNode.textContent.toLowerCase().includes(lowerQ);
-          });
-          if (!hasChildMatch) {
-            li.classList.add('fw-search-hidden');
+          return `
+            <li class="fw-tool" data-name="${escapeAttr(node.name.toLowerCase())}">
+              <span class="fw-tool-dot"></span>
+              <span class="fw-tool-label">${escapeHTML(node.name)}</span>
+              ${renderTags(node.tags)}
+            </li>`;
+        }
+      }
+
+      // ===== HELPERS =====
+      function escapeHTML(str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+      }
+
+      function escapeAttr(str) {
+        return str.replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      }
+
+      // ===== TOGGLE CATEGORY =====
+      function toggleCategory(header) {
+        const isActive = header.classList.contains('active');
+        header.classList.toggle('active');
+        const children = header.nextElementSibling;
+        if (children) {
+          children.classList.toggle('open', !isActive);
+        }
+      }
+
+      // ===== EXPAND / COLLAPSE ALL =====
+      function expandAll() {
+        document.querySelectorAll('.fw-category-header').forEach(h => {
+          h.classList.add('active');
+          const c = h.nextElementSibling;
+          if (c) c.classList.add('open');
+        });
+      }
+
+      function collapseAll() {
+        document.querySelectorAll('.fw-category-header').forEach(h => {
+          h.classList.remove('active');
+          const c = h.nextElementSibling;
+          if (c) c.classList.remove('open');
+        });
+      }
+
+      // ===== SEARCH =====
+      let searchTimeout;
+      function handleSearch(query) {
+        const tree = document.getElementById('fwTree');
+        const status = document.getElementById('searchStatus');
+        const matchCount = document.getElementById('statMatches');
+
+        if (!query) {
+          // Reset
+          tree.querySelectorAll('.fw-search-hidden').forEach(el => el.classList.remove('fw-search-hidden'));
+          status.classList.remove('active');
+          collapseAll();
+          return;
+        }
+
+        const lowerQ = query.toLowerCase();
+        let matches = 0;
+
+        // Process all tool items
+        tree.querySelectorAll('.fw-tool').forEach(tool => {
+          const name = tool.getAttribute('data-name') || '';
+          if (name.includes(lowerQ)) {
+            tool.classList.remove('fw-search-hidden');
+            matches++;
           } else {
-            li.classList.remove('fw-search-hidden');
-            // Expand
-            const toggle = li.querySelector(':scope > .fw-node-toggle');
-            if (toggle) {
-              toggle.setAttribute('data-expanded', 'true');
-              const ul = toggle.nextElementSibling;
-              if (ul) ul.classList.remove('fw-children-hidden');
+            tool.classList.add('fw-search-hidden');
+          }
+        });
+
+        // Process categories: show if any child is visible
+        const categories = Array.from(tree.querySelectorAll('.fw-category'));
+        // Process from deepest to shallowest
+        categories.reverse().forEach(cat => {
+          const header = cat.querySelector(':scope > .fw-category-header');
+          const childContainer = cat.querySelector(':scope > .fw-category-children');
+          const catName = cat.getAttribute('data-name') || '';
+          const nameMatch = catName.includes(lowerQ);
+
+          if (nameMatch) {
+            // Category name matches - show everything inside
+            cat.classList.remove('fw-search-hidden');
+            if (header) header.classList.add('active');
+            if (childContainer) {
+              childContainer.classList.add('open');
+              childContainer.querySelectorAll('.fw-search-hidden').forEach(el => el.classList.remove('fw-search-hidden'));
             }
+            return;
+          }
+
+          // Check if any visible children
+          const hasVisibleChild = childContainer &&
+            childContainer.querySelector('li:not(.fw-search-hidden)');
+
+          if (hasVisibleChild) {
+            cat.classList.remove('fw-search-hidden');
+            if (header) header.classList.add('active');
+            if (childContainer) childContainer.classList.add('open');
+          } else {
+            cat.classList.add('fw-search-hidden');
+          }
+        });
+
+        matchCount.textContent = matches;
+        status.classList.add('active');
+      }
+
+      // ===== KEYBOARD NAVIGATION =====
+      function handleKeyboard(e) {
+        if (e.key === '/' && document.activeElement.tagName !== 'INPUT') {
+          e.preventDefault();
+          document.getElementById('fwSearch').focus();
+        }
+        if (e.key === 'Escape') {
+          const search = document.getElementById('fwSearch');
+          if (document.activeElement === search) {
+            search.value = '';
+            handleSearch('');
+            search.blur();
           }
         }
-      });
-    }
+      }
 
-    // Init
-    document.addEventListener('DOMContentLoaded', () => {
-      const tree = document.getElementById('fwTree');
-      const stats = document.getElementById('fwStats');
-      
-      totalTools = 0;
-      totalCategories = 0;
-      countItems(FRAMEWORK_DATA);
+      // ===== INIT =====
+      async function init() {
+        const tree = document.getElementById('fwTree');
+        const loading = document.getElementById('fwLoading');
 
-      let treeHTML = '';
-      FRAMEWORK_DATA.children.forEach(child => {
-        treeHTML += renderNode(child, 0);
-      });
-      tree.innerHTML = treeHTML;
+        try {
+          // Fetch JSON data
+          const response = await fetch('data/tools.json');
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          frameworkData = await response.json();
 
-      stats.textContent = `${totalCategories} categories · ${totalTools} tools`;
+          // Count items
+          totalTools = 0;
+          totalCategories = 0;
+          countItems(frameworkData);
 
-      // Search
-      const searchInput = document.getElementById('fwSearch');
-      let searchTimeout;
-      searchInput.addEventListener('input', (e) => {
-        clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(() => searchTree(e.target.value.trim()), 200);
-      });
+          // Update stats
+          document.getElementById('statCategories').textContent = totalCategories;
+          document.getElementById('statTools').textContent = totalTools;
 
-      // Expand / Collapse All
-      document.getElementById('btnExpandAll').addEventListener('click', () => setAllNodes(true));
-      document.getElementById('btnCollapseAll').addEventListener('click', () => setAllNodes(false));
-    });
+          // Render tree
+          let html = '';
+          frameworkData.children.forEach(child => {
+            html += renderNode(child, 0);
+          });
+          tree.innerHTML = html;
+
+          // Show tree
+          loading.style.display = 'none';
+          tree.style.display = '';
+
+          // Bind search
+          const searchInput = document.getElementById('fwSearch');
+          searchInput.addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => handleSearch(e.target.value.trim()), 150);
+          });
+
+          // Bind buttons
+          document.getElementById('btnExpandAll').addEventListener('click', expandAll);
+          document.getElementById('btnCollapseAll').addEventListener('click', collapseAll);
+
+          // Keyboard shortcut
+          document.addEventListener('keydown', handleKeyboard);
+
+          // Category header keyboard support
+          tree.querySelectorAll('.fw-category-header').forEach(h => {
+            h.addEventListener('keydown', (e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                toggleCategory(h);
+              }
+            });
+          });
+
+        } catch (err) {
+          loading.innerHTML = `
+            <div style="color: var(--tag-d); font-size: 0.85rem;">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+              Error loading framework data
+            </div>
+            <div style="color: var(--text-muted); font-size: 0.75rem;">${escapeHTML(err.message)}</div>
+          `;
+        }
+      }
+
+      // Expose toggle to global scope for onclick
+      window.__fw = { toggle: toggleCategory };
+
+      // Start
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+    })();
   </script>
 
 </body>

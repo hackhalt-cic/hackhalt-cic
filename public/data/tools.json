@@ -1,0 +1,581 @@
+{
+  "name": "OSINT Framework",
+  "children": [
+    {
+      "name": "Username",
+      "children": [
+        {
+          "name": "Username Search Engines",
+          "children": [
+            { "name": "Namechk", "url": "https://namechk.com/" },
+            { "name": "KnowEm", "url": "https://knowem.com/" },
+            { "name": "WhatsMyName", "url": "https://whatsmyname.app/" },
+            { "name": "NameCheckup", "url": "https://namecheckup.com/" },
+            { "name": "UserRecon", "url": "https://github.com/wishihab/userrecon", "tags": ["T"] },
+            { "name": "Sherlock", "url": "https://github.com/sherlock-project/sherlock", "tags": ["T"] },
+            { "name": "Maigret", "url": "https://github.com/soxoj/maigret", "tags": ["T"] }
+          ]
+        },
+        {
+          "name": "Specific Sites",
+          "children": [
+            { "name": "Reddit", "url": "https://www.reddit.com/user/", "tags": ["M"] },
+            { "name": "GitHub", "url": "https://github.com/", "tags": ["M"] },
+            { "name": "Twitter/X", "url": "https://twitter.com/", "tags": ["M"] },
+            { "name": "LinkedIn", "url": "https://www.linkedin.com/in/", "tags": ["M"] },
+            { "name": "Instagram", "url": "https://www.instagram.com/", "tags": ["M"] },
+            { "name": "Facebook", "url": "https://www.facebook.com/", "tags": ["M"] },
+            { "name": "Steam", "url": "https://steamcommunity.com/id/", "tags": ["M"] },
+            { "name": "Keybase", "url": "https://keybase.io/", "tags": ["M"] }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Email Search",
+      "children": [
+        {
+          "name": "Common Email Formats",
+          "children": [
+            { "name": "Email Format", "url": "https://www.email-format.com/" },
+            { "name": "Hunter.io", "url": "https://hunter.io/", "tags": ["R"] },
+            { "name": "Snov.io", "url": "https://snov.io/", "tags": ["R"] }
+          ]
+        },
+        {
+          "name": "Email Verification",
+          "children": [
+            { "name": "Verify Email Address", "url": "https://verify-email.org/" },
+            { "name": "Email Hippo", "url": "https://tools.emailhippo.com/" },
+            { "name": "Hunter Email Verifier", "url": "https://hunter.io/email-verifier", "tags": ["R"] }
+          ]
+        },
+        {
+          "name": "Breach Data",
+          "children": [
+            { "name": "Have I Been Pwned", "url": "https://haveibeenpwned.com/" },
+            { "name": "DeHashed", "url": "https://dehashed.com/", "tags": ["R"] },
+            { "name": "Intelligence X", "url": "https://intelx.io/", "tags": ["R"] },
+            { "name": "LeakCheck", "url": "https://leakcheck.io/", "tags": ["R"] }
+          ]
+        },
+        {
+          "name": "Mail Blacklists",
+          "children": [
+            { "name": "MX Toolbox", "url": "https://mxtoolbox.com/blacklists.aspx" },
+            { "name": "MultiRBL", "url": "http://multirbl.valli.org/" }
+          ]
+        },
+        { "name": "Sylva Identity Discovery", "url": "https://sylva.fyi/", "tags": ["T"] },
+        { "name": "ThatsThem", "url": "https://thatsthem.com/" },
+        { "name": "Hunter", "url": "https://hunter.io/", "tags": ["R"] },
+        { "name": "Email to Address (R)", "url": "https://thatsthem.com/reverse-email-lookup" },
+        { "name": "VoilaNorbert", "url": "https://www.voilanorbert.com/", "tags": ["R"] },
+        { "name": "GHunt", "url": "https://github.com/mxrch/GHunt", "tags": ["T"] },
+        { "name": "OSINT Industries", "url": "https://osint.industries/", "tags": ["R"] },
+        { "name": "theHarvester", "url": "https://github.com/laramies/theHarvester", "tags": ["T"] },
+        { "name": "Infoga", "url": "https://github.com/m4ll0k/Infoga", "tags": ["T"] },
+        { "name": "Skymem", "url": "https://www.skymem.info/" },
+        { "name": "Epieos", "url": "https://epieos.com/" }
+      ]
+    },
+    {
+      "name": "Email Address",
+      "children": [
+        { "name": "Hunter.io", "url": "https://hunter.io/", "tags": ["R"] },
+        { "name": "Phonebook.cz", "url": "https://phonebook.cz/" },
+        { "name": "Snov.io Email Finder", "url": "https://snov.io/email-finder", "tags": ["R"] }
+      ]
+    },
+    {
+      "name": "Domain Name",
+      "children": [
+        {
+          "name": "WHOIS",
+          "children": [
+            { "name": "ICANN WHOIS", "url": "https://lookup.icann.org/" },
+            { "name": "Whois.domaintools.com", "url": "https://whois.domaintools.com/" },
+            { "name": "ViewDNS WHOIS", "url": "https://viewdns.info/whois/" },
+            { "name": "WhoisXML API", "url": "https://www.whoisxmlapi.com/", "tags": ["R"] }
+          ]
+        },
+        {
+          "name": "Subdomains",
+          "children": [
+            { "name": "Sublist3r", "url": "https://github.com/aboul3la/Sublist3r", "tags": ["T"] },
+            { "name": "crt.sh", "url": "https://crt.sh/" },
+            { "name": "DNSDumpster", "url": "https://dnsdumpster.com/" },
+            { "name": "Amass", "url": "https://github.com/owasp-amass/amass", "tags": ["T"] },
+            { "name": "Subfinder", "url": "https://github.com/projectdiscovery/subfinder", "tags": ["T"] }
+          ]
+        },
+        {
+          "name": "DNS Records",
+          "children": [
+            { "name": "SecurityTrails", "url": "https://securitytrails.com/", "tags": ["R"] },
+            { "name": "ViewDNS", "url": "https://viewdns.info/" },
+            { "name": "DNSlytics", "url": "https://dnslytics.com/" },
+            { "name": "Complete DNS", "url": "https://completedns.com/" }
+          ]
+        },
+        {
+          "name": "Website Analysis",
+          "children": [
+            { "name": "BuiltWith", "url": "https://builtwith.com/" },
+            { "name": "Wappalyzer", "url": "https://www.wappalyzer.com/" },
+            { "name": "Netcraft", "url": "https://www.netcraft.com/" },
+            { "name": "Shodan", "url": "https://www.shodan.io/", "tags": ["R"] },
+            { "name": "Censys", "url": "https://search.censys.io/", "tags": ["R"] },
+            { "name": "URLScan", "url": "https://urlscan.io/" }
+          ]
+        },
+        {
+          "name": "Web History",
+          "children": [
+            { "name": "Wayback Machine", "url": "https://web.archive.org/" },
+            { "name": "Archive.today", "url": "https://archive.ph/" },
+            { "name": "CachedView", "url": "https://cachedview.nl/" }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "IP / MAC Address",
+      "children": [
+        {
+          "name": "IP Lookup",
+          "children": [
+            { "name": "IPinfo.io", "url": "https://ipinfo.io/" },
+            { "name": "WhatIsMyIPAddress", "url": "https://whatismyipaddress.com/" },
+            { "name": "AbuseIPDB", "url": "https://www.abuseipdb.com/" },
+            { "name": "IPVoid", "url": "https://www.ipvoid.com/" },
+            { "name": "Shodan", "url": "https://www.shodan.io/", "tags": ["R"] },
+            { "name": "Censys", "url": "https://search.censys.io/", "tags": ["R"] },
+            { "name": "GreyNoise", "url": "https://www.greynoise.io/", "tags": ["R"] }
+          ]
+        },
+        {
+          "name": "GeoIP",
+          "children": [
+            { "name": "MaxMind GeoIP", "url": "https://www.maxmind.com/en/geoip-demo" },
+            { "name": "DB-IP", "url": "https://db-ip.com/" },
+            { "name": "IP2Location", "url": "https://www.ip2location.com/demo" }
+          ]
+        },
+        {
+          "name": "MAC Address Lookup",
+          "children": [
+            { "name": "MAC Vendors", "url": "https://macvendors.com/" },
+            { "name": "Wireshark OUI Lookup", "url": "https://www.wireshark.org/tools/oui-lookup.html" }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Images / Videos / Docs",
+      "children": [
+        {
+          "name": "Reverse Image Search",
+          "children": [
+            { "name": "Google Images", "url": "https://images.google.com/" },
+            { "name": "TinEye", "url": "https://tineye.com/" },
+            { "name": "Yandex Images", "url": "https://yandex.com/images/" },
+            { "name": "Bing Visual Search", "url": "https://www.bing.com/visualsearch" },
+            { "name": "PimEyes", "url": "https://pimeyes.com/", "tags": ["R"] }
+          ]
+        },
+        {
+          "name": "EXIF / Metadata",
+          "children": [
+            { "name": "Jeffrey's EXIF Viewer", "url": "http://exif.regex.info/exif.cgi" },
+            { "name": "ExifTool", "url": "https://exiftool.org/", "tags": ["T"] },
+            { "name": "Metadata2Go", "url": "https://www.metadata2go.com/" },
+            { "name": "FotoForensics", "url": "https://fotoforensics.com/" }
+          ]
+        },
+        {
+          "name": "Video Analysis",
+          "children": [
+            { "name": "InVID Verification Plugin", "url": "https://www.invid-project.eu/tools-and-services/invid-verification-plugin/" },
+            { "name": "YouTube Metadata", "url": "https://mattw.io/youtube-metadata/" },
+            { "name": "Amnesty YouTube Dataviewer", "url": "https://citizenevidence.amnestyusa.org/" }
+          ]
+        },
+        {
+          "name": "Document Analysis",
+          "children": [
+            { "name": "FOCA", "url": "https://github.com/ElevenPaths/FOCA", "tags": ["T"] },
+            { "name": "Metagoofil", "url": "https://github.com/laramies/metagoofil", "tags": ["T"] }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Social Networks",
+      "children": [
+        {
+          "name": "Facebook",
+          "children": [
+            { "name": "Facebook Search", "url": "https://www.facebook.com/search", "tags": ["R"] },
+            { "name": "Lookup-ID", "url": "https://lookup-id.com/" },
+            { "name": "StalkFace", "url": "https://stalkface.com/en/" },
+            { "name": "fb-sleep-stats", "url": "https://github.com/sqren/fb-sleep-stats", "tags": ["T"] }
+          ]
+        },
+        {
+          "name": "Twitter / X",
+          "children": [
+            { "name": "TweetDeck", "url": "https://tweetdeck.twitter.com/", "tags": ["R"] },
+            { "name": "Twint", "url": "https://github.com/twintproject/twint", "tags": ["T"] },
+            { "name": "Social Bearing", "url": "https://socialbearing.com/" },
+            { "name": "Twitonomy", "url": "https://www.twitonomy.com/", "tags": ["R"] },
+            { "name": "Nitter", "url": "https://nitter.net/" }
+          ]
+        },
+        {
+          "name": "Instagram",
+          "children": [
+            { "name": "Picuki", "url": "https://www.picuki.com/" },
+            { "name": "ImgInn", "url": "https://imginn.com/" },
+            { "name": "Osintgram", "url": "https://github.com/Datalux/Osintgram", "tags": ["T"] }
+          ]
+        },
+        {
+          "name": "LinkedIn",
+          "children": [
+            { "name": "LinkedIn Search", "url": "https://www.linkedin.com/search/", "tags": ["R"] },
+            { "name": "CrossLinked", "url": "https://github.com/m8sec/CrossLinked", "tags": ["T"] },
+            { "name": "LinkedIn Dorks", "url": "https://google.com/search?q=site:linkedin.com", "tags": ["D"] }
+          ]
+        },
+        {
+          "name": "Reddit",
+          "children": [
+            { "name": "Reddit User Analyzer", "url": "https://reddit-user-analyser.netlify.app/" },
+            { "name": "Pushshift API", "url": "https://api.pushshift.io/" },
+            { "name": "SocialGrep", "url": "https://socialgrep.com/" }
+          ]
+        },
+        {
+          "name": "TikTok",
+          "children": [
+            { "name": "TikTok Search", "url": "https://www.tiktok.com/search" },
+            { "name": "Tikbuddy", "url": "https://app.tikbuddy.com/" }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Instant Messaging",
+      "children": [
+        { "name": "Telegram Search", "url": "https://lyzem.com/" },
+        { "name": "Signal", "url": "https://signal.org/" },
+        { "name": "Discord Lookup", "url": "https://discord.id/" },
+        { "name": "Skype Resolver", "url": "https://webresolver.nl/" }
+      ]
+    },
+    {
+      "name": "People Search Engines",
+      "children": [
+        { "name": "Pipl", "url": "https://pipl.com/", "tags": ["R"] },
+        { "name": "Spokeo", "url": "https://www.spokeo.com/" },
+        { "name": "ThatsThem", "url": "https://thatsthem.com/" },
+        { "name": "WhitePages", "url": "https://www.whitepages.com/" },
+        { "name": "TruePeopleSearch", "url": "https://www.truepeoplesearch.com/" },
+        { "name": "FastPeopleSearch", "url": "https://www.fastpeoplesearch.com/" },
+        { "name": "BeenVerified", "url": "https://www.beenverified.com/", "tags": ["R"] },
+        { "name": "Webmii", "url": "https://webmii.com/" },
+        { "name": "PeekYou", "url": "https://www.peekyou.com/" }
+      ]
+    },
+    {
+      "name": "Dating",
+      "children": [
+        { "name": "Profile Searcher", "url": "https://www.profilesearcher.com/" },
+        { "name": "Tinder Profile Search", "url": "https://google.com/search?q=site:tinder.com", "tags": ["D"] }
+      ]
+    },
+    {
+      "name": "Telephone Numbers",
+      "children": [
+        { "name": "TrueCaller", "url": "https://www.truecaller.com/" },
+        { "name": "CallerID Test", "url": "https://calleridtest.com/" },
+        { "name": "PhoneInfoga", "url": "https://github.com/sundowndev/phoneinfoga", "tags": ["T"] },
+        { "name": "NumVerify", "url": "https://numverify.com/" },
+        { "name": "SpyDialer", "url": "https://spydialer.com/" },
+        { "name": "Sync.me", "url": "https://sync.me/" }
+      ]
+    },
+    {
+      "name": "Public Records",
+      "children": [
+        { "name": "PACER", "url": "https://pacer.uscourts.gov/", "tags": ["R"] },
+        { "name": "RECAP Archive", "url": "https://www.courtlistener.com/recap/" },
+        { "name": "OpenCorporates", "url": "https://opencorporates.com/" },
+        { "name": "SEC EDGAR", "url": "https://www.sec.gov/cgi-bin/browse-edgar" },
+        { "name": "Investigative Dashboard", "url": "https://investigativedashboard.org/" },
+        { "name": "Offshore Leaks DB", "url": "https://offshoreleaks.icij.org/" }
+      ]
+    },
+    {
+      "name": "Business Records",
+      "children": [
+        { "name": "OpenCorporates", "url": "https://opencorporates.com/" },
+        { "name": "Crunchbase", "url": "https://www.crunchbase.com/", "tags": ["R"] },
+        { "name": "GLEIF", "url": "https://search.gleif.org/" },
+        { "name": "Companies House (UK)", "url": "https://find-and-update.company-information.service.gov.uk/" },
+        { "name": "Corporation Wiki", "url": "https://www.corporationwiki.com/" },
+        { "name": "Annual Reports", "url": "https://www.annualreports.com/" }
+      ]
+    },
+    {
+      "name": "Transportation",
+      "children": [
+        {
+          "name": "Flight Tracking",
+          "children": [
+            { "name": "FlightRadar24", "url": "https://www.flightradar24.com/" },
+            { "name": "FlightAware", "url": "https://flightaware.com/" },
+            { "name": "ADS-B Exchange", "url": "https://globe.adsbexchange.com/" },
+            { "name": "Planespotters", "url": "https://www.planespotters.net/" }
+          ]
+        },
+        {
+          "name": "Ship Tracking",
+          "children": [
+            { "name": "MarineTraffic", "url": "https://www.marinetraffic.com/" },
+            { "name": "VesselFinder", "url": "https://www.vesselfinder.com/" }
+          ]
+        },
+        {
+          "name": "Vehicle Records",
+          "children": [
+            { "name": "Carfax", "url": "https://www.carfax.com/", "tags": ["R"] },
+            { "name": "AutoCheck", "url": "https://www.autocheck.com/", "tags": ["R"] },
+            { "name": "VINDecoder", "url": "https://www.vindecoder.net/" }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Geolocation Tools / Maps",
+      "children": [
+        { "name": "Google Maps", "url": "https://maps.google.com/" },
+        { "name": "Google Earth", "url": "https://earth.google.com/web/" },
+        { "name": "Bing Maps", "url": "https://www.bing.com/maps/" },
+        { "name": "OpenStreetMap", "url": "https://www.openstreetmap.org/" },
+        { "name": "Mapillary", "url": "https://www.mapillary.com/" },
+        { "name": "Wikimapia", "url": "https://wikimapia.org/" },
+        { "name": "GeoGuessr", "url": "https://www.geoguessr.com/" },
+        { "name": "SunCalc", "url": "https://www.suncalc.org/" },
+        { "name": "Sentinel Hub", "url": "https://apps.sentinel-hub.com/eo-browser/", "tags": ["R"] },
+        { "name": "KartaView", "url": "https://kartaview.org/" }
+      ]
+    },
+    {
+      "name": "Search Engines",
+      "children": [
+        { "name": "Google", "url": "https://www.google.com/" },
+        { "name": "Bing", "url": "https://www.bing.com/" },
+        { "name": "DuckDuckGo", "url": "https://duckduckgo.com/" },
+        { "name": "Yandex", "url": "https://yandex.com/" },
+        { "name": "Baidu", "url": "https://www.baidu.com/" },
+        { "name": "Startpage", "url": "https://www.startpage.com/" },
+        { "name": "Searx", "url": "https://searx.space/", "tags": ["T"] },
+        {
+          "name": "Google Dorking",
+          "children": [
+            { "name": "Google Hacking DB", "url": "https://www.exploit-db.com/google-hacking-database" },
+            { "name": "DorkSearch", "url": "https://dorksearch.com/" },
+            { "name": "Google Advanced Search", "url": "https://www.google.com/advanced_search" }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Forums / Blogs / IRC",
+      "children": [
+        { "name": "BoardReader", "url": "https://boardreader.com/" },
+        { "name": "Google Groups", "url": "https://groups.google.com/" },
+        { "name": "Technorati", "url": "https://technorati.com/" },
+        { "name": "Reddit Search", "url": "https://www.reddit.com/search/" },
+        { "name": "IRC Search", "url": "https://search.mibbit.com/" }
+      ]
+    },
+    {
+      "name": "Archives",
+      "children": [
+        { "name": "Wayback Machine", "url": "https://web.archive.org/" },
+        { "name": "Archive.today", "url": "https://archive.ph/" },
+        { "name": "Google Cache", "url": "https://google.com/search?q=cache:", "tags": ["M"] },
+        { "name": "Cached Pages", "url": "https://cachedview.nl/" }
+      ]
+    },
+    {
+      "name": "Language Translation",
+      "children": [
+        { "name": "Google Translate", "url": "https://translate.google.com/" },
+        { "name": "DeepL Translator", "url": "https://www.deepl.com/translator" },
+        { "name": "Yandex Translate", "url": "https://translate.yandex.com/" }
+      ]
+    },
+    {
+      "name": "Metadata",
+      "children": [
+        { "name": "ExifTool", "url": "https://exiftool.org/", "tags": ["T"] },
+        { "name": "FOCA", "url": "https://github.com/ElevenPaths/FOCA", "tags": ["T"] },
+        { "name": "Metagoofil", "url": "https://github.com/laramies/metagoofil", "tags": ["T"] },
+        { "name": "Jeffrey's EXIF Viewer", "url": "http://exif.regex.info/exif.cgi" },
+        { "name": "Metadata2Go", "url": "https://www.metadata2go.com/" }
+      ]
+    },
+    {
+      "name": "Mobile Emulation",
+      "children": [
+        { "name": "Chrome DevTools", "url": "https://developer.chrome.com/docs/devtools/" },
+        { "name": "BrowserStack", "url": "https://www.browserstack.com/", "tags": ["R"] },
+        { "name": "Responsinator", "url": "https://www.responsinator.com/" }
+      ]
+    },
+    {
+      "name": "Terrorism",
+      "children": [
+        { "name": "START GTD", "url": "https://www.start.umd.edu/gtd/" },
+        { "name": "TRAC", "url": "https://www.trackingterrorism.org/" },
+        { "name": "Jihadology", "url": "https://jihadology.net/" }
+      ]
+    },
+    {
+      "name": "Dark Web",
+      "children": [
+        { "name": "Tor Project", "url": "https://www.torproject.org/", "tags": ["T"] },
+        { "name": "Ahmia Search", "url": "https://ahmia.fi/" },
+        { "name": "OnionScan", "url": "https://github.com/s-rah/onionscan", "tags": ["T"] },
+        { "name": "Dark.fail", "url": "https://dark.fail/" },
+        { "name": "Hunchly Dark Web Tracker", "url": "https://www.hunch.ly/darkweb-osint/", "tags": ["R"] }
+      ]
+    },
+    {
+      "name": "Digital Currency",
+      "children": [
+        { "name": "Blockchain Explorer", "url": "https://www.blockchain.com/explorer" },
+        { "name": "Etherscan", "url": "https://etherscan.io/" },
+        { "name": "Wallet Explorer", "url": "https://www.walletexplorer.com/" },
+        { "name": "Chainalysis", "url": "https://www.chainalysis.com/", "tags": ["R"] },
+        { "name": "BitcoinAbuse", "url": "https://www.bitcoinabuse.com/" },
+        { "name": "Crystal Blockchain", "url": "https://crystalblockchain.com/", "tags": ["R"] }
+      ]
+    },
+    {
+      "name": "Classifieds",
+      "children": [
+        { "name": "Craigslist", "url": "https://www.craigslist.org/" },
+        { "name": "Gumtree", "url": "https://www.gumtree.com/" },
+        { "name": "SearchTempest", "url": "https://www.searchtempest.com/" }
+      ]
+    },
+    {
+      "name": "Encoding / Decoding",
+      "children": [
+        { "name": "CyberChef", "url": "https://gchq.github.io/CyberChef/" },
+        { "name": "Base64Decode", "url": "https://www.base64decode.org/" },
+        { "name": "URL Decoder", "url": "https://www.urldecoder.org/" },
+        { "name": "JWT.io", "url": "https://jwt.io/" }
+      ]
+    },
+    {
+      "name": "Tools",
+      "children": [
+        { "name": "SpiderFoot", "url": "https://github.com/smicallef/spiderfoot", "tags": ["T"] },
+        { "name": "Maltego", "url": "https://www.maltego.com/", "tags": ["R"] },
+        { "name": "Recon-ng", "url": "https://github.com/lanmaster53/recon-ng", "tags": ["T"] },
+        { "name": "theHarvester", "url": "https://github.com/laramies/theHarvester", "tags": ["T"] },
+        { "name": "OSINT Framework", "url": "https://osintframework.com/" },
+        { "name": "Hunchly", "url": "https://www.hunch.ly/", "tags": ["R"] },
+        { "name": "Buscador VM", "url": "https://inteltechniques.com/buscador/", "tags": ["T"] }
+      ]
+    },
+    {
+      "name": "AI Tools",
+      "children": [
+        { "name": "ChatGPT", "url": "https://chat.openai.com/", "tags": ["R"] },
+        { "name": "Claude", "url": "https://claude.ai/", "tags": ["R"] },
+        { "name": "Perplexity AI", "url": "https://www.perplexity.ai/" },
+        { "name": "Google Bard", "url": "https://bard.google.com/", "tags": ["R"] }
+      ]
+    },
+    {
+      "name": "Malicious File Analysis",
+      "children": [
+        { "name": "VirusTotal", "url": "https://www.virustotal.com/" },
+        { "name": "Hybrid Analysis", "url": "https://www.hybrid-analysis.com/" },
+        { "name": "ANY.RUN", "url": "https://any.run/", "tags": ["R"] },
+        { "name": "Joe Sandbox", "url": "https://www.joesandbox.com/", "tags": ["R"] },
+        { "name": "MalShare", "url": "https://malshare.com/", "tags": ["R"] },
+        { "name": "URLhaus", "url": "https://urlhaus.abuse.ch/" }
+      ]
+    },
+    {
+      "name": "Exploits & Advisories",
+      "children": [
+        { "name": "Exploit-DB", "url": "https://www.exploit-db.com/" },
+        { "name": "CVE Details", "url": "https://www.cvedetails.com/" },
+        { "name": "NVD (NIST)", "url": "https://nvd.nist.gov/" },
+        { "name": "Rapid7 Vulndb", "url": "https://www.rapid7.com/db/" },
+        { "name": "Packet Storm Security", "url": "https://packetstormsecurity.com/" },
+        { "name": "VulnHub", "url": "https://www.vulnhub.com/" }
+      ]
+    },
+    {
+      "name": "Threat Intelligence",
+      "children": [
+        { "name": "AlienVault OTX", "url": "https://otx.alienvault.com/" },
+        { "name": "MITRE ATT&CK", "url": "https://attack.mitre.org/" },
+        { "name": "ThreatCrowd", "url": "https://www.threatcrowd.org/" },
+        { "name": "VirusTotal", "url": "https://www.virustotal.com/" },
+        { "name": "ThreatMiner", "url": "https://www.threatminer.org/" },
+        { "name": "IBM X-Force Exchange", "url": "https://exchange.xforce.ibmcloud.com/", "tags": ["R"] },
+        { "name": "Pulsedive", "url": "https://pulsedive.com/" }
+      ]
+    },
+    {
+      "name": "OpSec",
+      "children": [
+        { "name": "EFF Surveillance Self-Defense", "url": "https://ssd.eff.org/" },
+        { "name": "PrivacyTools.io", "url": "https://www.privacyguides.org/" },
+        { "name": "Tails OS", "url": "https://tails.boum.org/", "tags": ["T"] },
+        { "name": "Whonix", "url": "https://www.whonix.org/", "tags": ["T"] },
+        { "name": "VPN Comparison", "url": "https://www.safetydetectives.com/best-vpns/" }
+      ]
+    },
+    {
+      "name": "Documentation / Evidence Capture",
+      "children": [
+        { "name": "Hunchly", "url": "https://www.hunch.ly/", "tags": ["R"] },
+        { "name": "Greenshot", "url": "https://getgreenshot.org/", "tags": ["T"] },
+        { "name": "Wayback Machine Save", "url": "https://web.archive.org/save" },
+        { "name": "Archive.today", "url": "https://archive.ph/" },
+        { "name": "SingleFile", "url": "https://github.com/gildas-lormeau/SingleFile", "tags": ["T"] }
+      ]
+    },
+    {
+      "name": "Training",
+      "children": [
+        {
+          "name": "Games",
+          "children": [
+            { "name": "GeoGuessr", "url": "https://www.geoguessr.com/" },
+            { "name": "Sourcing Games", "url": "https://sourcing.games/" },
+            { "name": "Quiztime", "url": "https://twitter.com/quaborern" }
+          ]
+        },
+        { "name": "Forensic OSINT KB Guides", "url": "https://start.me/p/BnrMKd/01-osint" },
+        { "name": "Open Source Intelligence Techniques", "url": "https://inteltechniques.com/book1.html" },
+        { "name": "Plessas OSINT", "url": "https://www.youtube.com/c/Plessas" },
+        { "name": "SANS OSINT Summit", "url": "https://www.sans.org/cyber-security-training-events/" },
+        { "name": "Bellingcat Guides", "url": "https://www.bellingcat.com/category/resources/how-tos/" },
+        { "name": "OSINT Dojo", "url": "https://www.osintdojo.com/" }
+      ]
+    }
+  ]
+}

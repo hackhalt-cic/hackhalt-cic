@@ -33,7 +33,7 @@
       "dest": "/api/[...].js"
     },
     {
-      "src": "^/(admin-login|admin|blog-admin|add-blog|about|blogs|book-session|community|contact|events|hall-of-fame|legal-compliance|partners|404|index)$",
+      "src": "^/(admin-login|admin|blog-admin|add-blog|about|blogs|book-session|community|contact|events|hall-of-fame|legal-compliance|partners|framework|training|404|index)$",
       "dest": "/public/$1.html"
     },
     {

@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover" />
+  <meta name="theme-color" content="#020617" media="(prefers-color-scheme: dark)" />
+  <meta name="theme-color" content="#f9fafb" media="(prefers-color-scheme: light)" />
+  <title>OSINT Framework - HackHalt Cyber Intelligence Council</title>
+  <meta name="description" content="HackHalt OSINT Framework - A comprehensive collection of OSINT tools organized in an interactive tree structure for cybersecurity professionals." />
+  <meta name="keywords" content="OSINT, framework, cybersecurity, intelligence, tools, HackHalt" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <style>
+    :root {
+      --fw-bg: #1a0a2e;
+      --fw-bg-secondary: #16082b;
+      --fw-text: #e2e8f0;
+      --fw-text-muted: #94a3b8;
+      --fw-accent: #00d9ff;
+      --fw-accent-hover: #00b8d9;
+      --fw-node-bg: transparent;
+      --fw-node-hover: rgba(0, 217, 255, 0.08);
+      --fw-line: #334155;
+      --fw-tag-t: #f59e0b;
+      --fw-tag-r: #ef4444;
+      --fw-tag-m: #8b5cf6;
+      --fw-tag-d: #22c55e;
+      --fw-link: #00d9ff;
+      --fw-header-bg: rgba(26, 10, 46, 0.95);
+      --fw-search-bg: #0f172a;
+      --fw-search-border: #334155;
+      --fw-border-radius: 6px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--fw-bg);
+      color: var(--fw-text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Header */
+    .fw-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--fw-header-bg);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(0, 217, 255, 0.15);
+      padding: 12px 24px;
+    }
+    .fw-header-inner {
+      max-width: 1600px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .fw-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--fw-text);
+    }
+    .fw-brand img {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+    }
+    .fw-brand-text {
+      display: flex;
+      flex-direction: column;
+    }
+    .fw-brand-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--fw-accent);
+      letter-spacing: 1px;
+    }
+    .fw-brand-subtitle {
+      font-size: 0.7rem;
+      color: var(--fw-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .fw-title {
+      font-size: 1.6rem;
+      font-weight: 700;
+      text-align: center;
+      flex: 1;
+      min-width: 200px;
+    }
+    .fw-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .fw-search-wrap {
+      position: relative;
+    }
+    .fw-search {
+      background: var(--fw-search-bg);
+      border: 1px solid var(--fw-search-border);
+      border-radius: 20px;
+      padding: 8px 16px 8px 36px;
+      color: var(--fw-text);
+      font-size: 0.85rem;
+      width: 220px;
+      outline: none;
+      transition: border-color 0.2s, width 0.3s;
+    }
+    .fw-search:focus {
+      border-color: var(--fw-accent);
+      width: 280px;
+    }
+    .fw-search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--fw-text-muted);
+      font-size: 0.8rem;
+    }
+    .fw-btn {
+      background: transparent;
+      border: 1px solid var(--fw-line);
+      color: var(--fw-text);
+      padding: 8px 14px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .fw-btn:hover {
+      border-color: var(--fw-accent);
+      color: var(--fw-accent);
+    }
+    .fw-back-link {
+      color: var(--fw-text-muted);
+      text-decoration: none;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: color 0.2s;
+    }
+    .fw-back-link:hover { color: var(--fw-accent); }
+
+    /* Legend */
+    .fw-legend {
+      position: fixed;
+      top: 80px;
+      right: 20px;
+      background: rgba(15, 23, 42, 0.9);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--fw-line);
+      border-radius: 8px;
+      padding: 14px 18px;
+      font-size: 0.78rem;
+      z-index: 90;
+      line-height: 1.8;
+    }
+    .fw-legend-title {
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--fw-accent);
+      font-size: 0.82rem;
+    }
+    .fw-legend span {
+      margin-right: 4px;
+      font-weight: 700;
+    }
+
+    /* Tree Container */
+    .fw-container {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 30px 24px 60px;
+    }
+
+    /* Tree Styles */
+    .fw-tree {
+      list-style: none;
+      padding-left: 0;
+    }
+    .fw-tree ul {
+      list-style: none;
+      padding-left: 24px;
+      margin: 0;
+      position: relative;
+    }
+    .fw-tree ul::before {
+      content: '';
+      position: absolute;
+      left: 11px;
+      top: 0;
+      bottom: 10px;
+      width: 1px;
+      background: var(--fw-line);
+    }
+    .fw-tree li {
+      position: relative;
+      margin: 0;
+      padding: 2px 0;
+    }
+    .fw-tree ul > li::before {
+      content: '';
+      position: absolute;
+      left: -13px;
+      top: 16px;
+      width: 13px;
+      height: 1px;
+      background: var(--fw-line);
+    }
+
+    /* Node */
+    .fw-node {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 12px;
+      border-radius: var(--fw-border-radius);
+      cursor: default;
+      transition: background 0.15s;
+      user-select: none;
+      font-size: 0.88rem;
+    }
+    .fw-node:hover {
+      background: var(--fw-node-hover);
+    }
+    .fw-node-toggle {
+      cursor: pointer;
+    }
+
+    /* Node dot / icon */
+    .fw-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--fw-accent);
+      flex-shrink: 0;
+      transition: background 0.2s;
+    }
+    .fw-node-toggle .fw-dot {
+      background: #fff;
+    }
+    .fw-node-toggle[data-expanded="false"] .fw-dot {
+      background: var(--fw-accent);
+    }
+
+    /* Collapse indicator */
+    .fw-caret {
+      font-size: 0.65rem;
+      color: var(--fw-text-muted);
+      transition: transform 0.2s;
+      margin-right: 2px;
+      flex-shrink: 0;
+    }
+    .fw-node-toggle[data-expanded="true"] .fw-caret {
+      transform: rotate(90deg);
+    }
+
+    /* Node label */
+    .fw-label {
+      color: var(--fw-text);
+    }
+    .fw-node-toggle .fw-label {
+      font-weight: 500;
+    }
+
+    /* External links */
+    .fw-link {
+      color: var(--fw-link);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .fw-link:hover {
+      color: #fff;
+      text-decoration: underline;
+    }
+    .fw-external-icon {
+      font-size: 0.65rem;
+      margin-left: 2px;
+      opacity: 0.6;
+    }
+
+    /* Tags */
+    .fw-tag {
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 1px 5px;
+      border-radius: 3px;
+      margin-left: 4px;
+      vertical-align: middle;
+    }
+    .fw-tag-t { color: var(--fw-tag-t); }
+    .fw-tag-r { color: var(--fw-tag-r); }
+    .fw-tag-m { color: var(--fw-tag-m); }
+    .fw-tag-d { color: var(--fw-tag-d); }
+
+    /* Collapsed children */
+    .fw-children-hidden {
+      display: none;
+    }
+
+    /* Search highlight */
+    .fw-highlight {
+      background: rgba(0, 217, 255, 0.2);
+      border-radius: 3px;
+      padding: 0 2px;
+    }
+    .fw-search-hidden {
+      display: none;
+    }
+
+    /* Stats bar */
+    .fw-stats {
+      text-align: center;
+      padding: 12px;
+      color: var(--fw-text-muted);
+      font-size: 0.78rem;
+      border-bottom: 1px solid rgba(0, 217, 255, 0.08);
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .fw-legend { display: none; }
+      .fw-title { font-size: 1.2rem; }
+      .fw-search { width: 160px; }
+      .fw-search:focus { width: 200px; }
+      .fw-header-inner { gap: 8px; }
+    }
+    @media (max-width: 600px) {
+      .fw-header { padding: 10px 12px; }
+      .fw-container { padding: 16px 10px 40px; }
+      .fw-title { font-size: 1rem; order: 3; flex-basis: 100%; }
+      .fw-tree ul { padding-left: 16px; }
+      .fw-node { font-size: 0.82rem; padding: 4px 8px; }
+      .fw-search { width: 140px; }
+      .fw-search:focus { width: 180px; }
+      .fw-btn { padding: 6px 10px; font-size: 0.75rem; }
+    }
+
+    /* Smooth animations */
+    .fw-tree li {
+      animation: fadeIn 0.15s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateX(-5px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: var(--fw-bg); }
+    ::-webkit-scrollbar-thumb { background: var(--fw-line); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--fw-accent); }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="fw-header">
+    <div class="fw-header-inner">
+      <a href="https://hackhalt.org" class="fw-brand">
+        <img src="images/logo.png" alt="HackHalt Logo" />
+        <div class="fw-brand-text">
+          <span class="fw-brand-title">HACKHALT</span>
+          <span class="fw-brand-subtitle">Cyber Intelligence Council</span>
+        </div>
+      </a>
+      <h1 class="fw-title">OSINT Framework</h1>
+      <div class="fw-header-actions">
+        <div class="fw-search-wrap">
+          <i class="fa-solid fa-magnifying-glass fw-search-icon"></i>
+          <input type="text" class="fw-search" id="fwSearch" placeholder="Search tools..." autocomplete="off" />
+        </div>
+        <button class="fw-btn" id="btnExpandAll" title="Expand All"><i class="fa-solid fa-expand"></i> Expand</button>
+        <button class="fw-btn" id="btnCollapseAll" title="Collapse All"><i class="fa-solid fa-compress"></i> Collapse</button>
+        <a href="https://hackhalt.org" class="fw-back-link"><i class="fa-solid fa-arrow-left"></i> Back to HackHalt</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Legend -->
+  <aside class="fw-legend" id="fwLegend">
+    <div class="fw-legend-title">Legend</div>
+    <div><span class="fw-tag-t">(T)</span> - Must be installed &amp; run locally</div>
+    <div><span class="fw-tag-d">(D)</span> - Google Dork</div>
+    <div><span class="fw-tag-r">(R)</span> - Requires registration</div>
+    <div><span class="fw-tag-m">(M)</span> - URL must be edited manually</div>
+  </aside>
+
+  <!-- Stats -->
+  <div class="fw-stats" id="fwStats"></div>
+
+  <!-- Tree -->
+  <main class="fw-container">
+    <ul class="fw-tree" id="fwTree"></ul>
+  </main>
+
+  <!-- Framework Data & Logic -->
+  <script>
+    /**
+     * OSINT Framework Data
+     * Structure: { name, url?, tags?[], children?[] }
+     * Tags: T = local tool, R = registration required, M = manual URL edit, D = Google Dork
+     * 
+     * To add/remove tools: simply edit this data structure.
+     */
+    const FRAMEWORK_DATA = {
+      name: "OSINT Framework",
+      children: [
+        {
+          name: "Username",
+          children: [
+            {
+              name: "Username Search Engines",
+              children: [
+                { name: "Namechk", url: "https://namechk.com/" },
+                { name: "KnowEm", url: "https://knowem.com/" },
+                { name: "WhatsMyName", url: "https://whatsmyname.app/" },
+                { name: "NameCheckup", url: "https://namecheckup.com/" },
+                { name: "UserRecon", url: "https://github.com/wishihab/userrecon", tags: ["T"] },
+                { name: "Sherlock", url: "https://github.com/sherlock-project/sherlock", tags: ["T"] },
+                { name: "Maigret", url: "https://github.com/soxoj/maigret", tags: ["T"] }
+              ]
+            },
+            {
+              name: "Specific Sites",
+              children: [
+                { name: "Reddit", url: "https://www.reddit.com/user/" , tags: ["M"] },
+                { name: "GitHub", url: "https://github.com/", tags: ["M"] },
+                { name: "Twitter/X", url: "https://twitter.com/", tags: ["M"] },
+                { name: "LinkedIn", url: "https://www.linkedin.com/in/", tags: ["M"] },
+                { name: "Instagram", url: "https://www.instagram.com/", tags: ["M"] },
+                { name: "Facebook", url: "https://www.facebook.com/", tags: ["M"] },
+                { name: "Steam", url: "https://steamcommunity.com/id/", tags: ["M"] },
+                { name: "Keybase", url: "https://keybase.io/", tags: ["M"] }
+              ]
+            }
+          ]
+        },
+        {
+          name: "Email Search",
+          children: [
+            {
+              name: "Common Email Formats",
+              children: [
+                { name: "Email Format", url: "https://www.email-format.com/" },
+                { name: "Hunter.io", url: "https://hunter.io/", tags: ["R"] },
+                { name: "Snov.io", url: "https://snov.io/", tags: ["R"] }
+              ]
+            },
+            {
+              name: "Email Verification",
+              children: [
+                { name: "Verify Email Address", url: "https://verify-email.org/" },
+                { name: "Email Hippo", url: "https://tools.emailhippo.com/" },
+                { name: "Hunter Email Verifier", url: "https://hunter.io/email-verifier", tags: ["R"] }
+              ]
+            },
+            {
+              name: "Breach Data",
+              children: [
+                { name: "Have I Been Pwned", url: "https://haveibeenpwned.com/" },
+                { name: "DeHashed", url: "https://dehashed.com/", tags: ["R"] },
+                { name: "Intelligence X", url: "https://intelx.io/", tags: ["R"] },
+                { name: "LeakCheck", url: "https://leakcheck.io/", tags: ["R"] }
+              ]
+            },
+            {
+              name: "Mail Blacklists",
+              children: [
+                { name: "MX Toolbox", url: "https://mxtoolbox.com/blacklists.aspx" },
+                { name: "MultiRBL", url: "http://multirbl.valli.org/" }
+              ]
+            },
+            { name: "Sylva Identity Discovery", url: "https://sylva.fyi/", tags: ["T"] },
+            { name: "ThatsThem", url: "https://thatsthem.com/" },
+            { name: "Hunter", url: "https://hunter.io/", tags: ["R"] },
+            { name: "Email to Address (R)", url: "https://thatsthem.com/reverse-email-lookup" },
+            { name: "VoilaNorbert", url: "https://www.voilanorbert.com/", tags: ["R"] },
+            { name: "GHunt", url: "https://github.com/mxrch/GHunt", tags: ["T"] },
+            { name: "OSINT Industries", url: "https://osint.industries/", tags: ["R"] },
+            { name: "theHarvester", url: "https://github.com/laramies/theHarvester", tags: ["T"] },
+            { name: "Infoga", url: "https://github.com/m4ll0k/Infoga", tags: ["T"] },
+            { name: "Skymem", url: "https://www.skymem.info/" },
+            { name: "Epieos", url: "https://epieos.com/" }
+          ]
+        },
+        {
+          name: "Email Address",
+          children: [
+            { name: "Hunter.io", url: "https://hunter.io/", tags: ["R"] },
+            { name: "Phonebook.cz", url: "https://phonebook.cz/" },
+            { name: "Snov.io Email Finder", url: "https://snov.io/email-finder", tags: ["R"] }
+          ]
+        },
+        {
+          name: "Domain Name",
+          children: [
+            {
+              name: "WHOIS",
+              children: [
+                { name: "ICANN WHOIS", url: "https://lookup.icann.org/" },
+                { name: "Whois.domaintools.com", url: "https://whois.domaintools.com/" },
+                { name: "ViewDNS WHOIS", url: "https://viewdns.info/whois/" },
+                { name: "WhoisXML API", url: "https://www.whoisxmlapi.com/", tags: ["R"] }
+              ]
+            },
+            {
+              name: "Subdomains",
+              children: [
+                { name: "Sublist3r", url: "https://github.com/aboul3la/Sublist3r", tags: ["T"] },
+                { name: "crt.sh", url: "https://crt.sh/" },
+                { name: "DNSDumpster", url: "https://dnsdumpster.com/" },
+                { name: "Amass", url: "https://github.com/owasp-amass/amass", tags: ["T"] },
+                { name: "Subfinder", url: "https://github.com/projectdiscovery/subfinder", tags: ["T"] }
+              ]
+            },
+            {
+              name: "DNS Records",
+              children: [
+                { name: "SecurityTrails", url: "https://securitytrails.com/", tags: ["R"] },
+                { name: "ViewDNS", url: "https://viewdns.info/" },
+                { name: "DNSlytics", url: "https://dnslytics.com/" },
+                { name: "Complete DNS", url: "https://completedns.com/" }
+              ]
+            },
+            {
+              name: "Website Analysis",
+              children: [
+                { name: "BuiltWith", url: "https://builtwith.com/" },
+                { name: "Wappalyzer", url: "https://www.wappalyzer.com/" },
+                { name: "Netcraft", url: "https://www.netcraft.com/" },
+                { name: "Shodan", url: "https://www.shodan.io/", tags: ["R"] },
+                { name: "Censys", url: "https://search.censys.io/", tags: ["R"] },
+                { name: "URLScan", url: "https://urlscan.io/" }
+              ]
+            },
+            {
+              name: "Web History",
+              children: [
+                { name: "Wayback Machine", url: "https://web.archive.org/" },
+                { name: "Archive.today", url: "https://archive.ph/" },
+                { name: "CachedView", url: "https://cachedview.nl/" }
+              ]
+            }
+          ]
+        },
+        {
+          name: "IP / MAC Address",
+          children: [
+            {
+              name: "IP Lookup",
+              children: [
+                { name: "IPinfo.io", url: "https://ipinfo.io/" },
+                { name: "WhatIsMyIPAddress", url: "https://whatismyipaddress.com/" },
+                { name: "AbuseIPDB", url: "https://www.abuseipdb.com/" },
+                { name: "IPVoid", url: "https://www.ipvoid.com/" },
+                { name: "Shodan", url: "https://www.shodan.io/", tags: ["R"] },
+                { name: "Censys", url: "https://search.censys.io/", tags: ["R"] },
+                { name: "GreyNoise", url: "https://www.greynoise.io/", tags: ["R"] }
+              ]
+            },
+            {
+              name: "GeoIP",
+              children: [
+                { name: "MaxMind GeoIP", url: "https://www.maxmind.com/en/geoip-demo" },
+                { name: "DB-IP", url: "https://db-ip.com/" },
+                { name: "IP2Location", url: "https://www.ip2location.com/demo" }
+              ]
+            },
+            {
+              name: "MAC Address Lookup",
+              children: [
+                { name: "MAC Vendors", url: "https://macvendors.com/" },
+                { name: "Wireshark OUI Lookup", url: "https://www.wireshark.org/tools/oui-lookup.html" }
+              ]
+            }
+          ]
+        },
+        {
+          name: "Images / Videos / Docs",
+          children: [
+            {
+              name: "Reverse Image Search",
+              children: [
+                { name: "Google Images", url: "https://images.google.com/" },
+                { name: "TinEye", url: "https://tineye.com/" },
+                { name: "Yandex Images", url: "https://yandex.com/images/" },
+                { name: "Bing Visual Search", url: "https://www.bing.com/visualsearch" },
+                { name: "PimEyes", url: "https://pimeyes.com/", tags: ["R"] }
+              ]
+            },
+            {
+              name: "EXIF / Metadata",
+              children: [
+                { name: "Jeffrey's EXIF Viewer", url: "http://exif.regex.info/exif.cgi" },
+                { name: "ExifTool", url: "https://exiftool.org/", tags: ["T"] },
+                { name: "Metadata2Go", url: "https://www.metadata2go.com/" },
+                { name: "FotoForensics", url: "https://fotoforensics.com/" }
+              ]
+            },
+            {
+              name: "Video Analysis",
+              children: [
+                { name: "InVID Verification Plugin", url: "https://www.invid-project.eu/tools-and-services/invid-verification-plugin/" },
+                { name: "YouTube Metadata", url: "https://mattw.io/youtube-metadata/" },
+                { name: "Amnesty YouTube Dataviewer", url: "https://citizenevidence.amnestyusa.org/" }
+              ]
+            },
+            {
+              name: "Document Analysis",
+              children: [
+                { name: "FOCA", url: "https://github.com/ElevenPaths/FOCA", tags: ["T"] },
+                { name: "Metagoofil", url: "https://github.com/laramies/metagoofil", tags: ["T"] }
+              ]
+            }
+          ]
+        },
+        {
+          name: "Social Networks",
+          children: [
+            {
+              name: "Facebook",
+              children: [
+                { name: "Facebook Search", url: "https://www.facebook.com/search", tags: ["R"] },
+                { name: "Lookup-ID", url: "https://lookup-id.com/" },
+                { name: "StalkFace", url: "https://stalkface.com/en/" },
+                { name: "fb-sleep-stats", url: "https://github.com/sqren/fb-sleep-stats", tags: ["T"] }
+              ]
+            },
+            {
+              name: "Twitter / X",
+              children: [
+                { name: "TweetDeck", url: "https://tweetdeck.twitter.com/", tags: ["R"] },
+                { name: "Twint", url: "https://github.com/twintproject/twint", tags: ["T"] },
+                { name: "Social Bearing", url: "https://socialbearing.com/" },
+                { name: "Twitonomy", url: "https://www.twitonomy.com/", tags: ["R"] },
+                { name: "Nitter", url: "https://nitter.net/" }
+              ]
+            },
+            {
+              name: "Instagram",
+              children: [
+                { name: "Picuki", url: "https://www.picuki.com/" },
+                { name: "ImgInn", url: "https://imginn.com/" },
+                { name: "Osintgram", url: "https://github.com/Datalux/Osintgram", tags: ["T"] }
+              ]
+            },
+            {
+              name: "LinkedIn",
+              children: [
+                { name: "LinkedIn Search", url: "https://www.linkedin.com/search/", tags: ["R"] },
+                { name: "CrossLinked", url: "https://github.com/m8sec/CrossLinked", tags: ["T"] },
+                { name: "LinkedIn Dorks", url: "https://google.com/search?q=site:linkedin.com", tags: ["D"] }
+              ]
+            },
+            {
+              name: "Reddit",
+              children: [
+                { name: "Reddit User Analyzer", url: "https://reddit-user-analyser.netlify.app/" },
+                { name: "Pushshift API", url: "https://api.pushshift.io/" },
+                { name: "SocialGrep", url: "https://socialgrep.com/" }
+              ]
+            },
+            {
+              name: "TikTok",
+              children: [
+                { name: "TikTok Search", url: "https://www.tiktok.com/search" },
+                { name: "Tikbuddy", url: "https://app.tikbuddy.com/" }
+              ]
+            }
+          ]
+        },
+        {
+          name: "Instant Messaging",
+          children: [
+            { name: "Telegram Search", url: "https://lyzem.com/" },
+            { name: "Signal", url: "https://signal.org/" },
+            { name: "Discord Lookup", url: "https://discord.id/" },
+            { name: "Skype Resolver", url: "https://webresolver.nl/" }
+          ]
+        },
+        {
+          name: "People Search Engines",
+          children: [
+            { name: "Pipl", url: "https://pipl.com/", tags: ["R"] },
+            { name: "Spokeo", url: "https://www.spokeo.com/" },
+            { name: "ThatsThem", url: "https://thatsthem.com/" },
+            { name: "WhitePages", url: "https://www.whitepages.com/" },
+            { name: "TruePeopleSearch", url: "https://www.truepeoplesearch.com/" },
+            { name: "FastPeopleSearch", url: "https://www.fastpeoplesearch.com/" },
+            { name: "BeenVerified", url: "https://www.beenverified.com/", tags: ["R"] },
+            { name: "Webmii", url: "https://webmii.com/" },
+            { name: "PeekYou", url: "https://www.peekyou.com/" }
+          ]
+        },
+        {
+          name: "Dating",
+          children: [
+            { name: "Profile Searcher", url: "https://www.profilesearcher.com/" },
+            { name: "Tinder Profile Search", url: "https://google.com/search?q=site:tinder.com", tags: ["D"] }
+          ]
+        },
+        {
+          name: "Telephone Numbers",
+          children: [
+            { name: "TrueCaller", url: "https://www.truecaller.com/" },
+            { name: "CallerID Test", url: "https://calleridtest.com/" },
+            { name: "PhoneInfoga", url: "https://github.com/sundowndev/phoneinfoga", tags: ["T"] },
+            { name: "NumVerify", url: "https://numverify.com/" },
+            { name: "SpyDialer", url: "https://spydialer.com/" },
+            { name: "Sync.me", url: "https://sync.me/" }
+          ]
+        },
+        {
+          name: "Public Records",
+          children: [
+            { name: "PACER", url: "https://pacer.uscourts.gov/", tags: ["R"] },
+            { name: "RECAP Archive", url: "https://www.courtlistener.com/recap/" },
+            { name: "OpenCorporates", url: "https://opencorporates.com/" },
+            { name: "SEC EDGAR", url: "https://www.sec.gov/cgi-bin/browse-edgar" },
+            { name: "Investigative Dashboard", url: "https://investigativedashboard.org/" },
+            { name: "Offshore Leaks DB", url: "https://offshoreleaks.icij.org/" }
+          ]
+        },
+        {
+          name: "Business Records",
+          children: [
+            { name: "OpenCorporates", url: "https://opencorporates.com/" },
+            { name: "Crunchbase", url: "https://www.crunchbase.com/", tags: ["R"] },
+            { name: "GLEIF", url: "https://search.gleif.org/" },
+            { name: "Companies House (UK)", url: "https://find-and-update.company-information.service.gov.uk/" },
+            { name: "Corporation Wiki", url: "https://www.corporationwiki.com/" },
+            { name: "Annual Reports", url: "https://www.annualreports.com/" }
+          ]
+        },
+        {
+          name: "Transportation",
+          children: [
+            {
+              name: "Flight Tracking",
+              children: [
+                { name: "FlightRadar24", url: "https://www.flightradar24.com/" },
+                { name: "FlightAware", url: "https://flightaware.com/" },
+                { name: "ADS-B Exchange", url: "https://globe.adsbexchange.com/" },
+                { name: "Planespotters", url: "https://www.planespotters.net/" }
+              ]
+            },
+            {
+              name: "Ship Tracking",
+              children: [
+                { name: "MarineTraffic", url: "https://www.marinetraffic.com/" },
+                { name: "VesselFinder", url: "https://www.vesselfinder.com/" }
+              ]
+            },
+            {
+              name: "Vehicle Records",
+              children: [
+                { name: "Carfax", url: "https://www.carfax.com/", tags: ["R"] },
+                { name: "AutoCheck", url: "https://www.autocheck.com/", tags: ["R"] },
+                { name: "VINDecoder", url: "https://www.vindecoder.net/" }
+              ]
+            }
+          ]
+        },
+        {
+          name: "Geolocation Tools / Maps",
+          children: [
+            { name: "Google Maps", url: "https://maps.google.com/" },
+            { name: "Google Earth", url: "https://earth.google.com/web/" },
+            { name: "Bing Maps", url: "https://www.bing.com/maps/" },
+            { name: "OpenStreetMap", url: "https://www.openstreetmap.org/" },
+            { name: "Mapillary", url: "https://www.mapillary.com/" },
+            { name: "Wikimapia", url: "https://wikimapia.org/" },
+            { name: "GeoGuessr", url: "https://www.geoguessr.com/" },
+            { name: "SunCalc", url: "https://www.suncalc.org/" },
+            { name: "Sentinel Hub", url: "https://apps.sentinel-hub.com/eo-browser/", tags: ["R"] },
+            { name: "KartaView", url: "https://kartaview.org/" }
+          ]
+        },
+        {
+          name: "Search Engines",
+          children: [
+            { name: "Google", url: "https://www.google.com/" },
+            { name: "Bing", url: "https://www.bing.com/" },
+            { name: "DuckDuckGo", url: "https://duckduckgo.com/" },
+            { name: "Yandex", url: "https://yandex.com/" },
+            { name: "Baidu", url: "https://www.baidu.com/" },
+            { name: "Startpage", url: "https://www.startpage.com/" },
+            { name: "Searx", url: "https://searx.space/", tags: ["T"] },
+            {
+              name: "Google Dorking",
+              children: [
+                { name: "Google Hacking DB", url: "https://www.exploit-db.com/google-hacking-database" },
+                { name: "DorkSearch", url: "https://dorksearch.com/" },
+                { name: "Google Advanced Search", url: "https://www.google.com/advanced_search" }
+              ]
+            }
+          ]
+        },
+        {
+          name: "Forums / Blogs / IRC",
+          children: [
+            { name: "BoardReader", url: "https://boardreader.com/" },
+            { name: "Google Groups", url: "https://groups.google.com/" },
+            { name: "Technorati", url: "https://technorati.com/" },
+            { name: "Reddit Search", url: "https://www.reddit.com/search/" },
+            { name: "IRC Search", url: "https://search.mibbit.com/" }
+          ]
+        },
+        {
+          name: "Archives",
+          children: [
+            { name: "Wayback Machine", url: "https://web.archive.org/" },
+            { name: "Archive.today", url: "https://archive.ph/" },
+            { name: "Google Cache", url: "https://google.com/search?q=cache:", tags: ["M"] },
+            { name: "Cached Pages", url: "https://cachedview.nl/" }
+          ]
+        },
+        {
+          name: "Language Translation",
+          children: [
+            { name: "Google Translate", url: "https://translate.google.com/" },
+            { name: "DeepL Translator", url: "https://www.deepl.com/translator" },
+            { name: "Yandex Translate", url: "https://translate.yandex.com/" }
+          ]
+        },
+        {
+          name: "Metadata",
+          children: [
+            { name: "ExifTool", url: "https://exiftool.org/", tags: ["T"] },
+            { name: "FOCA", url: "https://github.com/ElevenPaths/FOCA", tags: ["T"] },
+            { name: "Metagoofil", url: "https://github.com/laramies/metagoofil", tags: ["T"] },
+            { name: "Jeffrey's EXIF Viewer", url: "http://exif.regex.info/exif.cgi" },
+            { name: "Metadata2Go", url: "https://www.metadata2go.com/" }
+          ]
+        },
+        {
+          name: "Mobile Emulation",
+          children: [
+            { name: "Chrome DevTools", url: "https://developer.chrome.com/docs/devtools/" },
+            { name: "BrowserStack", url: "https://www.browserstack.com/", tags: ["R"] },
+            { name: "Responsinator", url: "https://www.responsinator.com/" }
+          ]
+        },
+        {
+          name: "Terrorism",
+          children: [
+            { name: "START GTD", url: "https://www.start.umd.edu/gtd/" },
+            { name: "TRAC", url: "https://www.trackingterrorism.org/" },
+            { name: "Jihadology", url: "https://jihadology.net/" }
+          ]
+        },
+        {
+          name: "Dark Web",
+          children: [
+            { name: "Tor Project", url: "https://www.torproject.org/", tags: ["T"] },
+            { name: "Ahmia Search", url: "https://ahmia.fi/" },
+            { name: "OnionScan", url: "https://github.com/s-rah/onionscan", tags: ["T"] },
+            { name: "Dark.fail", url: "https://dark.fail/" },
+            { name: "Hunchly Dark Web Tracker", url: "https://www.hunch.ly/darkweb-osint/", tags: ["R"] }
+          ]
+        },
+        {
+          name: "Digital Currency",
+          children: [
+            { name: "Blockchain Explorer", url: "https://www.blockchain.com/explorer" },
+            { name: "Etherscan", url: "https://etherscan.io/" },
+            { name: "Wallet Explorer", url: "https://www.walletexplorer.com/" },
+            { name: "Chainalysis", url: "https://www.chainalysis.com/", tags: ["R"] },
+            { name: "BitcoinAbuse", url: "https://www.bitcoinabuse.com/" },
+            { name: "Crystal Blockchain", url: "https://crystalblockchain.com/", tags: ["R"] }
+          ]
+        },
+        {
+          name: "Classifieds",
+          children: [
+            { name: "Craigslist", url: "https://www.craigslist.org/" },
+            { name: "Gumtree", url: "https://www.gumtree.com/" },
+            { name: "SearchTempest", url: "https://www.searchtempest.com/" }
+          ]
+        },
+        {
+          name: "Encoding / Decoding",
+          children: [
+            { name: "CyberChef", url: "https://gchq.github.io/CyberChef/" },
+            { name: "Base64Decode", url: "https://www.base64decode.org/" },
+            { name: "URL Decoder", url: "https://www.urldecoder.org/" },
+            { name: "JWT.io", url: "https://jwt.io/" }
+          ]
+        },
+        {
+          name: "Tools",
+          children: [
+            { name: "SpiderFoot", url: "https://github.com/smicallef/spiderfoot", tags: ["T"] },
+            { name: "Maltego", url: "https://www.maltego.com/", tags: ["R"] },
+            { name: "Recon-ng", url: "https://github.com/lanmaster53/recon-ng", tags: ["T"] },
+            { name: "theHarvester", url: "https://github.com/laramies/theHarvester", tags: ["T"] },
+            { name: "OSINT Framework", url: "https://osintframework.com/" },
+            { name: "Hunchly", url: "https://www.hunch.ly/", tags: ["R"] },
+            { name: "Buscador VM", url: "https://inteltechniques.com/buscador/", tags: ["T"] }
+          ]
+        },
+        {
+          name: "AI Tools",
+          children: [
+            { name: "ChatGPT", url: "https://chat.openai.com/", tags: ["R"] },
+            { name: "Claude", url: "https://claude.ai/", tags: ["R"] },
+            { name: "Perplexity AI", url: "https://www.perplexity.ai/" },
+            { name: "Google Bard", url: "https://bard.google.com/", tags: ["R"] }
+          ]
+        },
+        {
+          name: "Malicious File Analysis",
+          children: [
+            { name: "VirusTotal", url: "https://www.virustotal.com/" },
+            { name: "Hybrid Analysis", url: "https://www.hybrid-analysis.com/" },
+            { name: "ANY.RUN", url: "https://any.run/", tags: ["R"] },
+            { name: "Joe Sandbox", url: "https://www.joesandbox.com/", tags: ["R"] },
+            { name: "MalShare", url: "https://malshare.com/", tags: ["R"] },
+            { name: "URLhaus", url: "https://urlhaus.abuse.ch/" }
+          ]
+        },
+        {
+          name: "Exploits & Advisories",
+          children: [
+            { name: "Exploit-DB", url: "https://www.exploit-db.com/" },
+            { name: "CVE Details", url: "https://www.cvedetails.com/" },
+            { name: "NVD (NIST)", url: "https://nvd.nist.gov/" },
+            { name: "Rapid7 Vulndb", url: "https://www.rapid7.com/db/" },
+            { name: "Packet Storm Security", url: "https://packetstormsecurity.com/" },
+            { name: "VulnHub", url: "https://www.vulnhub.com/" }
+          ]
+        },
+        {
+          name: "Threat Intelligence",
+          children: [
+            { name: "AlienVault OTX", url: "https://otx.alienvault.com/" },
+            { name: "MITRE ATT&CK", url: "https://attack.mitre.org/" },
+            { name: "ThreatCrowd", url: "https://www.threatcrowd.org/" },
+            { name: "VirusTotal", url: "https://www.virustotal.com/" },
+            { name: "ThreatMiner", url: "https://www.threatminer.org/" },
+            { name: "IBM X-Force Exchange", url: "https://exchange.xforce.ibmcloud.com/", tags: ["R"] },
+            { name: "Pulsedive", url: "https://pulsedive.com/" }
+          ]
+        },
+        {
+          name: "OpSec",
+          children: [
+            { name: "EFF Surveillance Self-Defense", url: "https://ssd.eff.org/" },
+            { name: "PrivacyTools.io", url: "https://www.privacyguides.org/" },
+            { name: "Tails OS", url: "https://tails.boum.org/", tags: ["T"] },
+            { name: "Whonix", url: "https://www.whonix.org/", tags: ["T"] },
+            { name: "VPN Comparison", url: "https://www.safetydetectives.com/best-vpns/" }
+          ]
+        },
+        {
+          name: "Documentation / Evidence Capture",
+          children: [
+            { name: "Hunchly", url: "https://www.hunch.ly/", tags: ["R"] },
+            { name: "Greenshot", url: "https://getgreenshot.org/", tags: ["T"] },
+            { name: "Wayback Machine Save", url: "https://web.archive.org/save" },
+            { name: "Archive.today", url: "https://archive.ph/" },
+            { name: "SingleFile", url: "https://github.com/gildas-lormeau/SingleFile", tags: ["T"] }
+          ]
+        },
+        {
+          name: "Training",
+          children: [
+            { name: "Games", children: [
+              { name: "GeoGuessr", url: "https://www.geoguessr.com/" },
+              { name: "Sourcing Games", url: "https://sourcing.games/" },
+              { name: "Quiztime", url: "https://twitter.com/quaborern" }
+            ]},
+            { name: "Forensic OSINT KB Guides", url: "https://start.me/p/BnrMKd/01-osint" },
+            { name: "Open Source Intelligence Techniques", url: "https://inteltechniques.com/book1.html" },
+            { name: "Plessas OSINT", url: "https://www.youtube.com/c/Plessas" },
+            { name: "SANS OSINT Summit", url: "https://www.sans.org/cyber-security-training-events/" },
+            { name: "Bellingcat Guides", url: "https://www.bellingcat.com/category/resources/how-tos/" },
+            { name: "OSINT Dojo", url: "https://www.osintdojo.com/" }
+          ]
+        }
+      ]
+    };
+
+    // ---- Tree Renderer ----
+    let totalTools = 0;
+    let totalCategories = 0;
+
+    function countItems(node) {
+      if (node.children && node.children.length > 0) {
+        totalCategories++;
+        node.children.forEach(countItems);
+      } else if (node.url) {
+        totalTools++;
+      }
+    }
+
+    function renderTags(tags) {
+      if (!tags || tags.length === 0) return '';
+      return tags.map(t => `<span class="fw-tag fw-tag-${t.toLowerCase()}">(${t})</span>`).join('');
+    }
+
+    function renderNode(node, depth = 0) {
+      const hasChildren = node.children && node.children.length > 0;
+      const isRoot = depth === 0 && !node.url;
+      const expanded = depth < 1; // Only root level expanded by default
+
+      let html = '<li>';
+
+      if (hasChildren) {
+        html += `<div class="fw-node fw-node-toggle" data-expanded="${expanded}" onclick="toggleNode(this)">`;
+        html += `<i class="fa-solid fa-caret-right fw-caret"></i>`;
+        html += `<span class="fw-dot"></span>`;
+        html += `<span class="fw-label">${node.name}</span>`;
+        html += renderTags(node.tags);
+        html += `</div>`;
+        html += `<ul class="${expanded ? '' : 'fw-children-hidden'}">`;
+        node.children.forEach(child => {
+          html += renderNode(child, depth + 1);
+        });
+        html += '</ul>';
+      } else if (node.url) {
+        html += `<div class="fw-node">`;
+        html += `<span class="fw-dot"></span>`;
+        html += `<a class="fw-link" href="${node.url}" target="_blank" rel="noopener noreferrer">${node.name}</a>`;
+        html += renderTags(node.tags);
+        html += `<i class="fa-solid fa-arrow-up-right-from-square fw-external-icon"></i>`;
+        html += `</div>`;
+      } else {
+        html += `<div class="fw-node">`;
+        html += `<span class="fw-dot"></span>`;
+        html += `<span class="fw-label">${node.name}</span>`;
+        html += renderTags(node.tags);
+        html += `</div>`;
+      }
+
+      html += '</li>';
+      return html;
+    }
+
+    function toggleNode(el) {
+      const expanded = el.getAttribute('data-expanded') === 'true';
+      el.setAttribute('data-expanded', !expanded);
+      const childList = el.nextElementSibling;
+      if (childList) {
+        childList.classList.toggle('fw-children-hidden', expanded);
+      }
+    }
+
+    function setAllNodes(expand) {
+      document.querySelectorAll('.fw-node-toggle').forEach(el => {
+        el.setAttribute('data-expanded', expand);
+        const childList = el.nextElementSibling;
+        if (childList) {
+          childList.classList.toggle('fw-children-hidden', !expand);
+        }
+      });
+    }
+
+    // Search
+    function searchTree(query) {
+      const allNodes = document.querySelectorAll('.fw-tree li');
+      if (!query) {
+        allNodes.forEach(li => {
+          li.classList.remove('fw-search-hidden');
+          li.querySelectorAll('.fw-highlight').forEach(h => {
+            h.outerHTML = h.textContent;
+          });
+        });
+        return;
+      }
+
+      const lowerQ = query.toLowerCase();
+
+      allNodes.forEach(li => {
+        const nodeDiv = li.querySelector('.fw-node');
+        if (!nodeDiv) return;
+        const text = nodeDiv.textContent.toLowerCase();
+        const match = text.includes(lowerQ);
+
+        if (match) {
+          li.classList.remove('fw-search-hidden');
+          // Expand all parents
+          let parent = li.parentElement;
+          while (parent) {
+            if (parent.classList.contains('fw-children-hidden')) {
+              parent.classList.remove('fw-children-hidden');
+              const toggle = parent.previousElementSibling;
+              if (toggle && toggle.classList.contains('fw-node-toggle')) {
+                toggle.setAttribute('data-expanded', 'true');
+              }
+            }
+            parent = parent.parentElement;
+          }
+        } else {
+          // Hide only if no children match
+          const childLinks = li.querySelectorAll(':scope > ul li');
+          const hasChildMatch = Array.from(childLinks).some(child => {
+            const childNode = child.querySelector('.fw-node');
+            return childNode && childNode.textContent.toLowerCase().includes(lowerQ);
+          });
+          if (!hasChildMatch) {
+            li.classList.add('fw-search-hidden');
+          } else {
+            li.classList.remove('fw-search-hidden');
+            // Expand
+            const toggle = li.querySelector(':scope > .fw-node-toggle');
+            if (toggle) {
+              toggle.setAttribute('data-expanded', 'true');
+              const ul = toggle.nextElementSibling;
+              if (ul) ul.classList.remove('fw-children-hidden');
+            }
+          }
+        }
+      });
+    }
+
+    // Init
+    document.addEventListener('DOMContentLoaded', () => {
+      const tree = document.getElementById('fwTree');
+      const stats = document.getElementById('fwStats');
+      
+      totalTools = 0;
+      totalCategories = 0;
+      countItems(FRAMEWORK_DATA);
+
+      let treeHTML = '';
+      FRAMEWORK_DATA.children.forEach(child => {
+        treeHTML += renderNode(child, 0);
+      });
+      tree.innerHTML = treeHTML;
+
+      stats.textContent = `${totalCategories} categories · ${totalTools} tools`;
+
+      // Search
+      const searchInput = document.getElementById('fwSearch');
+      let searchTimeout;
+      searchInput.addEventListener('input', (e) => {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => searchTree(e.target.value.trim()), 200);
+      });
+
+      // Expand / Collapse All
+      document.getElementById('btnExpandAll').addEventListener('click', () => setAllNodes(true));
+      document.getElementById('btnCollapseAll').addEventListener('click', () => setAllNodes(false));
+    });
+  </script>
+
+</body>
+</html>

@@ -38,7 +38,14 @@ const secureAuthMiddleware = (req, res, next) => {
 
     let decoded;
     try {
-      decoded = jwt.verify(token, process.env.JWT_SECRET);
+      if (!process.env.JWT_SECRET) {
+        console.error('[SECURITY] CRITICAL: JWT_SECRET not configured');
+        return res.status(500).json({ success: false, error: 'Server configuration error' });
+      }
+      decoded = jwt.verify(token, process.env.JWT_SECRET, {
+        issuer: 'hackhalt-cic',
+        audience: 'hackhalt-admin'
+      });
     } catch (jwtError) {
  
       console.warn(`[SECURITY] Invalid JWT attempt: ${jwtError.message}`);

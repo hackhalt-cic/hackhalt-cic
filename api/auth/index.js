@@ -3,17 +3,26 @@
  * Handles all authentication routes with proper CORS
  */
 
+const crypto = require('crypto');
+
 // ============================================
-// Body Parser
+// Body Parser (with size limit)
 // ============================================
 function parseBody(req) {
   return new Promise((resolve, reject) => {
     let body = '';
-    
+    let size = 0;
+    const MAX_BODY_SIZE = 10 * 1024; // 10KB max
+
     req.on('data', chunk => {
+      size += chunk.length;
+      if (size > MAX_BODY_SIZE) {
+        reject(new Error('Request body too large'));
+        return;
+      }
       body += chunk.toString();
     });
-    
+
     req.on('end', () => {
       try {
         const parsed = body ? JSON.parse(body) : {};
@@ -22,13 +31,13 @@ function parseBody(req) {
         reject(new Error('Invalid JSON in request body'));
       }
     });
-    
+
     req.on('error', reject);
   });
 }
 
 // ============================================
-// CORS Configuration - GLOBAL
+// CORS Configuration
 // ============================================
 const ALLOWED_ORIGINS = [
   'https://hackhalt.org',
@@ -44,12 +53,12 @@ const ALLOWED_ORIGINS = [
 function isOriginAllowed(origin) {
   if (!origin) return true;
   if (ALLOWED_ORIGINS.includes(origin)) return true;
-  
+
   const regexPatterns = [
-    /https:\/\/.*\.vercel\.app$/,
-    /https:\/\/.*\.hostinger\..*/
+    /^https:\/\/[\w-]+\.vercel\.app$/,
+    /^https:\/\/[\w-]+\.hostinger\.\w+$/
   ];
-  
+
   return regexPatterns.some(pattern => pattern.test(origin));
 }
 
@@ -57,95 +66,82 @@ function isOriginAllowed(origin) {
 // Main Handler
 // ============================================
 module.exports = async (req, res) => {
-  // Get the origin EARLY
   const origin = req.headers.origin || req.headers.Origin || '';
-  
-  console.log(`\n[Auth API] ========================================`);
-  console.log(`[Auth API] ${req.method} ${req.url}`);
-  console.log(`[Auth API] Origin: ${origin || 'NO ORIGIN'}`);
-  console.log(`[Auth API] Headers: ${JSON.stringify(Object.keys(req.headers))}`);
-  
-  // SET CORS HEADERS IMMEDIATELY - BEFORE ANYTHING ELSE
-  res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, POST, GET, HEAD, PUT, DELETE, PATCH');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept, X-Requested-With');
+
+  // SET CORS HEADERS IMMEDIATELY
+  res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, POST, GET, DELETE');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept');
   res.setHeader('Access-Control-Max-Age', '86400');
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
-  
-  // Always set origin - browser will decide if it's allowed
-  if (origin) {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+
+  if (origin && isOriginAllowed(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin);
-    console.log(`[Auth API] ✅ Set Access-Control-Allow-Origin: ${origin}`);
-  } else {
+  } else if (!origin) {
     res.setHeader('Access-Control-Allow-Origin', '*');
-    console.log(`[Auth API] ℹ️ No origin, using *`);
+  } else {
+    // Reject disallowed origins
+    res.statusCode = 403;
+    return res.end(JSON.stringify({ success: false, error: 'Origin not allowed' }));
   }
-  
-  // Handle OPTIONS preflight immediately
+
+  // Handle OPTIONS preflight
   if (req.method === 'OPTIONS') {
-    console.log(`[Auth API] Responding to OPTIONS preflight`);
     res.statusCode = 204;
-    res.end();
-    console.log(`[Auth API] ✅ OPTIONS response sent with CORS headers`);
-    return;
+    return res.end();
   }
-  
+
   try {
-    // Route based on path
     const urlPath = req.url.split('?')[0];
-    console.log(`[Auth API] URL Path: ${urlPath}`);
-    
-    // Handle login endpoint
+
+    // Route: POST /api/auth/login
     if (urlPath === '/api/auth/login' && req.method === 'POST') {
-      console.log(`[Auth API] Routing to login handler...`);
-      
-      // Parse body
-      req.body = await parseBody(req);
-      console.log(`[Auth API] Body parsed. Username: ${req.body.username || 'MISSING'}`);
-      
-      // Load and execute login handler
-      const loginHandler = require('./login');
-      return await loginHandler(req, res);
-    }
-    
-    // Handle other auth endpoints
-    if (req.method === 'POST') {
-      // Assume it's a login if method is POST but path doesn't match
-      console.log(`[Auth API] POST to ${urlPath} - treating as login`);
-      
       req.body = await parseBody(req);
       const loginHandler = require('./login');
       return await loginHandler(req, res);
     }
-    
+
+    // Route: POST /api/auth/register
+    if (urlPath === '/api/auth/register' && req.method === 'POST') {
+      req.body = await parseBody(req);
+      const registerHandler = require('./register');
+      return await registerHandler(req, res);
+    }
+
+    // Route: POST /api/auth/forgot-password
+    if (urlPath === '/api/auth/forgot-password' && req.method === 'POST') {
+      req.body = await parseBody(req);
+      const forgotPasswordHandler = require('./forgot-password');
+      return await forgotPasswordHandler(req, res);
+    }
+
+    // Route: POST /api/auth/reset-password
+    if (urlPath === '/api/auth/reset-password' && req.method === 'POST') {
+      req.body = await parseBody(req);
+      const resetPasswordHandler = require('./reset-password');
+      return await resetPasswordHandler(req, res);
+    }
+
+    // Route: POST /api/auth/verify-email
+    if (urlPath === '/api/auth/verify-email' && req.method === 'POST') {
+      req.body = await parseBody(req);
+      const verifyEmailHandler = require('./verify-email');
+      return await verifyEmailHandler(req, res);
+    }
+
     // Not found
-    console.log(`[Auth API] No handler for ${req.method} ${urlPath}`);
     res.statusCode = 404;
-    res.end(JSON.stringify({ 
-      success: false, 
-      message: 'Not found',
-      path: urlPath
-    }));
-    
+    res.end(JSON.stringify({ success: false, error: 'Not found', path: urlPath }));
+
   } catch (error) {
-    console.error(`[Auth API] ❌ CAUGHT ERROR: ${error.message}`);
-    console.error(`[Auth API] Stack: ${error.stack}`);
-    
-    // Ensure CORS headers are still set
+    console.error(`[Auth API] Error: ${error.message}`);
+
     if (!res.headersSent) {
-      res.setHeader('Content-Type', 'application/json; charset=utf-8');
-      if (origin) {
-        res.setHeader('Access-Control-Allow-Origin', origin);
-      } else {
-        res.setHeader('Access-Control-Allow-Origin', '*');
-      }
+      res.statusCode = 500;
+      res.end(JSON.stringify({ success: false, error: 'Internal server error' }));
     }
-    
-    res.statusCode = 500;
-    res.end(JSON.stringify({
-      success: false,
-      message: 'Internal server error',
-      error: error.message
-    }));
   }
 };

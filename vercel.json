@@ -25,6 +25,22 @@
       "dest": "/api/auth/login.js"
     },
     {
+      "src": "/api/auth/register",
+      "dest": "/api/auth/register.js"
+    },
+    {
+      "src": "/api/auth/forgot-password",
+      "dest": "/api/auth/forgot-password.js"
+    },
+    {
+      "src": "/api/auth/reset-password",
+      "dest": "/api/auth/reset-password.js"
+    },
+    {
+      "src": "/api/auth/verify-email",
+      "dest": "/api/auth/verify-email.js"
+    },
+    {
       "src": "/api/auth(.*)",
       "dest": "/api/auth/index.js"
     },

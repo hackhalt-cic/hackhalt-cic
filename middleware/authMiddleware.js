@@ -12,7 +12,10 @@ const authMiddleware = (req, res, next) => {
       });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'hackhalt_secret_key_2026');
+    if (!process.env.JWT_SECRET) {
+      return res.status(500).json({ success: false, error: 'Server configuration error' });
+    }
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.admin = decoded;
     next();
   } catch (error) {
